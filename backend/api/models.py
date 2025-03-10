@@ -38,33 +38,6 @@ class Patient(models.Model):
     def __str__(self):
         return f"{self.first_name} {self.last_name}"
 
-class Appointment(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=False, blank=False)
-    doctor_name = models.CharField(max_length=100, null=False, blank=False)  # Required field
-    appointment_date = models.DateTimeField(null=False, blank=False)  # Required field
-    status = models.CharField(
-        max_length=20,
-        choices=[('Pending', 'Pending'), ('Completed', 'Completed'), ('Cancelled', 'Cancelled')],
-        default='Pending'
-    )
-
-
-
-
-    def __str__(self):
-        return f"Appointment for {self.patient} with {self.doctor_name} on {self.appointment_date}"
-
-class Bill(models.Model):
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=False, blank=False)
-    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, null=False, blank=False)
-    amount = models.DecimalField(max_digits=10, decimal_places=2, null=False, blank=False)  # Required field
-    bill_date = models.DateTimeField(auto_now_add=True, null=False, blank=False)  # Auto-generated date
-    paid = models.BooleanField(default=False, null=False, blank=False)  # Required field
-
-    def __str__(self):
-        return f"Bill for {self.patient} - Amount: {self.amount}"
-
-
 class Doctor(models.Model):
     staff_id = models.CharField(max_length=10, unique=True)
     first_name = models.CharField(max_length=25)
@@ -89,4 +62,30 @@ class Doctor(models.Model):
 
     def __str__(self):
         return self.staff_id
+
+
+class Appointment(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=False, blank=False)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, null=False, blank=False)
+    appointment_date = models.DateTimeField(null=False, blank=False)  # Required field
+    status = models.CharField(
+        max_length=20,
+        choices=[('Pending', 'Pending'), ('Completed', 'Completed'), ('Cancelled', 'Cancelled')],
+        default='Pending'
+    )
+
+    def __str__(self):
+        return f"Appointment for {self.patient} with {self.doctor.name} on {self.appointment_date}"
+
+class Bill(models.Model):
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=False, blank=False)
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, null=False, blank=False)
+    amount = models.DecimalField(max_digits=10, decimal_places=2, null=False, blank=False)  # Required field
+    bill_date = models.DateTimeField(auto_now_add=True, null=False, blank=False)  # Auto-generated date
+    paid = models.BooleanField(default=False, null=False, blank=False)  # Required field
+
+    def __str__(self):
+        return f"Bill for {self.patient} - Amount: {self.amount}"
+
+
 
