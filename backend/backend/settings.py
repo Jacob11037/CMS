@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    'corsheaders',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -41,7 +42,7 @@ INSTALLED_APPS = [
     "rest_framework_simplejwt",
     'api',
     "djoser",
-    'corsheaders',
+    'rest_framework_simplejwt.token_blacklist',
 
 ]
 
@@ -61,14 +62,29 @@ CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (for development)
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+
     ),
+    'DEFAULT_PERMISSION_CLASSES': (
+            'rest_framework.permissions.IsAuthenticated',
+        ),
 }
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),  # Short token lifespan
     "REFRESH_TOKEN_LIFETIME": timedelta(days=7),  # Longer refresh lifespan
     "ROTATE_REFRESH_TOKENS": True,  # Issue a new refresh token when used
+    'AUTH_HEADER_TYPES': ("Bearer",),
+}
+
+DJOSER = {
+    'USER_CREATE_PASSWORD_RETYPE': False,
+    'PASSWORD_RESET_CONFIRM_URL': '/password/reset/confirm/{uid}/{token}/',
+    'ACTIVATION_URL': '/activate/{uid}/{token}/',
+    'SERIALIZERS': {
+        'user': 'djoser.serializers.UserSerializer',
+        'current_user': 'djoser.serializers.UserSerializer',
+    },
 }
 
 ROOT_URLCONF = 'backend.urls'
