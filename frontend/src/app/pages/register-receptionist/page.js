@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';  // Import useRouter for redirection
 import axiosPrivate from '../../../../utils/axiosPrivate';
 import { useAuth } from '../../context/AuthContext';
+import styles from '../../styles/RegisterReceptionist.module.css';  // Import the CSS module
 
 export default function RegisterReceptionist() {
   const [formData, setFormData] = useState({
@@ -17,6 +18,7 @@ export default function RegisterReceptionist() {
   const { isAuthenticated } = useAuth(); // Get authentication state
   const router = useRouter(); // Initialize the router for redirection
   const [isLoading, setIsLoading] = useState(true); // New loading state
+  const [successMessage, setSuccessMessage] = useState(''); // State for success message
 
   // Fetch and check authentication state with a delay
   useEffect(() => {
@@ -31,22 +33,22 @@ export default function RegisterReceptionist() {
       }
 
       setIsLoading(false); // After waiting, set loading to false
-    }, 50); // Wait 500ms (0.05 second) before checking the authentication
+    }, 50); // Wait 50ms (0.05 second) before checking the authentication
 
     return () => clearTimeout(timeoutId); // Clear timeout on component unmount
   }, [isAuthenticated, router]);
 
   // Show a loading screen while checking authentication
   if (isLoading) {
-    return <div>Loading...</div>;  // Show loading screen during authentication check
+    return <div className={styles.loading}>Loading...</div>;  // Show loading screen during authentication check
   }
 
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;  // Prevent content rendering until authentication is checked
+    return <div className={styles.loading}>Loading...</div>;  // Prevent content rendering until authentication is checked
   }
 
   if (!isAuthenticated) {
-    return <div>You are not authorized to view this page.</div>;  // If not authenticated, show message
+    return <div className={styles.errorMessage}>You are not authorized to view this page.</div>;  // If not authenticated, show message
   }
 
   // Handle form input change
@@ -64,17 +66,33 @@ export default function RegisterReceptionist() {
     try {
       const response = await axiosPrivate.post('receptionist/register/', formData);
       console.log(response.data);  // Log the response data from the API
-      alert('Receptionist registered successfully');
+      setSuccessMessage('Receptionist registered successfully!'); // Set success message
+      setFormData({ // Clear the form
+        username: '',
+        password: '',
+        first_name: '',
+        last_name: '',
+        email: '',
+        phone: '',
+      });
     } catch (error) {
       console.error('Error during form submission:', error.response || error.message);
+      setSuccessMessage(''); // Clear success message on error
     }
   };
 
   return (
-    <div>
-      <h1>Register Receptionist</h1>
+    <div className={styles.container}>
+      <h1 className={styles.heading}>Register Receptionist</h1>
     
-      <form onSubmit={handleSubmit}>
+      {/* Display success message if it exists */}
+      {successMessage && (
+        <div className={styles.successMessage}>
+          {successMessage}
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className={styles.form}>
         <div>
           <label>Username</label>
           <input
@@ -135,7 +153,7 @@ export default function RegisterReceptionist() {
             required
           />
         </div>
-        <button type="submit">Register</button>
+        <button className={styles.button} type="submit">Register</button>
       </form>
     </div>
   );

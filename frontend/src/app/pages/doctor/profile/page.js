@@ -1,67 +1,61 @@
-'use client';
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../../../context/AuthContext';
-import axiosPrivate from '../../../../../utils/axiosPrivate';
+"use client";
 
-export default function DoctorProfilePage() {
-  const [doctorData, setDoctorData] = useState(null);
-  const [error, setError] = useState('');
-  const router = useRouter();
-  const { isAuthenticated } = useAuth(); // Get authentication state
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation"; // Import useRouter
+import axiosPrivate from "../../../../../utils/axiosPrivate";
+import "../../../styles/doctorprofilepage.css"; // Import the CSS file
 
-  // Check if isAuthenticated is not null before proceeding
-  useEffect(() => {
-    if (isAuthenticated === null) {
-      return; // Do not proceed until isAuthenticated is determined
-    }
+const DoctorPage = () => {
+    const [doctorData, setDoctorData] = useState(null);
+    const [error, setError] = useState("");
+    const router = useRouter(); // Initialize useRouter
 
-    if (!isAuthenticated) {
-      router.push('/pages/login'); // Redirect to login if not authenticated
-      return;
-    }
+    useEffect(() => {
+        const fetchDoctorProfile = async () => {
+            try {
+                const response = await axiosPrivate.get("/doctor/profile/");
+                setDoctorData(response.data);
+            } catch (error) {
+                console.error("Error fetching doctor profile:", error);
+                setError("Failed to fetch doctor profile");
+            }
+        };
 
-    const fetchDoctorProfile = async () => {
-      try {
-        const token = localStorage.getItem('accessToken'); 
-        const response = await axiosPrivate.get('doctor/profile/');
-        setDoctorData(response.data);
-      } catch (error) {
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          setError('Error fetching doctor profile: ' + error.response.data.detail);
-        } else {
-          console.error(error);
-          setError('An error occurred while fetching doctor profile');
-        }
-      }
+        fetchDoctorProfile();
+    }, []);
+
+    // Function to handle the "Appointments" button click
+    const handleAppointmentsClick = () => {
+        router.push("/pages/doctor/appointments");
     };
-    
 
-    fetchDoctorProfile();
-  }, [isAuthenticated, router]);
+    if (error) {
+        return <p className="error">{error}</p>;
+    }
 
-  if (isAuthenticated === null) {
-    return <p>Loading...</p>; // Show loading while checking authentication
-  }
+    return (
+        <div className="container">
+            <h1 className="header">Doctor's Profile</h1>
+            {doctorData ? (
+                <div className="profileContainer">
+                    <h3 className="profileHeader">{doctorData.first_name} {doctorData.last_name}</h3>
+                    <p className="profileDetail"><strong>Email:</strong> {doctorData.email}</p>
+                    <p className="profileDetail"><strong>Phone:</strong> {doctorData.phone}</p>
+                    <p className="profileDetail"><strong>Department:</strong> {doctorData.department_name}</p>
 
-  if (error) {
-    return <p>{error}</p>;
-  }
-
-  return (
-    <div>
-      <h2>Doctor Profile</h2>
-      {doctorData ? (
-        <div>
-          <h3>{doctorData.first_name} {doctorData.last_name}</h3>
-          <p>Email: {doctorData.email}</p>
-          <p>Phone: {doctorData.phone}</p>
-          <p>Department: {doctorData.department_id}</p>
+                    {/* Add a button to navigate to /doctor/appointments */}
+                    <button
+                        className="button"
+                        onClick={handleAppointmentsClick}
+                    >
+                        Appointments
+                    </button>
+                </div>
+            ) : (
+                <p className="loading">Loading...</p>
+            )}
         </div>
-      ) : (
-        <p>Loading...</p>
-      )}
-    </div>
-  );
-}
+    );
+};
+
+export default DoctorPage;

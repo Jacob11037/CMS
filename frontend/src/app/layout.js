@@ -2,6 +2,10 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import LogoutButton from "./components/LogoutButton";
 import { AuthProvider } from "./context/AuthContext";
+import Header from "./components/Header";
+import Footer from "./components/Footer";
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 
 const geistSans = Geist({
@@ -24,9 +28,12 @@ export default function RootLayout({ children }) {
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <AuthProvider>
+        <Header />
+
           <LogoutButton />
           {children}
         </AuthProvider>
+        <Footer />
       </body>
     </html>
   );

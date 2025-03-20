@@ -1,8 +1,9 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';  // Import useRouter for redirection
+import { useRouter } from 'next/navigation';
 import axiosPrivate from '../../../../utils/axiosPrivate';
 import { useAuth } from '../../context/AuthContext';
+import styles from '../../styles/RegisterDoctor.module.css'; // Import the CSS module
 
 export default function RegisterDoctor() {
   const [departments, setDepartments] = useState([]);
@@ -15,11 +16,12 @@ export default function RegisterDoctor() {
     phone: '',
     department: '',
   });
-  const { isAuthenticated } = useAuth(); // Get authentication state
-  const router = useRouter(); // Initialize the router for redirection
-  const [isLoading, setIsLoading] = useState(true); // New loading state
 
-  // Fetch the departments and check authentication
+  const [errors, setErrors] = useState({});
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(true);
+
   useEffect(() => {
     const timeoutId = setTimeout(() => {
       if (isAuthenticated === null) {
@@ -27,59 +29,85 @@ export default function RegisterDoctor() {
       }
 
       if (!isAuthenticated) {
-        router.push('/pages/login'); // Redirect to login if not authenticated
+        router.push('/pages/login');
         return;
       }
 
       const fetchDepartments = async () => {
         try {
           const response = await axiosPrivate.get('departments/');
-          setDepartments(response.data);  // Set the departments from the API response
+          setDepartments(response.data);
         } catch (error) {
           console.error('Error fetching departments:', error);
         }
       };
 
-      fetchDepartments();  // Call the function when the component mounts
-      setIsLoading(false); // After waiting, set loading to false
-    }, 50); // Wait 50ms (0.05 second) before checking the authentication
+      fetchDepartments();
+      setIsLoading(false);
+    }, 50);
 
-    return () => clearTimeout(timeoutId); // Clear timeout on component unmount
-  }, [isAuthenticated]); // Run the effect again if authentication state changes
+    return () => clearTimeout(timeoutId);
+  }, [isAuthenticated]);
 
-  // Show a loading screen while checking authentication
-  if (isLoading) {
-    return <div>Loading...</div>;  // Show loading screen during authentication check
+  if (isLoading || isAuthenticated === null) {
+    return <div className={styles.loading}>Loading...</div>;
   }
 
-  if (isAuthenticated === null) {
-    return <div>Loading...</div>;  // Prevent content rendering until authentication is checked
-  }
-
-  // Handle form input change
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
       [name]: value,
     }));
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: '',
+    }));
+  };
+
+  // Frontend Validation Function
+  const validateForm = () => {
+    let newErrors = {};
+    if (formData.username.trim().length < 3) {
+      newErrors.username = 'Username must be at least 3 characters.';
+    }
+    if (formData.password.length < 6) {
+      newErrors.password = 'Password must be at least 6 characters.';
+    }
+    if (!/\S+@\S+\.\S+/.test(formData.email)) {
+      newErrors.email = 'Enter a valid email address.';
+    }
+    if (!/^\d+$/.test(formData.phone)) {
+      newErrors.phone = 'Phone number must contain only digits.';
+    }
+    if (!formData.department) {
+      newErrors.department = 'Please select a department.';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    if (!validateForm()) return; // Stop submission if validation fails
+
     try {
       const response = await axiosPrivate.post('doctor/register/', formData);
-      console.log(response.data);  // Log the response data from the API
+      console.log(response.data);
       alert('Doctor registered successfully');
     } catch (error) {
       console.error('Error during form submission:', error.response || error.message);
+      setErrors({ form: 'Failed to register doctor. Try again.' });
     }
   };
 
   return (
-    <div>
-      <h1>Register Doctor</h1>
-      <form onSubmit={handleSubmit}>
+    <div className={styles.container}>
+      <h1 className={styles.heading}>Register Doctor</h1>
+      {errors.form && <p className={styles.errorMessage}>{errors.form}</p>}
+      <form onSubmit={handleSubmit} className={styles.form}>
         <div>
           <label>Username</label>
           <input
@@ -89,6 +117,7 @@ export default function RegisterDoctor() {
             onChange={handleChange}
             required
           />
+          {errors.username && <p className={styles.errorText}>{errors.username}</p>}
         </div>
         <div>
           <label>Password</label>
@@ -99,6 +128,7 @@ export default function RegisterDoctor() {
             onChange={handleChange}
             required
           />
+          {errors.password && <p className={styles.errorText}>{errors.password}</p>}
         </div>
         <div>
           <label>First Name</label>
@@ -129,6 +159,7 @@ export default function RegisterDoctor() {
             onChange={handleChange}
             required
           />
+          {errors.email && <p className={styles.errorText}>{errors.email}</p>}
         </div>
         <div>
           <label>Phone</label>
@@ -139,6 +170,7 @@ export default function RegisterDoctor() {
             onChange={handleChange}
             required
           />
+          {errors.phone && <p className={styles.errorText}>{errors.phone}</p>}
         </div>
         <div>
           <label>Department</label>
@@ -155,8 +187,9 @@ export default function RegisterDoctor() {
               </option>
             ))}
           </select>
+          {errors.department && <p className={styles.errorText}>{errors.department}</p>}
         </div>
-        <button type="submit">Register</button>
+        <button className={styles.button} type="submit">Register</button>
       </form>
     </div>
   );

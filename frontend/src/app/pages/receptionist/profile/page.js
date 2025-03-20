@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../context/AuthContext';
 import axiosPrivate from '../../../../../utils/axiosPrivate';
+import "../../../styles/ReceptionistProfilePage.css"; // Import the CSS file
 
 export default function ReceptionistProfilePage() {
   const [receptionistData, setReceptionistData] = useState(null);
@@ -46,24 +47,45 @@ export default function ReceptionistProfilePage() {
   }, [isAuthenticated, router]);
 
   if (isAuthenticated === null) {
-    return <p>Loading...</p>; // Show loading while checking authentication
+    return <p className="loading">Loading...</p>; // Show loading while checking authentication
   }
 
   if (error) {
-    return <p>{error}</p>;
+    return <p className="error">{error}</p>;
   }
 
   return (
-    <div>
-      <h2>Receptionist Profile</h2>
+    <div className="container">
+      <h1 className="header">Receptionist Profile</h1>
       {receptionistData ? (
-        <div>
-          <h3>{receptionistData.first_name} {receptionistData.last_name}</h3>
-          <p>Email: {receptionistData.email}</p>
-          <p>Phone: {receptionistData.phone}</p>
+        <div className="profileContainer">
+          <h3 className="profileHeader">{receptionistData.first_name} {receptionistData.last_name}</h3>
+          <p className="profileDetail"><strong>Email:</strong> {receptionistData.email}</p>
+          <p className="profileDetail"><strong>Phone:</strong> {receptionistData.phone}</p>
+
+          <button
+            className="button"
+            onClick={() => router.push('/pages/receptionist/view-appointments')}
+          >
+            Appointments
+          </button>
+          <br />
+          <button
+            className="button"
+            onClick={() => router.push('/pages/receptionist/appointment')}
+          >
+            Create an Appointment
+          </button>
+          <br />
+          <button
+            className="button"
+            onClick={() => router.push('/pages/register-patient')}
+          >
+            Register Patient
+            </button>
         </div>
       ) : (
-        <p>Loading...</p>
+        <p className="loading">Loading...</p>
       )}
     </div>
   );

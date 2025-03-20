@@ -1,5 +1,10 @@
 from django.contrib.auth.models import User
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.utils import timezone
+from rest_framework.exceptions import ValidationError
+
 
 # Create your models here.
 
@@ -84,18 +89,58 @@ class Doctor(models.Model):
 
 class Appointment(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=False, blank=False)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, null=False, blank=False)
-    appointment_date = models.DateTimeField(null=False, blank=False)  # Required field
+    doctor = models.ForeignKey(Doctor, to_field='staff_id', on_delete=models.CASCADE, null=False, blank=False)
+    start_time = models.DateTimeField(null=False, blank=False)
+    end_time = models.DateTimeField(null=False, blank=False)
     status = models.CharField(
         max_length=20,
         choices=[('Pending', 'Pending'), ('Completed', 'Completed'), ('Cancelled', 'Cancelled')],
         default='Pending'
     )
 
+    def clean(self):
+        """ Ensure no overlapping appointments and validate time constraints """
+        now = timezone.now()  # Current date and time
+        max_future_date = now + timezone.timedelta(days=3)  # 3 days in the future
+
+        # Check if start time is in the past
+        if self.start_time < now:
+            raise ValidationError("Start time cannot be in the past.")
+
+        # Check if start time is more than 3 days in the future
+        if self.start_time > max_future_date:
+            raise ValidationError("Start time cannot be more than 3 days in the future.")
+
+        # Check if end time is in the past
+        if self.end_time < now:
+            raise ValidationError("End time cannot be in the past.")
+
+        # Check if end time is more than 3 days in the future
+        if self.end_time > max_future_date:
+            raise ValidationError("End time cannot be more than 3 days in the future.")
+
+        # Check if end time is after start time
+        if self.end_time <= self.start_time:
+            raise ValidationError("End time must be after start time.")
+
+        # Check for overlapping appointments on the same date
+        overlapping_appointments = Appointment.objects.filter(
+            doctor=self.doctor,
+            start_time__date=self.start_time.date(),  # Check if the date of the start time is the same
+            end_time__gte=self.start_time,  # Check if the existing appointment overlaps with the new one
+            start_time__lte=self.end_time  # Check if the new appointment overlaps with the existing one
+        ).exclude(id=self.id)  # Exclude the current instance when updating
+
+        if overlapping_appointments.exists():
+            raise ValidationError("This time slot is already booked on the selected date. Please choose another time.")
+
+    def save(self, *args, **kwargs):
+        """ Call the clean method before saving """
+        self.clean()
+        super().save(*args, **kwargs)
+
     def __str__(self):
-        return f"Appointment for {self.patient.first_name} {self.patient.last_name} with {self.doctor.first_name} {self.doctor.last_name} on {self.appointment_date.strftime('%Y-%m-%d %H:%M')}"
-
-
+        return f"Appointment for {self.patient.first_name} {self.patient.last_name} with {self.doctor.first_name} {self.doctor.last_name} from {self.start_time.strftime('%Y-%m-%d %H:%M')} to {self.end_time.strftime('%H:%M')}"
 class PrescriptionBill(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=False, blank=False)
     appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, null=False, blank=False)
@@ -137,8 +182,8 @@ class LabTest(models.Model):
 
 class Prescription(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE)
+    doctor = models.ForeignKey(Doctor,to_field='staff_id', on_delete=models.CASCADE)
+    appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
     medicines = models.ManyToManyField(Medicine, through="PrescriptionMedicine")  # Custom intermediate table
     lab_tests = models.ManyToManyField(LabTest, through="PrescriptionLabTest")  # Custom intermediate table
     notes = models.TextField(blank=True, null=True)
@@ -169,12 +214,17 @@ class PrescriptionLabTest(models.Model):
 
 class MedicalHistory(models.Model):
     patient = models.ForeignKey(Patient, related_name="medical_history", on_delete=models.CASCADE)
-    diagnosis = models.CharField(max_length=255)
-    prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE)
-    medical_notes = models.TextField(blank=True)
+    diagnosis = models.CharField(max_length=255, null=True, blank=True)  # Allow empty
+    prescription = models.ForeignKey(Prescription, null=True, blank=True, on_delete=models.SET_NULL,related_name="medical_history")  # Allow empty
+    medical_notes = models.TextField(null=True, blank=True)  # Allow empty
     date_of_occurrence = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return f"Medical History for {self.patient} - {self.diagnosis} ({self.date_of_occurrence})"
 
+
+@receiver(post_save, sender=Patient)
+def create_medical_history(sender, instance, created, **kwargs):
+    if created:
+        MedicalHistory.objects.create(patient=instance)
 
