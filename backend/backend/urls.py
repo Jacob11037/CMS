@@ -16,7 +16,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.http import JsonResponse
-from django.urls import path, include
+from django.urls import path, include, re_path
+
 
 def home(request):
     return JsonResponse({"message": "Welcome to the clinic management API!"})
@@ -25,5 +26,7 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
+    re_path(r'auth/', include('djoser.urls')),
+    re_path(r'auth/', include('djoser.urls.jwt')),
     path('', home),
 ]

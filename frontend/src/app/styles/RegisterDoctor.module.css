@@ -1,0 +1,93 @@
+/* RegisterDoctor.module.css */
+
+.container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .heading {
+    text-align: center;
+    font-size: 24px;
+    margin-bottom: 20px;
+    color: #333;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .form div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  
+  .form label {
+    font-weight: bold;
+    color: #555;
+  }
+  
+  .form input,
+  .form select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  .form input:focus,
+  .form select:focus {
+    border-color: #007bff;
+    outline: none;
+  }
+  
+  .button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .button:hover {
+    background-color: #0056b3;
+  }
+  
+  .loading {
+    text-align: center;
+    font-size: 18px;
+    color: #007bff;
+    margin-top: 20px;
+  }
+  
+  .errorMessage {
+    text-align: center;
+    font-size: 18px;
+    color: #dc3545;
+    margin-top: 20px;
+  }
+  
+  .successMessage {
+    background-color: #d4edda; /* Light green background */
+    color: #155724; /* Dark green text */
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    text-align: center;
+    border: 1px solid #c3e6cb;
+  }
+  
+  .errorText {
+    color: #dc3545;
+    font-size: 14px;
+    margin-top: 5px;
+  }

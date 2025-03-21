@@ -1,0 +1,74 @@
+/* DoctorProfilePage.css */
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+
+.header {
+    color: #2c3e50; /* Dark blue for contrast */
+    margin-bottom: 20px;
+    font-size: 28px; /* Larger font size for the header */
+    font-weight: bold; /* Bold text for emphasis */
+}
+
+.profileContainer {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+.profileHeader {
+    color: #34495e; /* Dark gray for contrast */
+    font-size: 24px; /* Larger font size for the profile header */
+    margin-bottom: 20px;
+    font-weight: bold; /* Bold text for emphasis */
+}
+
+.profileDetail {
+    margin-bottom: 15px;
+    font-size: 18px; /* Larger font size for details */
+    color: #34495e; /* Dark gray for contrast */
+}
+
+.profileDetail strong {
+    color: #2c3e50; /* Dark blue for emphasis */
+}
+
+.button {
+    background-color: #3498db;
+    color: #ffffff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 20px;
+}
+
+.button:hover {
+    background-color: #2980b9;
+}
+
+.loading {
+    color: #3498db;
+    font-size: 18px;
+}
+
+.error {
+    color: #e74c3c;
+    font-size: 16px;
+    margin-bottom: 20px;
+    text-align: center;
+}

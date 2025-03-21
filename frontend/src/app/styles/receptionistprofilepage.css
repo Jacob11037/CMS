@@ -1,0 +1,82 @@
+/* ReceptionistProfilePage.css */
+
+/* Container for the profile page */
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: #f9f9f9;
+    font-family: Arial, sans-serif;
+    padding: 20px;
+}
+
+/* Header for the profile page */
+.header {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+/* Profile container */
+.profileContainer {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 600px;
+    text-align: center;
+}
+
+/* Profile header */
+.profileHeader {
+    color: #34495e;
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+}
+
+/* Profile detail items */
+.profileDetail {
+    margin-bottom: 15px;
+    font-size: 18px;
+    color: #34495e;
+}
+
+.profileDetail strong {
+    color: #2c3e50;
+}
+
+/* Button style for navigating to appointments */
+.button {
+    background-color: #3498db;
+    color: #ffffff;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    margin-top: 20px;
+}
+
+.button:hover {
+    background-color: #2980b9;
+}
+
+/* Loading text style */
+.loading {
+    color: #3498db;
+    font-size: 18px;
+}
+
+/* Error message style */
+.error {
+    color: #e74c3c;
+    font-size: 16px;
+    margin-bottom: 20px;
+    text-align: center;
+}
