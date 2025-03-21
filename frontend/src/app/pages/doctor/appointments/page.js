@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import axiosPrivate from "../../../../../utils/axiosPrivate";
+import Select from "react-select"; // Import React Select
 import "../../../styles/doctorappointments.css"; // Import the CSS file
 
 const DoctorPage = () => {
@@ -17,6 +18,32 @@ const DoctorPage = () => {
     const [medicines, setMedicines] = useState([]);
     const [labTests, setLabTests] = useState([]);
     const [errors, setErrors] = useState({});
+
+    // Format medicines for React Select
+    const medicineOptions = medicines.map(medicine => ({
+        value: medicine.id,
+        label: medicine.medicine_name,
+    }));
+
+    // Format lab tests for React Select
+    const labTestOptions = labTests.map(labTest => ({
+        value: labTest.id,
+        label: labTest.test_name,
+    }));
+
+    const customStyles = {
+        control: (provided) => ({
+            ...provided,
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+            boxShadow: 'none',
+        }),
+        option: (provided, state) => ({
+            ...provided,
+            backgroundColor: state.isSelected ? '#007bff' : 'white',
+            color: state.isSelected ? 'white' : 'black',
+        }),
+    };
 
     useEffect(() => {
         const fetchMedicinesAndLabTests = async () => {
@@ -71,21 +98,21 @@ const DoctorPage = () => {
 
     const handleCreatePrescription = async () => {
         if (!validatePrescription()) return;
-    
+
         try {
             // Prepare medicines data with dosage and frequency
             const medicinesData = prescriptionData.medicines.map(medicine => ({
-                id: medicine.id,
+                id: medicine.value,
                 dosage: medicine.dosage,
                 frequency: medicine.frequency,
             }));
-    
+
             // Prepare lab tests data with test_date
             const labTestsData = prescriptionData.lab_tests.map(labTest => ({
-                id: labTest.id,
+                id: labTest.value,
                 test_date: labTest.test_date,
             }));
-    
+
             // Send the request to create the prescription
             await axiosPrivate.post("/prescriptions/", {
                 patient: selectedAppointment.patient,
@@ -96,10 +123,10 @@ const DoctorPage = () => {
                 lab_tests: labTestsData,
                 notes: prescriptionData.notes,
             });
-    
+
             alert("Prescription created successfully!");
             setPrescriptionData({ diagnosis: "", medicines: [], lab_tests: [], notes: "" });
-    
+
             // Fetch updated medical history
             const updatedMedicalHistory = await axiosPrivate.get(`/medical-history/?patient_id=${selectedAppointment.patient}`);
             setMedicalHistory(updatedMedicalHistory.data);
@@ -130,44 +157,44 @@ const DoctorPage = () => {
             {selectedAppointment && (
                 <div className="patientDetails">
                     <h3 className="sectionHeader">Patient Details</h3>
-        <p className="patientName">Name: {selectedAppointment.patient_name}</p>
-        <p className="sectionHeader">Medical History:</p>
-        <ul className="medicalHistoryList">
-            {medicalHistory.map((history) => (
-                <li key={history.id} className="medicalHistoryItem">
-                    <strong>Diagnosis:</strong> {history.diagnosis}<br />
-                    <strong>Notes:</strong> {history.medical_notes}<br />
+                    <p className="patientName">Name: {selectedAppointment.patient_name}</p>
+                    <p className="sectionHeader">Medical History:</p>
+                    <ul className="medicalHistoryList">
+                        {medicalHistory.map((history) => (
+                            <li key={history.id} className="medicalHistoryItem">
+                                <strong>Diagnosis:</strong> {history.diagnosis}<br />
+                                <strong>Notes:</strong> {history.medical_notes}<br />
 
-                    {/* Display Medicines */}
-                    {history.prescription && history.prescription.medicines.length > 0 && (
-                        <div>
-                            <strong>Medicines:</strong>
-                            <ul>
-                                {history.prescription.medicines.map((medicine, index) => (
-                                    <li key={index}>
-                                        {medicine.medicine_name} - {medicine.dosage} ({medicine.frequency})
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+                                {/* Display Medicines */}
+                                {history.prescription && history.prescription.medicines && history.prescription.medicines.length > 0 && (
+                                    <div>
+                                        <strong>Medicines:</strong>
+                                        <ul>
+                                            {history.prescription.medicines.map((medicine, index) => (
+                                                <li key={index}>
+                                                    {medicine.medicine_name} - {medicine.dosage} ({medicine.frequency})
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
 
-                    {/* Display Lab Tests */}
-                    {history.prescription && history.prescription.lab_tests.length > 0 && (
-                        <div>
-                            <strong>Lab Tests:</strong>
-                            <ul>
-                                {history.prescription.lab_tests.map((labTest, index) => (
-                                    <li key={index}>
-                                        {labTest.test_name} - {labTest.test_date}
-                                    </li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-                </li>
-            ))}
-        </ul>
+                                {/* Display Lab Tests */}
+                                {history.prescription && history.prescription.lab_tests && history.prescription.lab_tests.length > 0 && (
+                                    <div>
+                                        <strong>Lab Tests:</strong>
+                                        <ul>
+                                            {history.prescription.lab_tests.map((labTest, index) => (
+                                                <li key={index}>
+                                                    {labTest.test_name} - {labTest.test_date}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                )}
+                            </li>
+                        ))}
+                    </ul>
 
                     <div className="prescriptionForm">
                         <h3 className="sectionHeader">Create Prescription</h3>
@@ -179,7 +206,7 @@ const DoctorPage = () => {
                             className="textarea"
                         />
                         {errors.diagnosis && <p className="error">{errors.diagnosis}</p>}
-                        
+
                         <textarea
                             name="notes"
                             value={prescriptionData.notes}
@@ -191,27 +218,25 @@ const DoctorPage = () => {
 
                         <div className="selectContainer">
                             <label className="label">Medicines:</label>
-                            {medicines.map((medicine) => (
-                                <div key={medicine.id}>
-                                    <input
-                                        type="checkbox"
-                                        value={medicine.id}
-                                        onChange={(e) => {
-                                            const selectedOptions = [...prescriptionData.medicines];
-                                            if (e.target.checked) {
-                                                selectedOptions.push({ id: medicine.id, dosage: "", frequency: "" });
-                                            } else {
-                                                selectedOptions.splice(selectedOptions.findIndex(m => m.id === medicine.id), 1);
-                                            }
-                                            setPrescriptionData({ ...prescriptionData, medicines: selectedOptions });
-                                        }}
-                                    /> {medicine.medicine_name}
+                            <Select
+                                isMulti
+                                options={medicineOptions}
+                                value={prescriptionData.medicines}
+                                onChange={(selectedOptions) =>
+                                    setPrescriptionData({ ...prescriptionData, medicines: selectedOptions })
+                                }
+                                placeholder="Select medicines"
+                                styles={customStyles}
+                            />
+                            {prescriptionData.medicines.map((medicine) => (
+                                <div key={medicine.value} className="medicineDetails">
+                                    <p>{medicine.label}</p>
                                     <input
                                         type="text"
                                         placeholder="Dosage"
                                         onChange={(e) => {
                                             const updatedMedicines = prescriptionData.medicines.map(m =>
-                                                m.id === medicine.id ? { ...m, dosage: e.target.value } : m
+                                                m.value === medicine.value ? { ...m, dosage: e.target.value } : m
                                             );
                                             setPrescriptionData({ ...prescriptionData, medicines: updatedMedicines });
                                         }}
@@ -221,7 +246,7 @@ const DoctorPage = () => {
                                         placeholder="Frequency"
                                         onChange={(e) => {
                                             const updatedMedicines = prescriptionData.medicines.map(m =>
-                                                m.id === medicine.id ? { ...m, frequency: e.target.value } : m
+                                                m.value === medicine.value ? { ...m, frequency: e.target.value } : m
                                             );
                                             setPrescriptionData({ ...prescriptionData, medicines: updatedMedicines });
                                         }}
@@ -232,26 +257,24 @@ const DoctorPage = () => {
 
                         <div className="selectContainer">
                             <label className="label">Lab Tests:</label>
-                            {labTests.map((labTest) => (
-                                <div key={labTest.id}>
-                                    <input
-                                        type="checkbox"
-                                        value={labTest.id}
-                                        onChange={(e) => {
-                                            const selectedOptions = [...prescriptionData.lab_tests];
-                                            if (e.target.checked) {
-                                                selectedOptions.push({ id: labTest.id, test_date: "" });
-                                            } else {
-                                                selectedOptions.splice(selectedOptions.findIndex(lt => lt.id === labTest.id), 1);
-                                            }
-                                            setPrescriptionData({ ...prescriptionData, lab_tests: selectedOptions });
-                                        }}
-                                    /> {labTest.test_name}
+                            <Select
+                                isMulti
+                                options={labTestOptions}
+                                value={prescriptionData.lab_tests}
+                                onChange={(selectedOptions) =>
+                                    setPrescriptionData({ ...prescriptionData, lab_tests: selectedOptions })
+                                }
+                                placeholder="Select lab tests"
+                                styles={customStyles}
+                            />
+                            {prescriptionData.lab_tests.map((labTest) => (
+                                <div key={labTest.value} className="labTestDetails">
+                                    <p>{labTest.label}</p>
                                     <input
                                         type="date"
                                         onChange={(e) => {
                                             const updatedLabTests = prescriptionData.lab_tests.map(lt =>
-                                                lt.id === labTest.id ? { ...lt, test_date: e.target.value } : lt
+                                                lt.value === labTest.value ? { ...lt, test_date: e.target.value } : lt
                                             );
                                             setPrescriptionData({ ...prescriptionData, lab_tests: updatedLabTests });
                                         }}

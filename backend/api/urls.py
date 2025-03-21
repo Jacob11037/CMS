@@ -5,7 +5,7 @@ from api import views
 from api.views import (
     DepartmentReadOnlyViewSet, register_doctor, register_receptionist,
      doctor_profile, receptionist_profile, check_user_role,
-    MedicalHistoryViewSet, MedicineViewSet, LabTestViewSet, DoctorListViewSet  # Import the new viewsets
+    MedicalHistoryViewSet, MedicineViewSet, LabTestViewSet, DoctorListViewSet
 )
 
 # Initialize the router
@@ -18,8 +18,8 @@ router.register(r'appointments', views.AppointmentViewSet)
 router.register(r'prescription-bills', views.PrescriptionBillViewSet)
 router.register(r'consultation-bills', views.ConsultationBillViewSet)
 router.register(r'medical-history', MedicalHistoryViewSet, basename='medical-history')
-router.register(r'medicines', MedicineViewSet, basename='medicine')  # Register MedicineViewSet
-router.register(r'lab-tests', LabTestViewSet, basename='lab-test')  # Register LabTestViewSet
+router.register(r'medicines', MedicineViewSet, basename='medicine')
+router.register(r'lab-tests', LabTestViewSet, basename='lab-test')
 router.register(r'doctors', DoctorListViewSet, basename='doctor')
 router.register(r'receptionists', views.ReceptionistViewSet)
 

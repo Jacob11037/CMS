@@ -12,9 +12,7 @@ export default function UpdateAppointmentPage({ params }) {
   const { isAuthenticated } = useAuth();
 
   useEffect(() => {
-    if (isAuthenticated === null) {
-      return; // Wait until authentication is verified
-    }
+    if (isAuthenticated === null) return; // Wait until authentication is verified
 
     if (!isAuthenticated) {
       router.push('/pages/login'); // Redirect to login if not authenticated
@@ -32,19 +30,27 @@ export default function UpdateAppointmentPage({ params }) {
     };
 
     fetchAppointmentDetails();
-  }, [isAuthenticated, router, params.appointmentId]);
+  }, [isAuthenticated, router, params.appointmentid]);
 
   // Function to update appointment status
   const handleUpdateSubmit = async (e) => {
     e.preventDefault();
 
-    try {
-      await axiosPrivate.put(`/appointments/${params.appointmentId}/`, { status });
-      router.push('/receptionist/appointments'); // Redirect back to view appointments page after update
-    } catch (error) {
-      setError('An error occurred while updating the appointment');
-    }
-  };
+    
+  try {
+    await axiosPrivate.put(`/appointments/${appointmentid}/`, {
+      doctor: appointment.doctor,  // Ensure doctor is included
+      patient: appointment.patient,  // Ensure patient is included
+      start_time: appointment.start_time,  // Ensure start_time is included
+      end_time: appointment.end_time,  // Ensure end_time is included
+      status: status,  // Updated status
+    });
+
+    router.push('/receptionist/appointments');
+  } catch (error) {
+    setError('An error occurred while updating the appointment');
+  }
+};
 
   if (isAuthenticated === null) {
     return <p className="loading">Loading...</p>;
@@ -52,10 +58,20 @@ export default function UpdateAppointmentPage({ params }) {
 
   return (
     <div className="container">
-      <h1 className="header">Update Appointment</h1>
+      <h1 className="header">Update Appointment <b>WORK IN PROGRESS</b> </h1>
       {error && <p className="error">{error}</p>}
+      
       {appointment ? (
         <form onSubmit={handleUpdateSubmit}>
+          {/* Display Full Appointment Details */}
+          <div className="details">
+            <p><strong>Patient:</strong> {appointment.patient_name}</p>
+            <p><strong>Doctor:</strong> {appointment.doctor_name}</p>
+            <p><strong>Start Time:</strong> {appointment.start_time}</p>
+            <p><strong>End Time:</strong> {appointment.end_time}</p>
+          </div>
+
+          {/* Status Update Section */}
           <div>
             <label htmlFor="status">Status</label>
             <select
@@ -68,6 +84,7 @@ export default function UpdateAppointmentPage({ params }) {
               <option value="Cancelled">Cancelled</option>
             </select>
           </div>
+          
           <button type="submit" className="button">Update Appointment</button>
         </form>
       ) : (

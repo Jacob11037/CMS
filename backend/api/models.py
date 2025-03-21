@@ -98,6 +98,11 @@ class Appointment(models.Model):
         default='Pending'
     )
 
+    @property
+    def patient_name(self):
+        """Return the patient's full name."""
+        return f"{self.patient.first_name} {self.patient.last_name}"
+
     def clean(self):
         """ Ensure no overlapping appointments and validate time constraints """
         now = timezone.now()  # Current date and time
@@ -215,16 +220,16 @@ class PrescriptionLabTest(models.Model):
 class MedicalHistory(models.Model):
     patient = models.ForeignKey(Patient, related_name="medical_history", on_delete=models.CASCADE)
     diagnosis = models.CharField(max_length=255, null=True, blank=True)  # Allow empty
-    prescription = models.ForeignKey(Prescription, null=True, blank=True, on_delete=models.SET_NULL,related_name="medical_history")  # Allow empty
+    prescription = models.ForeignKey(Prescription, null=True, blank=True, on_delete=models.SET_NULL,related_name="medical_histories")  # Allow empty
     medical_notes = models.TextField(null=True, blank=True)  # Allow empty
     date_of_occurrence = models.DateField(auto_now_add=True)
 
     def __str__(self):
         return f"Medical History for {self.patient} - {self.diagnosis} ({self.date_of_occurrence})"
 
-
-@receiver(post_save, sender=Patient)
-def create_medical_history(sender, instance, created, **kwargs):
-    if created:
-        MedicalHistory.objects.create(patient=instance)
+#
+# @receiver(post_save, sender=Patient)
+# def create_medical_history(sender, instance, created, **kwargs):
+#     if created:
+#         MedicalHistory.objects.create(patient=instance)
 

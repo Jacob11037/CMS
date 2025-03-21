@@ -14,12 +14,7 @@ from .serializers import AppointmentSerializer, PatientSerializer, PrescriptionS
 from rest_framework.pagination import PageNumberPagination
 
 
-
 # Create your views here.
-
-from rest_framework.response import Response
-from rest_framework import status
-
 class PrescriptionViewSet(viewsets.ModelViewSet):
     queryset = Prescription.objects.all()
     serializer_class = PrescriptionSerializer
@@ -89,14 +84,19 @@ class MedicalHistoryViewSet(viewsets.ModelViewSet):
         # Get all patients from those appointments
         patient_ids = appointments.values_list('patient', flat=True).distinct()
 
-        # Filter MedicalHistory based on those patients
-        queryset = MedicalHistory.objects.filter(patient__in=patient_ids)
+        # Filter MedicalHistory based on those patients and prefetch related data
+        queryset = MedicalHistory.objects.filter(patient__in=patient_ids).select_related(
+            'prescription'
+        ).prefetch_related(
+            'prescription__prescriptionmedicine_set',
+            'prescription__prescriptionlabtest_set'
+        )
 
         # Optional: filter by patient_id if provided in query params
         patient_id = self.request.query_params.get('patient_id')
         if patient_id:
             try:
-                patient_id = patient_id  # Convert to integer
+                patient_id = int(patient_id)  # Convert to integer
                 queryset = queryset.filter(patient_id=patient_id)
             except ValueError:
                 # Optionally, raise an error if invalid patient_id format is provided

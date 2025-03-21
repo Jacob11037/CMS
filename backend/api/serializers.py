@@ -62,8 +62,6 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
         return data
 
-from rest_framework import serializers
-from .models import Prescription, PrescriptionMedicine, PrescriptionLabTest, MedicalHistory
 
 class PrescriptionMedicineSerializer(serializers.ModelSerializer):
     medicine_name = serializers.CharField(source='medicine.medicine_name')  # Include medicine name
@@ -81,26 +79,26 @@ class PrescriptionLabTestSerializer(serializers.ModelSerializer):
         model = PrescriptionLabTest
         fields = ['test_id', 'test_name', 'test_date']  # Include test date
 
-class MedicalHistorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = MedicalHistory
-        fields = ['diagnosis', 'medical_notes']  # Include diagnosis and notes
 
 class PrescriptionSerializer(serializers.ModelSerializer):
     patient = serializers.PrimaryKeyRelatedField(queryset=Patient.objects.all())  # Accepts patient ID
     doctor = serializers.PrimaryKeyRelatedField(queryset=Doctor.objects.all())  # Accepts doctor ID
-    medical_history = serializers.SerializerMethodField()  # Fetch related medical history
     medicines = PrescriptionMedicineSerializer(many=True, source='prescriptionmedicine_set')  # Include medicines
     lab_tests = PrescriptionLabTestSerializer(many=True, source='prescriptionlabtest_set')  # Include lab tests
 
     class Meta:
         model = Prescription
-        fields = ['id', 'patient', 'doctor', 'appointment', 'medical_history', 'medicines', 'lab_tests', 'notes']
+        fields = ['id', 'patient', 'doctor', 'appointment', 'medicines', 'lab_tests', 'notes']
 
-    def get_medical_history(self, obj):
-        # Fetch related MedicalHistory instances for this Prescription
-        medical_history = obj.medical_history.all()  # Use the custom related_name
-        return MedicalHistorySerializer(medical_history, many=True).data
+
+class MedicalHistorySerializer(serializers.ModelSerializer):
+    prescription = PrescriptionSerializer()  # Include the nested Prescription object
+
+    class Meta:
+        model = MedicalHistory
+        fields = ['id', 'patient', 'diagnosis', 'medical_notes', 'prescription']  # Include prescription field
+
+
 
 
 class MedicineSerializer(serializers.ModelSerializer):
