@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import axiosPrivate from '../../../../utils/axiosPrivate';
 import { useAuth } from '../../context/AuthContext';
-import styles from '../../styles/RegisterDoctor.module.css'; // Import the CSS module
+import styles from '../../styles/RegisterDoctor.module.css'; 
 
 export default function RegisterDoctor() {
   const [departments, setDepartments] = useState([]);
