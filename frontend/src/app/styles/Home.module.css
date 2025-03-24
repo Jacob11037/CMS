@@ -1,0 +1,139 @@
+.container {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background-color: #0070f3;
+    color: white;
+  }
+  
+  .logo img {
+    height: 50px;
+  }
+  
+  .nav {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .nav a {
+    color: white;
+    font-weight: bold;
+  }
+  
+  .main {
+    flex: 1;
+    padding: 2rem;
+  }
+  
+  .hero {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  
+  .heroContent {
+    max-width: 50%;
+  }
+  
+  .heroContent h1 {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+  }
+  
+  .heroContent p {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+  }
+  
+  .ctaButton {
+    padding: 0.75rem 1.5rem;
+    background-color: #0070f3;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+  }
+  
+  .ctaButton:hover {
+    background-color: #005bb5;
+  }
+  
+  .heroImage img {
+    max-width: 100%;
+    border-radius: 10px;
+  }
+  
+  .services {
+    margin-bottom: 2rem;
+  }
+  
+  .services h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .serviceList {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .serviceItem {
+    flex: 1;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .testimonials {
+    margin-bottom: 2rem;
+  }
+  
+  .testimonials h2 {
+    font-size: 2rem;
+    margin-bottom: 1rem;
+  }
+  
+  .testimonialList {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .testimonialItem {
+    flex: 1;
+    padding: 1rem;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    text-align: center;
+  }
+  
+  .footer {
+    text-align: center;
+    padding: 1rem;
+    background-color: #0070f3;
+    color: white;
+  }
+  .loginButton {
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+  }
+  
+  .loginButton:hover {
+    background-color: #0056b3;
+  }
+  
