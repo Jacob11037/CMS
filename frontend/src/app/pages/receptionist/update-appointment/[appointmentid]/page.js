@@ -39,11 +39,11 @@ export default function UpdateAppointmentPage({ params }) {
     
   try {
     await axiosPrivate.put(`/appointments/${appointmentid}/`, {
-      doctor: appointment.doctor,  // Ensure doctor is included
-      patient: appointment.patient,  // Ensure patient is included
-      start_time: appointment.start_time,  // Ensure start_time is included
-      end_time: appointment.end_time,  // Ensure end_time is included
-      status: status,  // Updated status
+      doctor: appointment.doctor,  
+      patient: appointment.patient, 
+      start_time: appointment.start_time,  
+      end_time: appointment.end_time,  
+      status: status,  
     });
 
     router.push('/receptionist/appointments');

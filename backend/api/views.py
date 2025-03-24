@@ -53,13 +53,13 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
                 test_date=lab_test_data['test_date']
             )
 
-        # Create medical history
-        medical_history = MedicalHistory.objects.create(
-            patient_id=patient_id,
-            diagnosis=diagnosis,
-            medical_notes=medical_notes,
-            prescription=prescription
-        )
+        # # Create medical history
+        # medical_history = MedicalHistory.objects.create(
+        #     patient_id=patient_id,
+        #     diagnosis=diagnosis,
+        #     medical_notes=medical_notes,
+        #     prescription=prescription
+        # )
 
         serializer = self.get_serializer(prescription)
         return Response(serializer.data, status=status.HTTP_201_CREATED)

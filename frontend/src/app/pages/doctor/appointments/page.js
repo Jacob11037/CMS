@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from "react";
 import axiosPrivate from "../../../../../utils/axiosPrivate";
-import Select from "react-select"; // Import React Select
-import "../../../styles/doctorappointments.css"; // Import the CSS file
+import Select from "react-select"; 
+import "../../../styles/doctorappointments.css"; 
 
 const DoctorPage = () => {
     const [appointments, setAppointments] = useState([]);

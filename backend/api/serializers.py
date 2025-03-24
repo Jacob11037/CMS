@@ -64,16 +64,16 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
 
 class PrescriptionMedicineSerializer(serializers.ModelSerializer):
-    medicine_name = serializers.CharField(source='medicine.medicine_name')  # Include medicine name
-    medicine_id = serializers.PrimaryKeyRelatedField(source='medicine', read_only=True)  # Include medicine ID
+    medicine_name = serializers.CharField(source='medicine.medicine_name')
+    medicine_id = serializers.PrimaryKeyRelatedField(source='medicine', read_only=True)
 
     class Meta:
         model = PrescriptionMedicine
         fields = ['medicine_id', 'medicine_name', 'dosage', 'frequency']  # Include dosage and frequency
 
 class PrescriptionLabTestSerializer(serializers.ModelSerializer):
-    test_name = serializers.CharField(source='lab_test.test_name')  # Include lab test name
-    test_id = serializers.PrimaryKeyRelatedField(source='lab_test', read_only=True)  # Include lab test ID
+    test_name = serializers.CharField(source='lab_test.test_name')
+    test_id = serializers.PrimaryKeyRelatedField(source='lab_test', read_only=True)
 
     class Meta:
         model = PrescriptionLabTest
