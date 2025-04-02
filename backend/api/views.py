@@ -5,10 +5,10 @@ from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status, viewsets, filters
-from .models import Appointment, Patient, Prescription, PrescriptionBill, ConsultationBill, Doctor, Department, \
+from .models import Appointment, Patient, Prescription, Bill, ConsultationBill, Doctor, Department, \
     Receptionist, MedicalHistory, PrescriptionLabTest, LabTest, PrescriptionMedicine, Medicine
 from .permissions import IsDoctor, IsReceptionist, IsAdmin
-from .serializers import AppointmentSerializer, PatientSerializer, PrescriptionSerializer, PrescriptionBillSerializer, \
+from .serializers import AppointmentSerializer, PatientSerializer, PrescriptionSerializer, BillSerializer, \
     ConsultationBillSerializer, DoctorSerializer, ReceptionistSerializer, DoctorViewSerializer, DepartmentSerializer, \
     ReceptionistViewSerializer, MedicalHistorySerializer, MedicineSerializer, LabTestSerializer
 from rest_framework.pagination import PageNumberPagination
@@ -61,13 +61,13 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
             prescription=prescription
         )
 
-        medicine_bill = Bill.objects.create(
-            billtype = "medicine"
-        )
-
-        labtest_bill = Bill.objects.create(
-            billtype="lab test"
-        )
+        # medicine_bill = Bill.objects.create(
+        #     billtype = "medicine"
+        # )
+        #
+        # labtest_bill = Bill.objects.create(
+        #     billtype="lab test"
+        # )
 
         serializer = self.get_serializer(prescription)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -142,11 +142,11 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
 
 
-class PrescriptionBillViewSet(viewsets.ModelViewSet):
+class BillViewSet(viewsets.ModelViewSet):
     permission_classes = [IsDoctor | IsReceptionist | IsAdmin]
 
-    queryset = PrescriptionBill.objects.all()
-    serializer_class = PrescriptionBillSerializer
+    queryset = Bill.objects.all()
+    serializer_class = BillSerializer
 
 class ConsultationBillViewSet(viewsets.ModelViewSet):
     permission_classes = [IsReceptionist | IsAdmin]
