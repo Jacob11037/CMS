@@ -61,13 +61,13 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
             prescription=prescription
         )
 
-        medicine_bill = Bill.objects.create(
-            billtype = "medicine"
-        )
-
-        labtest_bill = Bill.objects.create(
-            billtype="lab test"
-        )
+        # medicine_bill = Bill.objects.create(
+        #     billtype = "medicine"
+        # )
+        #
+        # labtest_bill = Bill.objects.create(
+        #     billtype="lab test"
+        # )
 
         serializer = self.get_serializer(prescription)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
