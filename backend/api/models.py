@@ -224,6 +224,13 @@ class PrescriptionLabTest(models.Model):
     prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE)
     lab_test = models.ForeignKey(LabTest, on_delete=models.CASCADE)
     test_date = models.DateField()
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Completed', 'Completed'),
+    ]
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+
 
     def __str__(self):
         return f"{self.lab_test.test_name} for {self.prescription.patient}"
@@ -234,7 +241,7 @@ class PrescriptionLabTest(models.Model):
 class MedicalHistory(models.Model):
     patient = models.ForeignKey(Patient, related_name="medical_history", on_delete=models.CASCADE)
     diagnosis = models.CharField(max_length=255)
-    prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE(),related_name="medical_histories")
+    prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE,related_name="medical_histories")
     date_of_occurrence = models.DateField(auto_now_add=True)
     # medical_notes = models.TextField(null=True, blank=True)  # Allow empty
 

@@ -1,5 +1,5 @@
 from rest_framework import permissions
-from .models import Doctor, Receptionist, Appointment, PrescriptionBill, Prescription, \
+from .models import Doctor, Receptionist, Appointment, Bill, Prescription, \
     PrescriptionMedicine, PrescriptionLabTest, MedicalHistory, ConsultationBill, Department, \
     Patient  # Import your Doctor model
 
@@ -64,7 +64,7 @@ class IsReceptionist(permissions.BasePermission):
             return True
 
         # Receptionists can manage appointments and billing
-        if isinstance(obj, (Appointment, PrescriptionBill, Patient, Department, ConsultationBill)):
+        if isinstance(obj, (Appointment, Bill, Patient, Department, ConsultationBill)):
             return True
 
         # Restrict access to prescriptions and medical history
