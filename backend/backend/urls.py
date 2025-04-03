@@ -40,3 +40,4 @@ urlpatterns = [
     path('', home),
 
 ]
+
