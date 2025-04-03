@@ -22,11 +22,21 @@ from django.urls import path, include, re_path
 def home(request):
     return JsonResponse({"message": "Welcome to the clinic management API!"})
 
-urlpatterns = [
 
+urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('api.urls')),
-    re_path(r'auth/', include('djoser.urls')),
-    re_path(r'auth/', include('djoser.urls.jwt')),
+    path('api/', include([
+        # Main app endpoints directly under /api/
+        path('', include('api.urls')),  # /api/doctors/, /api/patients/
+
+        # New apps with subpaths
+        path('labtechnician/', include('labtechnician.urls')),  # /api/medical/
+        path('pharmacist/', include('pharmacist.urls')),  # /api/pharmacist/
+        path('admin/', include('Admin.urls')),  # /api/admin/
+
+        # Auth
+        path('auth/', include('djoser.urls.jwt')),  # /api/auth/token/
+    ])),
     path('', home),
+
 ]
