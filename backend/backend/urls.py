@@ -17,6 +17,9 @@ Including another URLconf
 from django.contrib import admin
 from django.http import JsonResponse
 from django.urls import path, include, re_path
+from rest_framework.routers import DefaultRouter
+
+router = DefaultRouter()
 
 
 def home(request):
@@ -29,4 +32,8 @@ urlpatterns = [
     re_path(r'auth/', include('djoser.urls')),
     re_path(r'auth/', include('djoser.urls.jwt')),
     path('', home),
+    path('api/', include(router.urls)),  
 ]
+
+
+
