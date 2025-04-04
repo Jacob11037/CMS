@@ -1,5 +1,7 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+from adminuser.views import AdminViewSet
+
 
 from api import views
 from api.views import (
@@ -15,13 +17,15 @@ router = DefaultRouter()
 router.register(r'prescriptions', views.PrescriptionViewSet)
 router.register(r'patients', views.PatientViewSet)
 router.register(r'appointments', views.AppointmentViewSet)
-router.register(r'prescription-bills', views.PrescriptionBillViewSet)
+router.register(r'prescription-bills', views.BillViewSet)
 router.register(r'consultation-bills', views.ConsultationBillViewSet)
 router.register(r'medical-history', MedicalHistoryViewSet, basename='medical-history')
 router.register(r'medicines', MedicineViewSet, basename='medicine')
 router.register(r'lab-tests', LabTestViewSet, basename='lab-test')
 router.register(r'doctors', DoctorListViewSet, basename='doctor')
 router.register(r'receptionists', views.ReceptionistViewSet)
+router.register(r'admins', AdminViewSet)
+
 
 
 
@@ -41,4 +45,6 @@ urlpatterns = [
     path('receptionist/register/', register_receptionist, name='receptionist-register'),
     path('doctor/profile/', doctor_profile, name='doctor-profile'),
     path('receptionist/profile/', receptionist_profile, name='receptionist-profile'),
+    path('', include(router.urls)),
+
 ]

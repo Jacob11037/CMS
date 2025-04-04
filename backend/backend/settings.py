@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'api',
     "djoser",
     'rest_framework_simplejwt.token_blacklist',
+    'pharmacist',
 
 ]
 
@@ -61,13 +62,13 @@ CORS_ALLOW_ALL_ORIGINS = True  # Allow all origins (for development)
 
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    # "DEFAULT_AUTHENTICATION_CLASSES": (
+    #     'rest_framework_simplejwt.authentication.JWTAuthentication',
 
-    ),
-    'DEFAULT_PERMISSION_CLASSES': (
-            'rest_framework.permissions.IsAuthenticated',
-        ),
+    # ),
+    # 'DEFAULT_PERMISSION_CLASSES': (
+    #         'rest_framework.permissions.IsAuthenticated',
+    #     ),
 }
 
 SIMPLE_JWT = {
@@ -114,11 +115,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "camp4cms",
+        "NAME": "pharmacistdb",
         "USER": "root",
-        "PASSWORD": "root",
+        "PASSWORD": "Priya@123",
         "HOST": "localhost",
-        "PORT": "3307",
+        "PORT": "3306",
     }
 }
 
@@ -150,7 +151,7 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 
 USE_I18N = True
-
+ 
 USE_TZ = True
 
 
@@ -163,3 +164,4 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+  
