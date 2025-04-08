@@ -4,8 +4,9 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../context/AuthContext';
 import axiosPrivate from '../../../../../utils/axiosPrivate';
 import "../../../styles/ReceptionistProfilePage.css"; // Import the CSS file
+import withReceptionistAuth from '@/app/middleware/withReceptionistAuth';
 
-export default function ReceptionistProfilePage() {
+function ReceptionistProfilePage() {
   const [receptionistData, setReceptionistData] = useState(null);
   const [error, setError] = useState('');
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function ReceptionistProfilePage() {
         const response = await axiosPrivate.get('receptionist/profile/');
         setReceptionistData(response.data);
       } catch (error) {
+        console.log(error)
         if (error.response) {
           // Check if the error is due to the user not having receptionist access
           if (error.response.status === 403) {
@@ -89,4 +91,6 @@ export default function ReceptionistProfilePage() {
       )}
     </div>
   );
-}
+};
+
+export default withReceptionistAuth(ReceptionistProfilePage);

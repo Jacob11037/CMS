@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from "react";
 import 'bootstrap/dist/css/bootstrap.min.css'; // Import Bootstrap CSS
+import withReceptionistAuth from "@/app/middleware/withReceptionistAuth";
 
 const masterList = [
   { name: "Paracetamol", generic: "Acetaminophen", company: "MediCorp" },
@@ -15,7 +16,7 @@ const masterList = [
   { name: "Omeprazole", generic: "Omeprazole", company: "AcidRelief" }
 ];
 
-export default function MedicineOrdering() {
+function MedicineOrdering() {
   const [medicine, setMedicine] = useState("");
   const [company, setCompany] = useState("");
   const [quantity, setQuantity] = useState(1);
@@ -102,3 +103,4 @@ export default function MedicineOrdering() {
     </div>
   );
 }
+export default withReceptionistAuth(MedicineOrdering);

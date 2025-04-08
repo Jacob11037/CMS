@@ -1,8 +1,9 @@
 'use client';
+import withReceptionistAuth from '@/app/middleware/withReceptionistAuth';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { useEffect, useState } from 'react';
 
-export default function AvailableMedicineStocks() {
+function AvailableMedicineStocks() {
   const [stock, setStock] = useState([]);
 
   useEffect(() => {
@@ -45,3 +46,5 @@ export default function AvailableMedicineStocks() {
     </div>
   );
 }
+
+export default withReceptionistAuth(AvailableMedicineStocks);

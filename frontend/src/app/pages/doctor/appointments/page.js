@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import axiosPrivate from "../../../../../utils/axiosPrivate";
 import Select from "react-select"; 
 import "../../../styles/doctorappointments.css"; 
+import withDoctorAuth from "@/app/middleware/withDoctorAuth";
 
 const DoctorPage = () => {
     const [appointments, setAppointments] = useState([]);
@@ -293,4 +294,4 @@ const DoctorPage = () => {
     );
 };
 
-export default DoctorPage;
+export default withDoctorAuth(DoctorPage);

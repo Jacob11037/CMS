@@ -1,3 +1,5 @@
+from django.contrib.auth.models import Group
+from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
@@ -12,6 +14,8 @@ from .serializers import AppointmentSerializer, PatientSerializer, PrescriptionS
     ConsultationBillSerializer, DoctorSerializer, ReceptionistSerializer, DoctorViewSerializer, DepartmentSerializer, \
     ReceptionistViewSerializer, MedicalHistorySerializer, MedicineSerializer, LabTestSerializer
 from rest_framework.pagination import PageNumberPagination
+
+from .utils.roles import get_user_role
 
 
 class PrescriptionViewSet(viewsets.ModelViewSet):
@@ -74,43 +78,52 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
 
 class MedicalHistoryViewSet(viewsets.ModelViewSet):
     serializer_class = MedicalHistorySerializer
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAdmin | IsDoctor]
 
     def get_queryset(self):
         """
-        Retrieve medical history for patients assigned to the requesting doctor's account.
+        Admins can view all medical histories.
+        Doctors can only view medical histories of their assigned patients.
         """
         user = self.request.user
-        doctor = Doctor.objects.filter(user=user).first()
+        role = get_user_role(user)
 
-        if not doctor:
-            raise PermissionDenied("You are not assigned as a doctor.")  # Handle if the user is not a doctor
+        if role == "admin":
+            return MedicalHistory.objects.all().select_related(
+                'prescription'
+            ).prefetch_related(
+                'prescription__prescriptionmedicine_set',
+                'prescription__prescriptionlabtest_set'
+            )
 
-        # Get all appointments for the doctor
-        appointments = Appointment.objects.filter(doctor=doctor)
+        elif role == "doctor":
+            doctor = Doctor.objects.filter(user=user).first()
+            if not doctor:
+                raise PermissionDenied("You are not assigned as a doctor.")
 
-        # Get all patients from those appointments
-        patient_ids = appointments.values_list('patient', flat=True).distinct()
+            appointments = Appointment.objects.filter(doctor=doctor)
+            patient_ids = appointments.values_list('patient', flat=True).distinct()
 
-        # Filter MedicalHistory based on those patients and prefetch related data
-        queryset = MedicalHistory.objects.filter(patient__in=patient_ids).select_related(
-            'prescription'
-        ).prefetch_related(
-            'prescription__prescriptionmedicine_set',
-            'prescription__prescriptionlabtest_set'
-        )
+            queryset = MedicalHistory.objects.filter(patient__in=patient_ids).select_related(
+                'prescription'
+            ).prefetch_related(
+                'prescription__prescriptionmedicine_set',
+                'prescription__prescriptionlabtest_set'
+            )
 
-        # Optional: filter by patient_id if provided in query params
-        patient_id = self.request.query_params.get('patient_id')
-        if patient_id:
-            try:
-                patient_id = int(patient_id)  # Convert to integer
-                queryset = queryset.filter(patient_id=patient_id)
-            except ValueError:
-                # Optionally, raise an error if invalid patient_id format is provided
-                raise ValidationError("Invalid patient_id provided.")
+            # Optional filtering by patient_id from query params
+            patient_id = self.request.query_params.get('patient_id')
+            if patient_id:
+                try:
+                    patient_id = int(patient_id)
+                    queryset = queryset.filter(patient_id=patient_id)
+                except ValueError:
+                    raise ValidationError("Invalid patient_id provided.")
 
-        return queryset
+            return queryset
+
+        else:
+            raise PermissionDenied("You do not have access to view medical histories.")
 
 class PatientViewSet(viewsets.ModelViewSet):
     permission_classes = [IsDoctor | IsReceptionist | IsAdmin]
@@ -127,6 +140,9 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         user = self.request.user
+
+        if user.is_superuser or user.groups.filter(name="Admin").exists():
+            return Appointment.objects.all()
 
         # Check if the user is a doctor
         if Doctor.objects.filter(user=user).exists():
@@ -164,6 +180,13 @@ class DoctorListViewSet(viewsets.ModelViewSet):
         # Fetch doctors with only the required fields
         return Doctor.objects.all()
 
+class DoctorAdminViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdmin]
+    queryset = Doctor.objects.all()
+    serializer_class = DoctorSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['first_name', 'last_name', 'staff_id']
+
 @api_view(['GET'])
 @permission_classes([IsReceptionist | IsAdmin])
 def receptionist_profile(request):
@@ -195,13 +218,22 @@ class DepartmentReadOnlyViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
 
+class DepartmentAdminViewSet(viewsets.ModelViewSet):
+    permission_classes = [IsAdmin]  # Only admins can access
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    http_method_names = ['get', 'post', 'put', 'patch', 'delete']
+
 @api_view(['POST'])
 @permission_classes([IsAdmin])
 def register_receptionist(request):
     if request.method == 'POST':
         serializer = ReceptionistSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            with transaction.atomic():
+                receptionist = serializer.save()
+                receptionist_group, created = Group.objects.get_or_create(name = 'Receptionist')
+                receptionist.user.groups.add(receptionist_group)
             return Response({"message": "Receptionist registered successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return JsonResponse({"message": "Unauthorized"}, status=401)
@@ -209,26 +241,34 @@ def register_receptionist(request):
 @api_view(['POST'])
 @permission_classes([IsAdmin])
 def register_doctor(request):
-    # if request.user.is_authenticated and request.user.is_superuser:
     if request.method == 'POST':
         serializer = DoctorSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            with transaction.atomic():
+                doctor = serializer.save()
+                doctor_group, created = Group.objects.get_or_create(name='Doctor')
+                doctor.user.groups.add(doctor_group)
             return Response({"message": "Doctor registered successfully"}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     return JsonResponse({"message": "Unauthorized"}, status=401)
+
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def check_user_role(request):
     user = request.user
+    groups = user.groups.all().values_list('name', flat=True)
 
-    if user.is_superuser or user.groups.filter(name="Admin").exists():
+    if user.is_superuser or 'Admin' in groups:
         return JsonResponse({'role': 'admin'}, status=200)
-    elif Receptionist.objects.filter(user=user).exists():
+    elif 'Receptionist' in groups:
         return JsonResponse({'role': 'receptionist'}, status=200)
-    elif Doctor.objects.filter(user=user).exists():
+    elif 'Doctor' in groups:
         return JsonResponse({'role': 'doctor'}, status=200)
+    elif 'Pharmacist' in groups:
+        return JsonResponse({'role': 'pharmacist'}, status=200)
+    elif 'LabTechnician' in groups:
+        return JsonResponse({'role': 'labtechnician'}, status=200)
     else:
         return JsonResponse({'role': 'unknown'}, status=200)
 

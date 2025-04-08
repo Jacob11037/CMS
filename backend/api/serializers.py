@@ -145,23 +145,25 @@ class ReceptionistViewSerializer(serializers.ModelSerializer):
 
 
 class ReceptionistSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username')  # Reference `User` model
-    password = serializers.CharField(source='user.password', write_only=True)
+    username = serializers.CharField(write_only=True)  # Handle username separately
+    password = serializers.CharField(write_only=True)  # Hide password from responses
 
     class Meta:
         model = Receptionist
-        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'phone']
+        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'phone', 'address', 'sex', 'is_active', 'joining_date',
+                  'salary', 'date_of_birth']
 
     def create(self, validated_data):
         try:
-            with transaction.atomic():  # Start a database transaction
+            with transaction.atomic():
+                username = validated_data.pop('username')
+                password = validated_data.pop('password')
 
-                user_data = validated_data.pop('user')
+                # Create a new User instance
+                user = User.objects.create(username=username)
+                user.set_password(password)  # Hash the password properly
+                user.save()
 
-                user = User.objects.create_user(
-                    username=user_data['username'],
-                    password=user_data['password'],
-                )
                 receptionist = Receptionist.objects.create(user=user, **validated_data)
                 return receptionist
         except Exception as e:
@@ -172,7 +174,8 @@ class DoctorSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)  # Hide password from responses
     class Meta:
         model = Doctor
-        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'department_id', 'phone']
+        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'department_id', 'phone', 'date_of_birth',
+                  'address', 'sex', 'is_active', 'joining_date', 'salary']
 
     def create(self, validated_data):
         try:

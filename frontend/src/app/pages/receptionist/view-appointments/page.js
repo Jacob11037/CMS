@@ -1,5 +1,10 @@
+"use client";
+import withReceptionistAuth from "../../../middleware/withReceptionistAuth";
 import ViewAppointmentsPage from "../../../components/ViewAppointmentsPage";
 
-export default function Appointments() {
+
+function Appointments() {
   return <ViewAppointmentsPage />;
 }
+
+export default withReceptionistAuth(Appointments)

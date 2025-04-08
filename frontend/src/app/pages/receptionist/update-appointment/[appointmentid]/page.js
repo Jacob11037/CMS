@@ -3,8 +3,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../../context/AuthContext';
 import axiosPrivate from '../../../../../../utils/axiosPrivate';
+import withReceptionistAuth from '@/app/middleware/withReceptionistAuth';
 
-export default function UpdateAppointmentPage({ params }) {
+function UpdateAppointmentPage({ params }) {
   const [appointment, setAppointment] = useState(null);
   const [error, setError] = useState('');
   const [status, setStatus] = useState('');
@@ -38,7 +39,7 @@ export default function UpdateAppointmentPage({ params }) {
 
     
   try {
-    await axiosPrivate.put(`/appointments/${appointmentid}/`, {
+    await axiosPrivate.put(`/appointments/${params.appointmentid}/`, {
       doctor: appointment.doctor,  
       patient: appointment.patient, 
       start_time: appointment.start_time,  
@@ -46,7 +47,7 @@ export default function UpdateAppointmentPage({ params }) {
       status: status,  
     });
 
-    router.push('/receptionist/appointments');
+    router.push('/pages/receptionist/view-appointments');
   } catch (error) {
     setError('An error occurred while updating the appointment');
   }
@@ -58,7 +59,7 @@ export default function UpdateAppointmentPage({ params }) {
 
   return (
     <div className="container">
-      <h1 className="header">Update Appointment <b>WORK IN PROGRESS</b> </h1>
+      <h1 className="header">Update Appointment </h1>
       {error && <p className="error">{error}</p>}
       
       {appointment ? (
@@ -79,7 +80,7 @@ export default function UpdateAppointmentPage({ params }) {
               value={status}
               onChange={(e) => setStatus(e.target.value)}
             >
-              <option value="Scheduled">Scheduled</option>
+              <option value="Pending">Pending</option>
               <option value="Completed">Completed</option>
               <option value="Cancelled">Cancelled</option>
             </select>
@@ -93,3 +94,5 @@ export default function UpdateAppointmentPage({ params }) {
     </div>
   );
 }
+
+export default withReceptionistAuth(UpdateAppointmentPage);
