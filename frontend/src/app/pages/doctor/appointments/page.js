@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import axiosPrivate from "../../../../../utils/axiosPrivate";
 import Select from "react-select"; 
 import "../../../styles/doctorappointments.css"; 
+import withDoctorAuth from "@/app/middleware/withDoctorAuth";
 
 const DoctorPage = () => {
     const [appointments, setAppointments] = useState([]);
@@ -63,7 +64,8 @@ const DoctorPage = () => {
         const fetchAppointments = async () => {
             try {
                 const response = await axiosPrivate.get("/appointments/");
-                setAppointments(response.data);
+                console.log(response)
+                setAppointments(response.data.results);
             } catch (error) {
                 console.error("Error fetching appointments:", error);
             }
@@ -293,4 +295,4 @@ const DoctorPage = () => {
     );
 };
 
-export default DoctorPage;
+export default withDoctorAuth(DoctorPage);

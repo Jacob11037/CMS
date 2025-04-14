@@ -1,11 +1,15 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation"; 
+import { useRouter, useSearchParams } from "next/navigation"; 
 import axiosPrivate from "../../../../../utils/axiosPrivate";
 import "../../../styles/appointmentform.css";
+import withReceptionistAuth from "@/app/middleware/withReceptionistAuth";
+import { toast } from 'react-toastify';
+
 
 const AppointmentForm = () => {
+  const searchParams = useSearchParams();
   const [formData, setFormData] = useState({
     patient: "",
     doctor: "",
@@ -14,43 +18,111 @@ const AppointmentForm = () => {
     status: "Pending",
   });
 
-  const [patients, setPatients] = useState([]);
+  const [departments, setDepartments] = useState([]);
   const [filteredPatients, setFilteredPatients] = useState([]);
   const [doctors, setDoctors] = useState([]);
+  const [filteredDoctors, setFilteredDoctors] = useState([]);
+  const [selectedDepartment, setSelectedDepartment] = useState("");
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [isRescheduling, setIsRescheduling] = useState(false);
+  const [justSelected, setJustSelected] = useState(false);
 
-  const router = useRouter(); // Initialize the router
 
+  const router = useRouter();
+
+  // Fetch initial data
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchInitialData = async () => {
       try {
-        const doctorsRes = await axiosPrivate.get("doctors/");
+        const [deptRes, doctorsRes] = await Promise.all([
+          axiosPrivate.get("departments/"),
+          axiosPrivate.get("doctors/")
+        ]);
+        setDepartments(deptRes.data);
         setDoctors(doctorsRes.data);
-        console.log(doctorsRes);
+
+        // Check for reschedule params
+        if (searchParams.get('reschedule')) {
+          setIsRescheduling(true);
+          const patientId = searchParams.get('patient');
+          const doctorId = searchParams.get('doctor');
+          const startTime = searchParams.get('start_time');
+          const endTime = searchParams.get('end_time');
+
+          if (patientId && doctorId) {
+            // Fetch patient details
+            try {
+              const patientRes = await axiosPrivate.get(`patients/${patientId}/`);
+              const patient = patientRes.data;
+              
+              // Set form data
+              setFormData({
+                patient: patient.id,
+                doctor: doctorId,
+                start_time: startTime || "",
+                end_time: endTime || "",
+                status: "Pending",
+              });
+              
+              // Set search query
+              setSearchQuery(`${patient.first_name} ${patient.last_name}`);
+              
+              // Find department for the doctor
+              const doctor = doctorsRes.data.find(d => d.staff_id === doctorId);
+              if (doctor) {
+                setSelectedDepartment(doctor.department_id);
+              }
+
+              toast.info('Please adjust the appointment details for rescheduling');
+            } catch (error) {
+              toast.error('Failed to load patient details');
+            }
+          }
+        }
       } catch (error) {
-        console.error("Error fetching doctors:", error);
+        console.error("Error fetching data:", error);
+        toast.error('Failed to load initial data');
       }
     };
-    fetchData();
+    fetchInitialData();
   }, []);
 
-  // Debounce Effect for Searching Patients
+  // Filter doctors by selected department
+  useEffect(() => {
+    if (selectedDepartment) {
+      const filtered = doctors.filter(doctor => 
+        doctor.department_id == selectedDepartment
+      );
+      setFilteredDoctors(filtered);
+      // Reset doctor selection when department changes
+      setFormData(prev => ({ ...prev, doctor: "" }));
+    } else {
+      setFilteredDoctors([]);
+    }
+  }, [selectedDepartment, doctors]);
+
+  // Patient search debounce
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
+
+      if (justSelected) {
+        setJustSelected(false); // Reset flag, skip this search
+        return;
+      }
+
+
       if (searchQuery.length > 1) {
         fetchPatients(searchQuery);
       } else {
-        setFilteredPatients([]); // Clear results if query is empty or too short
+        setFilteredPatients([]);
       }
-    }, 300); // Wait 300ms before making the API call
+    }, 300);
 
-    return () => clearTimeout(delayDebounceFn); // Cleanup function
+    return () => clearTimeout(delayDebounceFn);
   }, [searchQuery]);
 
-  // Fetch patients based on search query
   const fetchPatients = async (query) => {
     try {
       const response = await axiosPrivate.get(`patients/?search=${query}`);
@@ -61,93 +133,90 @@ const AppointmentForm = () => {
   };
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  
+
+  const handleDepartmentChange = (e) => {
+    setSelectedDepartment(e.target.value);
   };
 
   const validateForm = () => {
     let newErrors = {};
-    const now = new Date(); // Current date and time
-    const maxFutureDate = new Date();
-    maxFutureDate.setDate(now.getDate() + 3); // 3 days in the future
-  
-    // Check if patient is selected
-    if (!formData.patient) newErrors.patient = "Patient is required.";
-  
-    // Check if doctor is selected
-    if (!formData.doctor) newErrors.doctor = "Doctor is required.";
-  
-    // Check if start time is selected
-    if (!formData.start_time) {
-      newErrors.start_time = "Start time is required.";
-    } else {
-      const startTime = new Date(formData.start_time);
-  
-      // Check if start time is in the past
-      if (startTime < now) {
-        newErrors.start_time = "Start time cannot be in the past.";
-      }
-  
-      // Check if start time is more than 3 days in the future
-      if (startTime > maxFutureDate) {
-        newErrors.start_time = "Start time cannot be more than 3 days in the future.";
+    if (!formData.patient) newErrors.patient = "Patient is required";
+    if (!formData.doctor) newErrors.doctor = "Doctor is required";
+    if (!formData.start_time) newErrors.start_time = "Start time is required";
+    if (!formData.end_time) newErrors.end_time = "End time is required";
+    
+    // Validate that end time is after start time
+    if (formData.start_time && formData.end_time) {
+      const start = new Date(formData.start_time);
+      const end = new Date(formData.end_time);
+      
+      if (end <= start) {
+        newErrors.end_time = "End time must be after start time";
       }
     }
-  
-    // Check if end time is selected
-    if (!formData.end_time) {
-      newErrors.end_time = "End time is required.";
-    } else {
-      const endTime = new Date(formData.end_time);
-  
-      // Check if end time is in the past
-      if (endTime < now) {
-        newErrors.end_time = "End time cannot be in the past.";
-      }
-  
-      // Check if end time is more than 3 days in the future
-      if (endTime > maxFutureDate) {
-        newErrors.end_time = "End time cannot be more than 3 days in the future.";
-      }
-  
-      // Check if end time is after start time
-      if (formData.start_time && formData.end_time && formData.start_time >= formData.end_time) {
-        newErrors.end_time = "End time must be after start time.";
-      }
-    }
-  
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSuccessMessage("");
-    if (!validateForm()) return;
+    // Combine start date with end time
+    const combinedData = {
+      ...formData,
+      end_time: formData.start_time 
+        ? `${formData.start_time.split('T')[0]}T${formData.end_time || '00:00'}`
+        : ''
+    };
+
+    if (!validateForm(combinedData)) return;
 
     try {
       setLoading(true);
-      await axiosPrivate.post("appointments/", formData);
-      setSuccessMessage("Appointment successfully created!");
-      setFormData({ patient: "", doctor: "", start_time: "", end_time: "", status: "Pending" });
-      setSearchQuery(""); // Reset search query after form submission
-      setFilteredPatients([]); // Clear filtered patients after form submission
+      await axiosPrivate.post("appointments/", combinedData);
+
+      toast.success(
+        isRescheduling 
+          ? 'Appointment rescheduled successfully!' 
+          : 'Appointment created successfully!'
+      );
+
+      // Reset form
+      setFormData({
+        patient: "",
+        doctor: "",
+        start_time: "",
+        end_time: "",
+        status: "Pending",
+      });
+      setSearchQuery("");
+      setFilteredPatients([]);
+      setSelectedDepartment("");
+      setIsRescheduling(false);
+
     } catch (error) {
-      setErrors({ submit: "Failed to create appointment. Please try again." });
+      const errorMsg = error.response?.data?.message || 
+        (isRescheduling 
+          ? "Failed to reschedule appointment" 
+          : "Failed to create appointment");
+      setErrors({ submit: errorMsg });
+      toast.error(errorMsg);
     } finally {
       setLoading(false);
     }
   };
 
-  // Function to navigate back to the receptionist profile
-  const goBackToProfile = () => {
-    router.push("/pages/receptionist/profile"); // Replace with the actual profile route
-  };
-
   return (
     <div className="container">
-      <h1 className="header">Create Appointment</h1>
-      {successMessage && <p className="success-message">{successMessage}</p>}
-      <form className="form" onSubmit={handleSubmit}>
+      <h1 className="header">
+        {isRescheduling ? 'Reschedule Appointment' : 'Create Appointment'}
+      </h1>
+      
+      <form onSubmit={handleSubmit} className="form">
         {/* Patient Search */}
         <div className="form-group">
           <label>Search Patient:</label>
@@ -156,42 +225,67 @@ const AppointmentForm = () => {
             placeholder="Search by name, phone, or email"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="input-field"
+            disabled={isRescheduling} // Disable if rescheduling
           />
+          {filteredPatients.length > 0 && (
+            <div className="dropdown">
+              {filteredPatients.map(patient => (
+                <div 
+                  key={patient.id}
+                  onClick={() => {
+                    setFormData({ ...formData, patient: patient.id });
+                    setSearchQuery(`${patient.first_name} ${patient.last_name}`);
+                    setFilteredPatients([]);
+                    setJustSelected(true); // Prevent follow-up search
+                  }}
+                >
+                  {patient.first_name} {patient.last_name} ({patient.phone})
+                </div>
+              ))}
+            </div>
+          )}
+          {errors.patient && <span className="error">{errors.patient}</span>}
         </div>
 
-        {/* Show Filtered Patient Options */}
-        {filteredPatients.length > 0 && (
-          <div className="patient-results">
-            {filteredPatients.map((patient) => (
-              <div
-                key={patient.id}
-                onClick={() => {
-                  setFormData((prevData) => ({ ...prevData, patient: patient.id }));
-                  setSearchQuery(`${patient.first_name} ${patient.last_name}`);
-                  setFilteredPatients([]);
-                }}
-              >
-                {patient.first_name} {patient.last_name} ({patient.phone})
-              </div>
-            ))}
-          </div>
-        )}
-
-        {errors.patient && <p className="error-message">{errors.patient}</p>}
-
+        {/* Department Selection */}
         <div className="form-group">
-          <label>Doctor:</label>
-          <select name="doctor" value={formData.doctor} onChange={handleChange} className="input-field">
-            <option value="">Select Doctor</option>
-            {doctors.map((doctor) => (
-              <option key={doctor.staff_id} value={doctor.staff_id}>
-                Dr. {doctor.first_name} {doctor.last_name}
+          <label>Department:</label>
+          <select 
+            value={selectedDepartment} 
+            onChange={handleDepartmentChange}
+            required
+            disabled={isRescheduling} // Disable if rescheduling
+          >
+            <option value="">Select Department</option>
+            {departments.map(dept => (
+              <option key={dept.id} value={dept.id}>
+                {dept.department_name}
               </option>
             ))}
           </select>
-          {errors.doctor && <p className="error-message">{errors.doctor}</p>}
         </div>
+
+        {/* Doctor Selection */}
+        {selectedDepartment && (
+          <div className="form-group">
+            <label>Doctor:</label>
+            <select
+              name="doctor"
+              value={formData.doctor}
+              onChange={handleChange}
+              required
+              disabled={isRescheduling} // Disable if rescheduling
+            >
+              <option value="">Select Doctor</option>
+              {filteredDoctors.map(doctor => (
+                <option key={doctor.staff_id} value={doctor.staff_id}>
+                  Dr. {doctor.first_name} {doctor.last_name}
+                </option>
+              ))}
+            </select>
+            {errors.doctor && <span className="error">{errors.doctor}</span>}
+          </div>
+        )}
 
         {/* Start Time */}
         <div className="form-group">
@@ -201,42 +295,42 @@ const AppointmentForm = () => {
             name="start_time"
             value={formData.start_time}
             onChange={handleChange}
-            className="input-field"
+            required
           />
-          {errors.start_time && <p className="error-message">{errors.start_time}</p>}
+          {errors.start_time && <span className="error">{errors.start_time}</span>}
         </div>
 
         {/* End Time */}
         <div className="form-group">
           <label>End Time:</label>
           <input
-            type="datetime-local"
+            type="time"
             name="end_time"
             value={formData.end_time}
             onChange={handleChange}
-            className="input-field"
+            required
           />
-          {errors.end_time && <p className="error-message">{errors.end_time}</p>}
+          {errors.end_time && <span className="error">{errors.end_time}</span>}
         </div>
 
-        {/* Submit Button */}
-        <button type="submit" className="button" disabled={loading}>
-          {loading ? "Creating..." : "Create Appointment"}
-        </button>
+        <div className="button-group">
+          <button type="submit" disabled={loading}>
+            {loading 
+              ? isRescheduling ? "Rescheduling..." : "Creating..." 
+              : isRescheduling ? "Reschedule Appointment" : "Create Appointment"}
+          </button>
+          <button 
+            type="button" 
+            onClick={() => router.push("/pages/receptionist/view-appointments")}
+          >
+            Back to Appointments
+          </button>
+        </div>
 
-        {/* Go Back Button */}
-        <button
-          type="button" // Ensure this is a button and not a submit button
-          className="button secondary-button" // Add a secondary class for styling
-          onClick={goBackToProfile}
-        >
-          Go Back to Profile
-        </button>
-
-        {errors.submit && <p className="error-message">{errors.submit}</p>}
+        {errors.submit && <div className="error">{errors.submit}</div>}
       </form>
     </div>
   );
 };
 
-export default AppointmentForm;
+export default withReceptionistAuth(AppointmentForm);

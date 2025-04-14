@@ -15,7 +15,7 @@ export default function LoginPage() {
 
   const [error, setError] = useState('');
   const [formErrors, setFormErrors] = useState({});
-  const [isReceptionist, setIsReceptionist] = useState(null);
+  const [userRole, setUserRole] = useState(null); 
 
   const router = useRouter();
   const { login } = useAuth(); // Get login function from context
@@ -34,31 +34,41 @@ export default function LoginPage() {
   });
 
   const checkRole = async () => {
-    try {
-      const response = await axiosPrivate.get('/auth/check-role/');
-      const role = response.data.role;
+  try {
+    const response = await axiosPrivate.get('/auth/check-role/');
+    setUserRole(response.data.role);
+  } catch (error) {
+    console.error('Error checking role:', error);
+    setUserRole(null);
+  }
+};
 
-      if (role === 'receptionist') {
-        setIsReceptionist(true);
-      } else {
-        setIsReceptionist(false);
-      }
-    } catch (error) {
-      console.error('Error checking role:', error);
-      setIsReceptionist(false); // Default to no access on error
-    }
-  };
-
-  // Use useEffect to handle redirection after isReceptionist is updated
-  useEffect(() => {
-    if (isReceptionist !== null) {
-      if (isReceptionist) {
+// Handle redirection based on role
+useEffect(() => {
+  if (userRole !== null) {
+    switch (userRole) {
+      case 'admin':
+        router.push('/pages/admin/profile');
+        break;
+      case 'receptionist':
         router.push('/pages/receptionist/profile');
-      } else {
+        break;
+      case 'doctor':
         router.push('/pages/doctor/profile');
-      }
+        break;
+      case 'pharmacist':
+        router.push('/pages/pharmacist/profile');
+        break;
+      case 'labtechnician':
+        router.push('/pages/labtechnician/profile');
+        break;
+      default:
+        // For unknown roles or no access
+        router.push('/pages/forbidden');
+        break;
     }
-  }, [isReceptionist, router]);
+  }
+}, [userRole, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
