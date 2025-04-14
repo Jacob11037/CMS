@@ -130,46 +130,6 @@ class Appointment(models.Model):
         """Return the patient's full name."""
         return f"{self.patient.first_name} {self.patient.last_name}"
 
-    def clean(self):
-        now = timezone.now()  # Current date and time
-        max_future_date = now + timezone.timedelta(days=3)  # 3 days in the future
-
-        # Check if start time is in the past
-        if self.start_time < now:
-            raise ValidationError("Start time cannot be in the past.")
-
-        # Check if start time is more than 3 days in the future
-        if self.start_time > max_future_date:
-            raise ValidationError("Start time cannot be more than 3 days in the future.")
-
-        # Check if end time is in the past
-        if self.end_time < now:
-            raise ValidationError("End time cannot be in the past.")
-
-        # Check if end time is more than 3 days in the future
-        if self.end_time > max_future_date:
-            raise ValidationError("End time cannot be more than 3 days in the future.")
-
-        # Check if end time is after start time
-        if self.end_time <= self.start_time:
-            raise ValidationError("End time must be after start time.")
-
-        # Check for overlapping appointments on the same date
-        overlapping_appointments = Appointment.objects.filter(
-            doctor=self.doctor,
-            start_time__date=self.start_time.date(),  # Check if the date of the start time is the same
-            end_time__gte=self.start_time,  # Check if the existing appointment overlaps with the new one
-            start_time__lte=self.end_time  # Check if the new appointment overlaps with the existing one
-        ).exclude(id=self.id)  # Exclude the current instance when updating
-
-        if overlapping_appointments.exists():
-            raise ValidationError("This time slot is already booked on the selected date. Please choose another time.")
-
-    def save(self, *args, **kwargs):
-        """ Call the clean method before saving """
-        self.clean()
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return f"Appointment for {self.patient.first_name} {self.patient.last_name} with {self.doctor.first_name} {self.doctor.last_name} from {self.start_time.strftime('%Y-%m-%d %H:%M')} to {self.end_time.strftime('%H:%M')}"
 

@@ -64,7 +64,8 @@ const DoctorPage = () => {
         const fetchAppointments = async () => {
             try {
                 const response = await axiosPrivate.get("/appointments/");
-                setAppointments(response.data);
+                console.log(response)
+                setAppointments(response.data.results);
             } catch (error) {
                 console.error("Error fetching appointments:", error);
             }

@@ -179,6 +179,8 @@ function RegisterDoctor() {
                 onChange={handleChange}
                 required
               />
+              {errors.first_name && <p className={styles.errorText}>{errors.first_name}</p>}
+
             </div>
             <div>
               <label>Last Name*</label>
@@ -189,6 +191,8 @@ function RegisterDoctor() {
                 onChange={handleChange}
                 required
               />
+              {errors.last_name && <p className={styles.errorText}>{errors.last_name}</p>}
+
             </div>
             <div>
               <label>Date of Birth*</label>
@@ -253,6 +257,7 @@ function RegisterDoctor() {
                 onChange={handleChange}
                 rows={3}
               />
+              {errors.address && <p className={styles.errorText}>{errors.address}</p>}
             </div>
           </div>
         </div>
@@ -271,7 +276,7 @@ function RegisterDoctor() {
               >
                 <option value="">Select Department</option>
                 {departments.map((dept) => (
-                  <option key={dept.pk} value={dept.pk}>
+                  <option key={dept.id} value={dept.id}>
                     {dept.department_name}
                   </option>
                 ))}
@@ -288,6 +293,8 @@ function RegisterDoctor() {
                 step="0.01"
                 min="0"
               />
+              {errors.salary && <p className={styles.errorText}>{errors.salary}</p>}
+
             </div>
             <div>
               <label>Availability</label>

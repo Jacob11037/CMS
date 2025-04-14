@@ -14,7 +14,10 @@ from .serializers import AppointmentSerializer, PatientSerializer, PrescriptionS
     ConsultationBillSerializer, DoctorSerializer, ReceptionistSerializer, DoctorViewSerializer, DepartmentSerializer, \
     ReceptionistViewSerializer, MedicalHistorySerializer, MedicineSerializer, LabTestSerializer
 from rest_framework.pagination import PageNumberPagination
+from django_filters.rest_framework import DjangoFilterBackend
 
+from .utils.filters import AppointmentFilter
+from .utils.pagination import LimitTenPagination
 from .utils.roles import get_user_role
 
 
@@ -136,22 +139,27 @@ class PatientViewSet(viewsets.ModelViewSet):
 class AppointmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsDoctor | IsReceptionist | IsAdmin]
     serializer_class = AppointmentSerializer
-    queryset = Appointment.objects.all()
+    queryset = Appointment.objects.all().order_by('-start_time')
+    pagination_class = LimitTenPagination
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_class = AppointmentFilter
+    search_fields = ['doctor__name', 'patient__name']
 
     def get_queryset(self):
         user = self.request.user
+        queryset = super().get_queryset()
 
         if user.is_superuser or user.groups.filter(name="Admin").exists():
-            return Appointment.objects.all()
+            return queryset
 
         # Check if the user is a doctor
         if Doctor.objects.filter(user=user).exists():
             doctor = Doctor.objects.get(user=user)
-            return Appointment.objects.filter(doctor__staff_id=doctor.staff_id)
+            return queryset.filter(doctor__staff_id=doctor.staff_id)
 
         # Check if the user is a receptionist
         if Receptionist.objects.filter(user=user).exists():
-            return Appointment.objects.all()
+            return queryset
 
         # If the user is neither, return an empty queryset (or raise a permission error)
         raise PermissionDenied("You do not have permission to view appointments.")
