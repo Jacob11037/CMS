@@ -75,7 +75,7 @@ REST_FRAMEWORK = {
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),  # Short token lifespan
-    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),  # Longer refresh lifespan
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Longer refresh lifespan
     "ROTATE_REFRESH_TOKENS": True,  # Issue a new refresh token when used
     'AUTH_HEADER_TYPES': ("Bearer",),
 }

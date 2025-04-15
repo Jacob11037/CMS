@@ -1,13 +1,33 @@
-// utils/dateFormatter.js
+export const formatDateTime = (dateTimeString) => {
+  if (!dateTimeString) return '';
+  
+  const date = new Date(dateTimeString);
+  
+  // Format date as YYYY-MM-DD
+  const formattedDate = date.toLocaleDateString();
+  
+  // Format time as HH:MM AM/PM
+  const formattedTime = date.toLocaleTimeString([], { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true
+  });
+  
+  return `${formattedDate} ${formattedTime}`;
+};
 
-export const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: 'numeric',
-      minute: 'numeric',
-      hour12: true,
-    });
-  };
+// Optionally add more formatting functions
+export const formatTimeOnly = (dateTimeString) => {
+  if (!dateTimeString) return '';
+  const date = new Date(dateTimeString);
+  return date.toLocaleTimeString([], { 
+    hour: '2-digit', 
+    minute: '2-digit',
+    hour12: true 
+  });
+};
+
+export const formatDateOnly = (dateTimeString) => {
+  if (!dateTimeString) return '';
+  return new Date(dateTimeString).toLocaleDateString();
+};

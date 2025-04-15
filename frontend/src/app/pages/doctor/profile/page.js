@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // Import useRouter
 import axiosPrivate from "../../../../../utils/axiosPrivate";
 import "../../../styles/doctorprofilepage.css"; // Import the CSS file
+import withDoctorAuth from "@/app/middleware/withDoctorAuth";
 
 const DoctorPage = () => {
     const [doctorData, setDoctorData] = useState(null);
@@ -58,4 +59,4 @@ const DoctorPage = () => {
     );
 };
 
-export default DoctorPage;
+export default withDoctorAuth(DoctorPage);

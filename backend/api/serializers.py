@@ -4,6 +4,7 @@ from warnings import catch_warnings
 
 from django.contrib.auth.models import User
 from django.db import transaction
+from django.utils import timezone
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -41,23 +42,36 @@ class AppointmentSerializer(serializers.ModelSerializer):
         return f"{obj.patient.first_name} {obj.patient.last_name}"
 
     def validate(self, data):
-        """Ensure no overlapping appointments for the same doctor on the same date."""
-        if data['end_time'] <= data['start_time']:
+        now = timezone.now()
+        max_future_date = now + timezone.timedelta(days=3)
+
+        # Skip validation for partial updates (e.g., PATCH only status)
+        if self.partial and 'status' in data and len(data) == 1:
+            return data
+
+        # Start/End Time Validation
+        start_time = data.get('start_time', self.instance.start_time if self.instance else None)
+        end_time = data.get('end_time', self.instance.end_time if self.instance else None)
+
+        if start_time < now:
+            raise serializers.ValidationError("Start time cannot be in the past.")
+        if start_time > max_future_date:
+            raise serializers.ValidationError("Start time cannot be more than 3 days in the future.")
+        if end_time <= start_time:
             raise serializers.ValidationError("End time must be after start time.")
 
-        overlapping_appointments = Appointment.objects.filter(
-            doctor=data['doctor'],  # This now uses staff_id
-            start_time__date=data['start_time'].date(),  # Check if the date is the same
-            end_time__gte=data['start_time'],  # Check if the existing appointment overlaps with the new one
-            start_time__lte=data['end_time']  # Check if the new appointment overlaps with the existing one
-        )
+        # Overlap Validation (only for new/full updates)
+        if not self.partial:
+            overlapping = Appointment.objects.filter(
+                doctor=data.get('doctor', self.instance.doctor if self.instance else None),
+                start_time__date=start_time.date(),
+                end_time__gte=start_time,
+                start_time__lte=end_time,
+                status='Pending'
+            ).exclude(id=self.instance.id if self.instance else None)
 
-        # Exclude the instance when updating (if applicable)
-        if self.instance:
-            overlapping_appointments = overlapping_appointments.exclude(id=self.instance.id)
-
-        if overlapping_appointments.exists():
-            raise serializers.ValidationError("This time slot is already booked on the selected date. Please choose another time.")
+            if overlapping.exists():
+                raise serializers.ValidationError("Time slot already booked with a pending appointment.")
 
         return data
 
@@ -68,7 +82,7 @@ class PrescriptionMedicineSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PrescriptionMedicine
-        fields = ['medicine_id', 'medicine_name', 'dosage', 'frequency']  # Include dosage and frequency
+        fields = ['medicine_id', 'medicine_name', 'dosage', 'frequency', 'quantity']
 
 class PrescriptionLabTestSerializer(serializers.ModelSerializer):
     test_name = serializers.CharField(source='lab_test.test_name')
@@ -144,23 +158,25 @@ class ReceptionistViewSerializer(serializers.ModelSerializer):
 
 
 class ReceptionistSerializer(serializers.ModelSerializer):
-    username = serializers.CharField(source='user.username')  # Reference `User` model
-    password = serializers.CharField(source='user.password', write_only=True)
+    username = serializers.CharField(write_only=True)  # Handle username separately
+    password = serializers.CharField(write_only=True)  # Hide password from responses
 
     class Meta:
         model = Receptionist
-        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'phone']
+        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'phone', 'address', 'sex', 'is_active', 'joining_date',
+                  'salary', 'date_of_birth']
 
     def create(self, validated_data):
         try:
-            with transaction.atomic():  # Start a database transaction
+            with transaction.atomic():
+                username = validated_data.pop('username')
+                password = validated_data.pop('password')
 
-                user_data = validated_data.pop('user')
+                # Create a new User instance
+                user = User.objects.create(username=username)
+                user.set_password(password)  # Hash the password properly
+                user.save()
 
-                user = User.objects.create_user(
-                    username=user_data['username'],
-                    password=user_data['password'],
-                )
                 receptionist = Receptionist.objects.create(user=user, **validated_data)
                 return receptionist
         except Exception as e:
@@ -171,7 +187,8 @@ class DoctorSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)  # Hide password from responses
     class Meta:
         model = Doctor
-        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'department_id', 'phone']
+        fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'department_id', 'phone', 'date_of_birth',
+                  'address', 'sex', 'is_active', 'joining_date', 'salary']
 
     def create(self, validated_data):
         try:

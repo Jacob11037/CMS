@@ -22,6 +22,9 @@ router.register(r'medicines', MedicineViewSet, basename='medicine')
 router.register(r'lab-tests', LabTestViewSet, basename='lab-test')
 router.register(r'doctors', DoctorListViewSet, basename='doctor')
 router.register(r'receptionists', views.ReceptionistViewSet)
+router.register(r'admin/departments', views.DepartmentAdminViewSet, basename="admin-department")
+router.register(r'admin/doctors', DoctorListViewSet, basename='admin-doctor')
+
 
 
 

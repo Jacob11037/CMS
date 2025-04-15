@@ -25,6 +25,9 @@ def home(request):
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # Auth
+    path('auth/', include('djoser.urls.jwt')),  # /api/auth/token/
+    path('auth/', include('djoser.urls')),  # /api/auth/token/
     path('api/', include([
         # Main app endpoints directly under /api/
         path('', include('api.urls')),  # /api/doctors/, /api/patients/

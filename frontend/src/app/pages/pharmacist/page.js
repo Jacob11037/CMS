@@ -1,7 +1,9 @@
+'use client';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../styles/pharmacist/dashboard.module.css'
+import withReceptionistAuth from '@/app/middleware/withReceptionistAuth';
 
-export default function PharmacistDashboard() {
+function PharmacistDashboard() {
   return (
     <div className="min-vh-100 d-flex flex-column" style={{ backgroundImage: "url('/background.jpg')", backgroundSize: 'cover', backgroundPosition: 'center' }}>
       <nav className="navbar navbar-expand-lg navbar-dark bg-dark shadow">
@@ -22,4 +24,6 @@ export default function PharmacistDashboard() {
       </div>
     </div>
   );
-}
+};
+
+export default withReceptionistAuth(PharmacistDashboard);
