@@ -1,43 +1,45 @@
 from django.db import models
+from django.contrib.auth.models import User
+from api.models import *
 
 # Create your models here.
-class LabTechnician(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    staff_id = models.CharField(max_length=10, unique=True)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-    email = models.EmailField(unique=True)
-    phone = models.CharField(max_length=10, null=True)
-    date_of_birth = models.DateField()
-    is_active = models.BooleanField(default=True)
-    joining_date = models.DateField(auto_now_add=True)
-    address = models.TextField(null=True, blank=True)
-    salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+# class LabTechnician(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     staff_id = models.CharField(max_length=10, unique=True)
+#     first_name = models.CharField(max_length=30)
+#     last_name = models.CharField(max_length=30)
+#     email = models.EmailField(unique=True)
+#     phone = models.CharField(max_length=10, null=True)
+#     date_of_birth = models.DateField()
+#     is_active = models.BooleanField(default=True)
+#     joining_date = models.DateField(auto_now_add=True)
+#     address = models.TextField(null=True, blank=True)
+#     salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
-    SEX_CHOICES = [
-        ('Male', 'Male'),
-        ('Female', 'Female'),
-        ('Other', 'Other')
-    ]
-    sex = models.CharField(max_length=10, choices=SEX_CHOICES, null=True, blank=True)
-    lab_certification= models.CharField(max_length=100, null=True, blank=True)
+#     SEX_CHOICES = [
+#         ('Male', 'Male'),
+#         ('Female', 'Female'),
+#         ('Other', 'Other')
+#     ]
+#     sex = models.CharField(max_length=10, choices=SEX_CHOICES, null=True, blank=True)
+#     lab_certification= models.CharField(max_length=100, null=True, blank=True)
 
-    def save (self, *args, **kwargs):
-        if not self.staff_id:
-            last_labtechnician = LabTechnician.objects.order_by('-staff_id').first()
+#     def save (self, *args, **kwargs):
+#         if not self.staff_id:
+#             last_labtechnician = LabTechnician.objects.order_by('-staff_id').first()
 
-            if last_labtechnician:
-                last_labtechnician _num = int(last_labtechnician .staff_id[2:])
-                new_labtechnician _num = last_labtechnician _num + 1
-            else:
-                new_labtechnician _num = 1001
+#             if last_labtechnician:
+#                 last_labtechnician_num = int(last_labtechnician. staff_id[2:])
+#                 new_labtechnician_num = last_labtechnician_num + 1
+#             else:
+#                 new_labtechnician_num = 1001
 
-            self.staff_id = f"LT{new_labtechnician _num:04d}"
+#             self.staff_id = f"LT{new_labtechnician_num:04d}"
 
-        super().save(*args,**kwargs)
+#         super().save(*args,**kwargs)
 
-    def __str__(self):
-        return self.staff_id
+#     def __str__(self):
+#         return self.staff_id
 
    
 class LabReport(models.Model):

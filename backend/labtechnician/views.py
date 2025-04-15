@@ -3,8 +3,8 @@
 from django.shortcuts import render
 from rest_framework import generics, status
 from rest_framework.response import Response
-from .models import LabTechnician, LabReports
-from .serializers import LabTechnicianSerializer, LabReportsSerializer
+from .models import LabTechnician, LabReport
+from .serializers import LabTechnicianSerializer, LabReportSerializer, PrescriptionLabTestSerializer,LabTestSerializer,LabTestResultSerializer
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 import os
@@ -13,6 +13,8 @@ from .permissions import IsLabTechnician
 from .permissions import IsDoctorOrLabTechnician
 from rest_framework.views import APIView
 from .permissions import IsDoctor
+from api.models import PrescriptionLabTest,LabTest
+from django.utils import timezone
 
 
 # View Pending Lab Tests
@@ -78,10 +80,15 @@ class PendingPrescriptionLabTestsView(generics.ListAPIView):
 class LabTechnicianDashboardView(APIView):
     permission_classes = [IsLabTechnician]
     
+    # def get(self, request):
+    #     if not hasattr(request.user, 'labtechnician'):
+    #         return Response({"error": "Lab technician profile missing"}, status=400)
+
     def get(self, request):
         pending_tests = PrescriptionLabTest.objects.filter(status='Pending').count()
+        print(request.user)
         completed_today = LabReport.objects.filter(
-            generated_by=request.user.labtechnician,
+            # generated_by=request.user,
             created_at__date=timezone.now().date()
         ).count()
         
@@ -102,20 +109,31 @@ class LabReportListByPrescriptionView(generics.ListAPIView):
             prescription__doctor__user=self.request.user
         )
 
+# class GenerateLabReportView(generics.CreateAPIView):
+#     queryset = LabReport.objects.all()
+#     serializer_class = LabReportSerializer  # Uses the new serializer
+
+#     def perform_create(self, serializer):
+#         # Auto-set 'requested_by' to the prescribing doctor
+#         prescription = serializer.validated_data['prescription']
+#         serializer.save(requested_by=prescription.doctor.staff_id)
+        
+#         # PDF generation (call your PDF utility here)
+#         lab_report = serializer.instance
+#         pdf_path = generate_pdf_for_lab_report(lab_report)  # Implement this
+#         lab_report.report_pdf = pdf_path
+#         lab_report.save()
+
+
 
 from rest_framework import generics, status
 from rest_framework.response import Response
-from .models import LabTestPrescription, LabTest, LabTestResult
-from .serializers import (
-    LabTestResultSerializer,
-    LabTestSerializer,
-    LabTestPrescriptionSerializer
-)
+
 from .permissions import IsLabTechnician, IsDoctorOrLabTechnician
 
-# 4.1 Lab Test Prescription Management
+# # 4.1 Lab Test Prescription Management
 class LabTestResultDetailView(generics.UpdateAPIView):
-    queryset = LabTestPrescription.objects.all()
+    queryset = PrescriptionLabTest.objects.all()
     serializer_class = LabTestResultSerializer
     permission_classes = [IsLabTechnician]
     http_method_names = ['put']  # Only allow PUT
@@ -133,36 +151,25 @@ class AppointmentLabTestResultsView(generics.ListAPIView):
 
     def get_queryset(self):
         appointment_id = self.kwargs['appointment_id']
-        return LabTestPrescription.objects.filter(
+        return PrescriptionLabTest.objects.filter(
             prescription__appointment_id=appointment_id
         )
 
-class LabTestResultsByDateView(generics.ListAPIView):
-    serializer_class = LabTestResultSerializer
-    permission_classes = [IsLabTechnician]
+# class LabTestResultsByDateView(generics.ListAPIView):
+#     serializer_class = LabTestResultSerializer
+#     permission_classes = [IsLabTechnician]
 
-    def get_queryset(self):
-        start_date = self.request.query_params.get('startDate')
-        end_date = self.request.query_params.get('endDate')
-        return LabTestPrescription.objects.filter(
-            created_at__date__gte=start_date,
-            created_at__date__lte=end_date
-        )
+#     def get_queryset(self):
+#         start_date = self.request.query_params.get('startDate')
+#         end_date = self.request.query_params.get('endDate')
+#         return PrescriptionLabTest.objects.filter(
+#             created_at__date__gte=start_date,
+#             created_at__date__lte=end_date
+#         )
 
-class DeactivateLabTestPrescriptionView(generics.UpdateAPIView):
-    queryset = LabTestPrescription.objects.all()
-    permission_classes = [IsDoctorOrLabTechnician]
-    http_method_names = ['patch']
-
-    def patch(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.is_active = False
-        instance.save()
-        return Response({'status': 'deactivated'}, status=status.HTTP_200_OK)
-
-# 4.2 Lab Test Management
+# # 4.2 Lab Test Management
 class LabTestListView(generics.ListCreateAPIView):
-    queryset = LabTest.objects.filter(is_active=True)
+    queryset = LabTest.objects.all()
     serializer_class = LabTestSerializer
     permission_classes = [IsDoctorOrLabTechnician]
 
@@ -171,13 +178,31 @@ class LabTestDetailView(generics.RetrieveUpdateAPIView):
     serializer_class = LabTestSerializer
     permission_classes = [IsDoctorOrLabTechnician]
 
-class DeactivateLabTestView(generics.UpdateAPIView):
-    queryset = LabTest.objects.all()
-    permission_classes = [IsDoctorOrLabTechnician]
-    http_method_names = ['patch']
+# from django_filters import rest_framework as filters
 
-    def patch(self, request, *args, **kwargs):
-        instance = self.get_object()
-        instance.is_active = False
-        instance.save()
-        return Response({'status': 'deactivated'}, status=status.HTTP_200_OK)
+# class PrescriptionLabTestFilter(filters.FilterSet):
+#     start_date = filters.DateFilter(field_name='created_at', lookup_expr='gte')
+#     end_date = filters.DateFilter(field_name='created_at', lookup_expr='lte')
+    
+#     class Meta:
+#         model = PrescriptionLabTest
+#         fields = []
+
+# class LabTestResultsByDateView(generics.ListAPIView):
+#     serializer_class = LabTestResultSerializer
+#     permission_classes = [IsLabTechnician]
+#     filter_backends = [filters.DjangoFilterBackend]
+#     filterset_class = PrescriptionLabTestFilter
+    
+#     def get_queryset(self):
+#         return PrescriptionLabTest.objects.all().order_by('-created_at')
+
+# Without django-filter
+def get_queryset(self):
+    start_date = self.request.query_params.get('startDate')
+    end_date = self.request.query_params.get('endDate')
+    return PrescriptionLabTest.objects.filter(
+        created_at__date__gte=start_date,
+        created_at__date__lte=end_date
+    )
+

@@ -7,8 +7,7 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from .models import Patient, Appointment, PrescriptionLabTest, PrescriptionMedicine, Prescription, ConsultationBill, \
-    Bill, Doctor, Receptionist, Department, MedicalHistory, Medicine, LabTest
+from .models import Patient, Appointment, PrescriptionLabTest, PrescriptionMedicine, Prescription, ConsultationBill,Bill, Doctor, Receptionist, Department, MedicalHistory, Medicine, LabTest
 
 
 class PatientSerializer(serializers.ModelSerializer):

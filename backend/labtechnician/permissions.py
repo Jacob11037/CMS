@@ -2,13 +2,13 @@ from rest_framework import permissions
 from django.contrib.auth.models import Group
 
 class IsLabTechnician(permissions.BasePermission):
-    """Allow only users in the 'LabTechnicians' group."""
+    """Allow only users in the 'LabTechnician' group."""
     message = "Only lab technicians can perform this action."
 
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
-        return request.user.groups.filter(name='LabTechnicians').exists()
+        return request.user.groups.filter(name='LabTechnician').exists()
 
 
 class IsDoctor(permissions.BasePermission):
@@ -28,7 +28,7 @@ class IsDoctorOrLabTechnician(permissions.BasePermission):
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
             return False
-        return request.user.groups.filter(name__in=['Doctors', 'LabTechnicians']).exists()
+        return request.user.groups.filter(name__in=['Doctors', 'LabTechnician']).exists()
 
 
 class IsReportRequesterOrLabTechnician(permissions.BasePermission):
@@ -45,7 +45,7 @@ class IsReportRequesterOrLabTechnician(permissions.BasePermission):
 
     def has_object_permission(self, request, view, obj):
         # Lab technicians have full access
-        if request.user.groups.filter(name='LabTechnicians').exists():
+        if request.user.groups.filter(name='LabTechnician').exists():
             return True
         
         # Doctors can access only their requested reports
@@ -63,3 +63,5 @@ class CanChangeLabTestStatus(permissions.BasePermission):
         if request.method in permissions.SAFE_METHODS:
             return True
         return IsLabTechnician().has_permission(request, view)
+
+        

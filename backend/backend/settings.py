@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'api',
     "djoser",
     'rest_framework_simplejwt.token_blacklist',
-
+    'labtechnician',
+    
 ]
 
 MIDDLEWARE = [
@@ -69,6 +70,8 @@ REST_FRAMEWORK = {
             'rest_framework.permissions.IsAuthenticated',
         ),
 }
+
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),  # Short token lifespan

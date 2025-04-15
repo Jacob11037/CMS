@@ -1,12 +1,13 @@
+from rest_framework import serializers
+from .models import LabTechnician,LabReport,LabReportTestResult,LabTest
+from api.models import PrescriptionLabTest
+
+
 class LabTechnicianSerializer(serializers.ModelSerializer):
     class Meta:
         model = LabTechnician
         fields = ['user', 'staff_id' ,'first_name', 'last_name','email','date_of_birth', 'is_active', 'joining_date','address','salary']
 
-
-
-from rest_framework import serializers
-from .models import LabReport, LabReportTestResult, PrescriptionLabTest
 
 class LabReportTestResultSerializer(serializers.ModelSerializer):
     class Meta:
@@ -62,24 +63,9 @@ class PrescriptionLabTestSerializer(serializers.ModelSerializer):
             'patient_name', 'test_date', 'status'
         ]
 
-class GenerateLabReportView(generics.CreateAPIView):
-    queryset = LabReport.objects.all()
-    serializer_class = LabReportSerializer  # Uses the new serializer
-
-    def perform_create(self, serializer):
-        # Auto-set 'requested_by' to the prescribing doctor
-        prescription = serializer.validated_data['prescription']
-        serializer.save(requested_by=prescription.doctor.staff_id)
-        
-        # PDF generation (call your PDF utility here)
-        lab_report = serializer.instance
-        pdf_path = generate_pdf_for_lab_report(lab_report)  # Implement this
-        lab_report.report_pdf = pdf_path
-        lab_report.save()
 
 
-from rest_framework import serializers
-from .models import LabTest, LabTestPrescription
+
 
 class LabTestSerializer(serializers.ModelSerializer):
     class Meta:
@@ -89,7 +75,7 @@ class LabTestSerializer(serializers.ModelSerializer):
 
 class LabTestResultSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LabTestPrescription
+        model = PrescriptionLabTest
         fields = ['id', 'test', 'result_data', 'status', 'remarks']
         extra_kwargs = {
             'test': {'read_only': True},  # Prevent test ID changes
@@ -98,5 +84,5 @@ class LabTestResultSerializer(serializers.ModelSerializer):
 
 class LabTestPrescriptionSerializer(serializers.ModelSerializer):
     class Meta:
-        model = LabTestPrescription
+        model = PrescriptionLabTest
         fields = '__all__'

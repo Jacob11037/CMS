@@ -31,12 +31,13 @@ urlpatterns = [
 
         # New apps with subpaths
         path('labtechnician/', include('labtechnician.urls')),  # /api/medical/
-        path('pharmacist/', include('pharmacist.urls')),  # /api/pharmacist/
-        path('admin/', include('Admin.urls')),  # /api/admin/
+        # path('pharmacist/', include('pharmacist.urls')),  # /api/pharmacist/
+        # path('admin/', include('Admin.urls')),  # /api/admin/
 
         # Auth
-        path('auth/', include('djoser.urls.jwt')),  # /api/auth/token/
     ])),
+    path('auth/', include('djoser.urls.jwt')),  # /api/auth/token/
+
     path('', home),
 
 ]
