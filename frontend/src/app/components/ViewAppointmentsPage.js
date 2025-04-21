@@ -17,7 +17,7 @@ export default function ViewAppointmentsPage() {
     patient_name:'',
     start_time:''
   });
-  const [showFilters, setShowFilters] = useState(false)
+  const [showFilters, setShowFilters] = useState(false);
 
   const router = useRouter();
   const { isAuthenticated } = useAuth(); // Get authentication state
@@ -43,14 +43,17 @@ export default function ViewAppointmentsPage() {
           doctor_name: filters.doctor_name,
           start_time: filters.start_time,
         };
-        console.log(params)
         const response = await axiosPrivate.get('/appointments/', {params});
-        console.log(response)
 
         setAppointments(response.data.results);
         setTotalPages(response.data.total_pages);
       } catch (error) {
-        setError('An error occurred while fetching appointments');
+        if (error.response?.status === 404) {
+          // reset to first page and try again automatically
+          setCurrentPage(1);
+        } else {
+          setError('An error occurred while fetching appointments');
+        }
       }
     };
 
@@ -95,28 +98,47 @@ export default function ViewAppointmentsPage() {
               type="text" 
               placeholder="Search Patient" 
               value={filters.patient_name}
-              onChange={(e) => setFilters({ ...filters, patient_name: e.target.value })}
+              onChange={(e) => {
+                setFilters({ ...filters, patient_name: e.target.value });
+                setCurrentPage(1);
+              }}
             />
             <input 
               type="text" 
               placeholder="Search Doctor" 
               value={filters.doctor_name}
-              onChange={(e) => setFilters({ ...filters, doctor_name: e.target.value })}
+              onChange={(e) => {
+                setFilters({ ...filters, doctor_name: e.target.value });
+                setCurrentPage(1);
+              }}
             />
             <input 
               type="date"
               value={filters.start_time}
-              onChange={(e) => setFilters({ ...filters, start_time: e.target.value })}
+              onChange={(e) => {
+                setFilters({ ...filters, start_time: e.target.  value });
+                setCurrentPage(1);}}
             />
             <select
               value={filters.status}
-              onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+              onChange={(e) => {
+                setFilters({ ...filters, status: e.target.value });
+                setCurrentPage(1);}}
             >
               <option value="">All Statuses</option>
               <option value="Pending">Pending</option>
               <option value="Completed">Completed</option>
               <option value="Cancelled">Cancelled</option>
             </select>
+            <button className="button"
+              onClick={()=>setFilters({
+                  status:'',
+                  patient_name:'',
+                  doctor_name:'',
+                  start_time:''
+                })}>
+                  Reset Filters
+              </button>
           </div>
           }
 
@@ -164,7 +186,7 @@ export default function ViewAppointmentsPage() {
 
         </div>
       ) : (
-        <p>No appointments available.</p>
+        <p>No appointments found.</p>
       )}
     </div>
   );

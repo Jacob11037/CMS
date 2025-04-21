@@ -5,6 +5,7 @@ import axiosPrivate from "../../../../../utils/axiosPrivate";
 import Select from "react-select"; 
 import "../../../styles/doctorappointments.css"; 
 import withDoctorAuth from "@/app/middleware/withDoctorAuth";
+import { formatDateTime } from "../../../../../utils/dateFormatter";
 
 const DoctorPage = () => {
     const [appointments, setAppointments] = useState([]);
@@ -19,6 +20,18 @@ const DoctorPage = () => {
     const [medicines, setMedicines] = useState([]);
     const [labTests, setLabTests] = useState([]);
     const [errors, setErrors] = useState({});
+
+
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(1);
+
+    const [filters, setFilters] = useState({
+        status:'',
+        patient_name:'',
+        start_time:''
+      });
+    const [showFilters, setShowFilters] = useState(false);
+
 
     // Format medicines for React Select
     const medicineOptions = medicines.map(medicine => ({
@@ -63,19 +76,34 @@ const DoctorPage = () => {
     useEffect(() => {
         const fetchAppointments = async () => {
             try {
-                const response = await axiosPrivate.get("/appointments/");
-                console.log(response)
+                const params = {
+                    page : currentPage,
+                    status : filters.status,
+                    patient_name : filters.patient_name,
+                    start_time : filters.start_time,
+                };
+                const response = await axiosPrivate.get("/appointments/", {params});
                 setAppointments(response.data.results);
+                setTotalPages(response.data.total_pages);
+
             } catch (error) {
-                console.error("Error fetching appointments:", error);
+                if (error.response?.status === 404) {
+                    // reset to first page and try again automatically
+                    setCurrentPage(1);
+                  } else {
+                    console.log('An error occurred while fetching appointments');
+                  }
             }
         };
         fetchAppointments();
-    }, []);
+    }, [filters, currentPage]);
 
     const handleAppointmentClick = async (appointment) => {
         try {
+            console.log(appointment)
+
             const response = await axiosPrivate.get(`/medical-history/?patient_id=${appointment.patient}`);
+            console.log(response.data)
             setMedicalHistory(response.data);
             setSelectedAppointment(appointment);
         } catch (error) {
@@ -107,6 +135,7 @@ const DoctorPage = () => {
                 id: medicine.value,
                 dosage: medicine.dosage,
                 frequency: medicine.frequency,
+                quantity: medicine.quantity,
             }));
 
             // Prepare lab tests data with test_date
@@ -140,22 +169,90 @@ const DoctorPage = () => {
     return (
         <div className="container">
             <h1 className="header">Doctor's Dashboard</h1>
-            <h2 className="subHeader">Upcoming Appointments</h2>
-            <ol className="appointmentList">
-                {appointments.map((appointment) => (
-                    <li key={appointment.id} className="appointmentItem">
-                        <div
-                            className="appointmentCard"
-                            onClick={() => handleAppointmentClick(appointment)}
-                        >
-                            <p className="appointmentText">
-                                <strong>{appointment.patient_name}</strong> - {appointment.start_time}
-                            </p>
-                        </div>
-                    </li>
-                ))}
-            </ol>
-
+            <h2 className="subHeader">View Appointments</h2>
+            <div>
+                <button className="button"
+                onClick={()=>setShowFilters(!showFilters)}>
+                    {showFilters? 'Hide Filters': 'Show Filters'}
+                </button>
+                {showFilters && 
+                    <div className="filters-panel">
+                    <input 
+                    type="text" 
+                    placeholder="Search Patient" 
+                    value={filters.patient_name}
+                    onChange={(e) => {
+                        setFilters({ ...filters, patient_name: e.target.value })
+                        setCurrentPage(1); // reset to first page when filter changes
+                    }}
+                    />
+                    <input 
+                    type="date"
+                    value={filters.start_time}
+                    onChange={(e) => {
+                        setFilters({ ...filters, start_time: e.target.value })
+                        setCurrentPage(1);
+                    }}
+                    />
+                    <select
+                    value={filters.status}
+                    onChange={(e) => {
+                        setFilters({ ...filters, status: e.target.value })
+                        setCurrentPage(1);
+                    }}
+                    >
+                    <option value="">All Statuses</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <button className="button"
+                    onClick={()=>setFilters({
+                        status:'',
+                        patient_name:'',
+                        start_time:''
+                      })}>
+                        Reset Filters
+                    </button>
+                </div>
+                }
+            </div>
+            {appointments.length > 0?
+            (<div>
+                <ol className="appointmentList">
+                    {appointments.map((appointment) => (
+                        <li key={appointment.id} className="appointmentItem">
+                            <div
+                                className="appointmentCard"
+                                onClick={() => handleAppointmentClick(appointment)}
+                            >
+                                <p className="appointmentText">
+                                    <strong>{appointment.patient_name}</strong> - {formatDateTime(appointment.start_time)}
+                                </p>
+                            </div>
+                        </li>
+                    ))}
+                </ol>
+                <div className="pagination">
+          <button 
+            onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+            disabled={currentPage === 1}
+          >
+            Previous
+          </button>
+          <span>Page {currentPage} of {totalPages}</span>
+          <button 
+            onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+            disabled={currentPage === totalPages}
+          >
+            Next
+          </button>
+        </div>
+            </div>)
+            : 
+            (<div>
+                <p>No Appointments found.</p>
+            </div>)}
             {selectedAppointment && (
                 <div className="patientDetails">
                     <h3 className="sectionHeader">Patient Details</h3>
@@ -174,7 +271,7 @@ const DoctorPage = () => {
                                         <ul>
                                             {history.prescription.medicines.map((medicine, index) => (
                                                 <li key={index}>
-                                                    {medicine.medicine_name} - {medicine.dosage} ({medicine.frequency})
+                                                    {medicine.medicine_name} - {medicine.dosage} ({medicine.frequency}) <br/>quantity : {medicine.quantity}
                                                 </li>
                                             ))}
                                         </ul>
@@ -249,6 +346,16 @@ const DoctorPage = () => {
                                         onChange={(e) => {
                                             const updatedMedicines = prescriptionData.medicines.map(m =>
                                                 m.value === medicine.value ? { ...m, frequency: e.target.value } : m
+                                            );
+                                            setPrescriptionData({ ...prescriptionData, medicines: updatedMedicines });
+                                        }}
+                                    />
+                                    <input
+                                        type="text"
+                                        placeholder="Quantity"
+                                        onChange={(e) => {
+                                            const updatedMedicines = prescriptionData.medicines.map(m =>
+                                                m.value === medicine.value ? { ...m, quantity: e.target.value } : m
                                             );
                                             setPrescriptionData({ ...prescriptionData, medicines: updatedMedicines });
                                         }}
