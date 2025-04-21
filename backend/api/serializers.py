@@ -109,7 +109,7 @@ class MedicalHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MedicalHistory
-        fields = ['id', 'patient', 'diagnosis', 'medical_notes', 'prescription']  # Include prescription field
+        fields = ['id', 'patient', 'diagnosis', 'prescription']  # Include prescription field
 
 
 
