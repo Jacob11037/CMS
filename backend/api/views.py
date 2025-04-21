@@ -1,7 +1,6 @@
 from django.contrib.auth.models import Group
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -13,7 +12,6 @@ from .permissions import IsDoctor, IsReceptionist, IsAdmin
 from .serializers import AppointmentSerializer, PatientSerializer, PrescriptionSerializer, BillSerializer, \
     ConsultationBillSerializer, DoctorSerializer, ReceptionistSerializer, DoctorViewSerializer, DepartmentSerializer, \
     ReceptionistViewSerializer, MedicalHistorySerializer, MedicineSerializer, LabTestSerializer
-from rest_framework.pagination import PageNumberPagination
 from django_filters.rest_framework import DjangoFilterBackend
 
 from .utils.filters import AppointmentFilter
@@ -49,7 +47,9 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
                 prescription=prescription,
                 medicine_id=medicine_data['id'],
                 dosage=medicine_data['dosage'],
-                frequency=medicine_data['frequency']
+                frequency=medicine_data['frequency'],
+                quantity = medicine_data['quantity']
+
             )
 
         # Add lab tests with test_date
@@ -64,7 +64,6 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
         medical_history = MedicalHistory.objects.create(
             patient_id=patient_id,
             diagnosis=diagnosis,
-            medical_notes=medical_notes,
             prescription=prescription
         )
 
@@ -92,12 +91,20 @@ class MedicalHistoryViewSet(viewsets.ModelViewSet):
         role = get_user_role(user)
 
         if role == "admin":
-            return MedicalHistory.objects.all().select_related(
+            queryset= MedicalHistory.objects.all().select_related(
                 'prescription'
             ).prefetch_related(
                 'prescription__prescriptionmedicine_set',
                 'prescription__prescriptionlabtest_set'
             )
+            patient_id = self.request.query_params.get('patient_id')
+            if patient_id:
+                try:
+                    patient_id = int(patient_id)
+                    queryset = queryset.filter(patient_id=patient_id)
+                except ValueError:
+                    raise ValidationError("Invalid patient_id provided.")
+            return queryset
 
         elif role == "doctor":
             doctor = Doctor.objects.filter(user=user).first()
