@@ -17,10 +17,15 @@ from api.models import PrescriptionLabTest,LabTest
 from django.utils import timezone
 
 
+
 # View Pending Lab Tests
 class PendingLabTestsView(generics.ListAPIView):
-    queryset = PrescriptionLabTest.objects.filter(status='Pending')
     serializer_class = PrescriptionLabTestSerializer
+
+    def get_queryset(self):
+        queryset = PrescriptionLabTest.objects.all()  # Your original queryset
+        print(queryset.query)  # Prints the raw SQL query
+        return queryset
 
 # Generate Lab Report (Submit Results + PDF)
 class GenerateLabReportView(generics.CreateAPIView):
@@ -32,7 +37,8 @@ class GenerateLabReportView(generics.CreateAPIView):
         prescription_id = request.data.get('prescription_id')
         test_results = request.data.get('test_results')  # List of {prescription_lab_test_id, result_data}
         generated_by_id = request.data.get('generated_by')
-
+        
+        print(request.data)
         try:
             prescription = Prescription.objects.get(id=prescription_id)
             lab_report = LabReport.objects.create(
@@ -60,6 +66,8 @@ class GenerateLabReportView(generics.CreateAPIView):
             return Response(LabReportSerializer(lab_report).data, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class PendingPrescriptionLabTestsView(generics.ListAPIView):
     serializer_class = PrescriptionLabTestSerializer
@@ -67,7 +75,7 @@ class PendingPrescriptionLabTestsView(generics.ListAPIView):
 
     def get_queryset(self):
         user = self.request.user
-        if user.groups.filter(name='LabTechnicians').exists():
+        if user.groups.filter(name='LabTechnician').exists():
             return PrescriptionLabTest.objects.filter(status='Pending')
         elif user.groups.filter(name='Doctors').exists():
             return PrescriptionLabTest.objects.filter(
@@ -89,7 +97,7 @@ class LabTechnicianDashboardView(APIView):
         print(request.user)
         completed_today = LabReport.objects.filter(
             # generated_by=request.user,
-            created_at__date=timezone.now().date()
+            # created_at__date=timezone.now().date()
         ).count()
         
         return Response({
@@ -109,25 +117,13 @@ class LabReportListByPrescriptionView(generics.ListAPIView):
             prescription__doctor__user=self.request.user
         )
 
-# class GenerateLabReportView(generics.CreateAPIView):
-#     queryset = LabReport.objects.all()
-#     serializer_class = LabReportSerializer  # Uses the new serializer
 
-#     def perform_create(self, serializer):
-#         # Auto-set 'requested_by' to the prescribing doctor
-#         prescription = serializer.validated_data['prescription']
-#         serializer.save(requested_by=prescription.doctor.staff_id)
-        
-#         # PDF generation (call your PDF utility here)
-#         lab_report = serializer.instance
-#         pdf_path = generate_pdf_for_lab_report(lab_report)  # Implement this
-#         lab_report.report_pdf = pdf_path
-#         lab_report.save()
 
 
 
 from rest_framework import generics, status
 from rest_framework.response import Response
+from django_filters import rest_framework as filters
 
 from .permissions import IsLabTechnician, IsDoctorOrLabTechnician
 
@@ -155,54 +151,37 @@ class AppointmentLabTestResultsView(generics.ListAPIView):
             prescription__appointment_id=appointment_id
         )
 
-# class LabTestResultsByDateView(generics.ListAPIView):
-#     serializer_class = LabTestResultSerializer
-#     permission_classes = [IsLabTechnician]
 
-#     def get_queryset(self):
-#         start_date = self.request.query_params.get('startDate')
-#         end_date = self.request.query_params.get('endDate')
-#         return PrescriptionLabTest.objects.filter(
-#             created_at__date__gte=start_date,
-#             created_at__date__lte=end_date
-#         )
 
 # # 4.2 Lab Test Management
 class LabTestListView(generics.ListCreateAPIView):
     queryset = LabTest.objects.all()
     serializer_class = LabTestSerializer
     permission_classes = [IsDoctorOrLabTechnician]
+    
 
 class LabTestDetailView(generics.RetrieveUpdateAPIView):
     queryset = LabTest.objects.all()
     serializer_class = LabTestSerializer
     permission_classes = [IsDoctorOrLabTechnician]
-
-# from django_filters import rest_framework as filters
-
-# class PrescriptionLabTestFilter(filters.FilterSet):
-#     start_date = filters.DateFilter(field_name='created_at', lookup_expr='gte')
-#     end_date = filters.DateFilter(field_name='created_at', lookup_expr='lte')
     
-#     class Meta:
-#         model = PrescriptionLabTest
-#         fields = []
 
-# class LabTestResultsByDateView(generics.ListAPIView):
-#     serializer_class = LabTestResultSerializer
-#     permission_classes = [IsLabTechnician]
-#     filter_backends = [filters.DjangoFilterBackend]
-#     filterset_class = PrescriptionLabTestFilter
+class PrescriptionLabTestFilter(filters.FilterSet):
+    start_date = filters.DateFilter(field_name='created_at', lookup_expr='gte')
+    end_date = filters.DateFilter(field_name='created_at', lookup_expr='lte')
     
-#     def get_queryset(self):
-#         return PrescriptionLabTest.objects.all().order_by('-created_at')
+    class Meta:
+        model = PrescriptionLabTest
+        fields = []
 
-# Without django-filter
-def get_queryset(self):
-    start_date = self.request.query_params.get('startDate')
-    end_date = self.request.query_params.get('endDate')
-    return PrescriptionLabTest.objects.filter(
-        created_at__date__gte=start_date,
-        created_at__date__lte=end_date
-    )
+class LabTestResultsByDateView(generics.ListAPIView):
+    serializer_class = LabTestResultSerializer
+    permission_classes = [IsLabTechnician]
+    filter_backends = [filters.DjangoFilterBackend]
+    filterset_class = PrescriptionLabTestFilter
+    
+    def get_queryset(self):
+        return PrescriptionLabTest.objects.all()
+
+
 

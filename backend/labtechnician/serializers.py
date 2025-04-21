@@ -29,9 +29,9 @@ class LabReportSerializer(serializers.ModelSerializer):
         model = LabReport
         fields = [
             'id', 'prescription', 'remarks', 'requested_by', 
-            'created_at', 'generated_by', 'report_pdf', 'test_results'
+            'generated_by', 'report_pdf', 'test_results'
         ]
-        read_only_fields = ['id', 'requested_by', 'created_at', 'report_pdf']
+        read_only_fields = ['id', 'requested_by',  'report_pdf']
 
     def create(self, validated_data):
         # Extract test_results data
@@ -71,7 +71,6 @@ class LabTestSerializer(serializers.ModelSerializer):
     class Meta:
         model = LabTest
         fields = '__all__'
-        read_only_fields = ('created_at',)
 
 class LabTestResultSerializer(serializers.ModelSerializer):
     class Meta:

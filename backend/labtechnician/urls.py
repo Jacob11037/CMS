@@ -134,7 +134,7 @@
 
 from django.urls import path
 from . import views
-from django.utils import timezone
+# from django.utils import timezone
 
 urlpatterns = [
     # Lab Test Prescription Endpoints
@@ -162,6 +162,9 @@ urlpatterns = [
          name='lab-results-by-date'),
     # Lab Test CRUD
     path('labtests/', views.LabTestListView.as_view(), name='labtest-list'),
-    path('labtests/<int:lab_test_id>/', views.LabTestDetailView.as_view(), name='labtest-detail'),
+    path('labtests/<int:pk>/', views.LabTestDetailView.as_view(), name='labtest-detail'),
   
 ]
+#path('labtests/results/<int:lab_test_prescription_id>/', 
+     #     views.LabTestResultDetailView.as_view(), 
+     #     name='record-lab-test-result')
