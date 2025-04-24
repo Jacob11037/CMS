@@ -134,6 +134,7 @@
 
 from django.urls import path
 from . import views
+# from labtechnician.views import PrescriptionLabTestListAPIView
 # from django.utils import timezone
 
 urlpatterns = [
@@ -146,12 +147,16 @@ urlpatterns = [
     path('reports/by-prescription/<int:prescription_id>/', 
          views.LabReportListByPrescriptionView.as_view(), 
          name='lab-reports-by-prescription'),
+    path('reports/<int:report_id>/download/', 
+         views.LabReportDownloadView.as_view(), 
+         name='lab-report-download'),
+
     
     # Dashboard
     path('dashboard/', views.LabTechnicianDashboardView.as_view(), name='lab-technician-dashboard'),
     
     # Lab Test Management
-    path('labtests/results/<int:lab_test_prescription_id>/', 
+    path('labtests/results/<int:pk>/', 
          views.LabTestResultDetailView.as_view(), 
          name='record-lab-test-result'),
     path('labtests/results/appointment/<int:appointment_id>/', 
@@ -163,8 +168,11 @@ urlpatterns = [
     # Lab Test CRUD
     path('labtests/', views.LabTestListView.as_view(), name='labtest-list'),
     path('labtests/<int:pk>/', views.LabTestDetailView.as_view(), name='labtest-detail'),
-  
+    path('lab-tests/', views.PrescriptionLabTestListAPIView.as_view(), name='prescription-lab-tests'),
 ]
+
+  
+
 #path('labtests/results/<int:lab_test_prescription_id>/', 
      #     views.LabTestResultDetailView.as_view(), 
      #     name='record-lab-test-result')

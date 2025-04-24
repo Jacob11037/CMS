@@ -33,7 +33,13 @@ urlpatterns = [
         path('', include('api.urls')),  # /api/doctors/, /api/patients/
 
         # New apps with subpaths
+
         path('labtechnician/', include('labtechnician.urls')),  # /api/medical/
+
+       
+
+
+
         # path('pharmacist/', include('pharmacist.urls')),  # /api/pharmacist/
         # path('admin/', include('Admin.urls')),  # /api/admin/
 

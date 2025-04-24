@@ -164,7 +164,7 @@ class Prescription(models.Model):
     notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"Prescription for {self.patient} on {self.appointment.appointment_date}"
+        return f"Prescription for {self.patient} "
 
 
 # Custom Intermediate Table for Prescription-Medicine (Many-to-Many with Extra Fields)

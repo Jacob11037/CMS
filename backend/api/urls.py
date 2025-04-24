@@ -44,4 +44,7 @@ urlpatterns = [
     path('receptionist/register/', register_receptionist, name='receptionist-register'),
     path('doctor/profile/', doctor_profile, name='doctor-profile'),
     path('receptionist/profile/', receptionist_profile, name='receptionist-profile'),
+
+
+
 ]

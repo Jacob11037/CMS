@@ -52,17 +52,36 @@ class LabReportSerializer(serializers.ModelSerializer):
         
         return lab_report
 
+# class PrescriptionLabTestSerializer(serializers.ModelSerializer):
+#     lab_test_name = serializers.CharField(source='lab_test.test_name', read_only=True)
+#     patient_name = serializers.CharField(source='prescription.patient.name', read_only=True)
+
+#     class Meta:
+#         model = PrescriptionLabTest
+#         fields = [
+#             'id', 'lab_test', 'lab_test_name', 'prescription', 
+#             'patient_name', 'test_date', 'status'
+#         ]
+
+from rest_framework import serializers
+from .models import PrescriptionLabTest
+
 class PrescriptionLabTestSerializer(serializers.ModelSerializer):
-    lab_test_name = serializers.CharField(source='lab_test.test_name', read_only=True)
-    patient_name = serializers.CharField(source='prescription.patient.name', read_only=True)
+    patient = serializers.SerializerMethodField()
+    doctor = serializers.SerializerMethodField()
+    test_name = serializers.CharField(source='lab_test.test_name', read_only=True)
+    prescribed_date = serializers.DateField(source='test_date', read_only=True)
+    status = serializers.CharField(read_only=True)
 
     class Meta:
         model = PrescriptionLabTest
-        fields = [
-            'id', 'lab_test', 'lab_test_name', 'prescription', 
-            'patient_name', 'test_date', 'status'
-        ]
+        fields = ['patient', 'doctor', 'test_name', 'prescribed_date', 'status']
 
+    def get_patient(self, obj):
+        return f"{obj.prescription.patient.first_name} {obj.prescription.patient.last_name}"
+
+    def get_doctor(self, obj):
+        return f"{obj.prescription.doctor.first_name} {obj.prescription.doctor.last_name}"
 
 
 
@@ -75,13 +94,13 @@ class LabTestSerializer(serializers.ModelSerializer):
 class LabTestResultSerializer(serializers.ModelSerializer):
     class Meta:
         model = PrescriptionLabTest
-        fields = ['id', 'test', 'result_data', 'status', 'remarks']
+        fields = ['id', 'lab_test', 'status']
         extra_kwargs = {
             'test': {'read_only': True},  # Prevent test ID changes
             'status': {'read_only': True}  # Updated automatically
         }
 
-class LabTestPrescriptionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PrescriptionLabTest
-        fields = '__all__'
+# class LabTestPrescriptionSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = PrescriptionLabTest
+#         fields = '__all__'

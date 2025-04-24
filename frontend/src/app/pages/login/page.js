@@ -60,7 +60,7 @@ useEffect(() => {
         router.push('/pages/pharmacist/profile');
         break;
       case 'labtechnician':
-        router.push('/pages/labtechnician/profile');
+        router.push('/pages/labtechnician/dashboard');
         break;
       default:
         // For unknown roles or no access
