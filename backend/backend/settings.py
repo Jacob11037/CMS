@@ -114,11 +114,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "camp4cms",
+        "NAME": "cmspro",
         "USER": "root",
-        "PASSWORD": "root",
+        "PASSWORD": "Priya@123",
         "HOST": "localhost",
-        "PORT": "3307",
+        "PORT": "3306",
     }
 }
 
