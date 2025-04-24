@@ -4,7 +4,8 @@ from django import forms
 from django.contrib.auth.models import User
 from rest_framework.exceptions import ValidationError
 
-from .models import Receptionist, Doctor, Patient, Department, Appointment, MedicalHistory, Medicine, LabTest
+from .models import Receptionist, Doctor, Patient, Department, Appointment, MedicalHistory, Medicine, LabTest, \
+    Prescription
 
 # # Admin form for creating a new user (admin will enter username and password)
 # class ReceptionistAdminForm(forms.ModelForm):
@@ -115,6 +116,8 @@ admin.site.register(Appointment)
 admin.site.register(MedicalHistory)
 admin.site.register(Medicine)
 admin.site.register(LabTest)
+admin.site.register(Prescription)
+
 
 
 
