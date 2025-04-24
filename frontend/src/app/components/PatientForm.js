@@ -1,10 +1,14 @@
 'use client';
-import { useState } from "react";
-import axiosPrivate from "../../../utils/axiosPrivate";
+
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import "../styles/registerpatient.css";
+import { toast } from 'react-toastify';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaUser, FaPhone, FaEnvelope, FaMapMarkerAlt, FaBirthdayCake, FaTint } from 'react-icons/fa';
+import axiosPrivate from '../../../utils/axiosPrivate';
 
 const PatientForm = () => {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
@@ -15,192 +19,216 @@ const PatientForm = () => {
     blood_group: "",
   });
 
-  const [fieldErrors, setFieldErrors] = useState({});
-  const [errors, setErrors] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [successMessage, setSuccessMessage] = useState("");
+  const [errors, setErrors] = useState({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showModal, setShowModal] = useState(false);
 
-  const router = useRouter();
-
-  const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-
-  const validateForm = (formdata) => {
-    const formErrors = {};
-    const today = new Date();
-
-    if (!formdata.first_name.trim()) {
-      formErrors.first_name = "First name cannot be empty.";
-    } else if (formdata.first_name.trim().length < 2) {
-      formErrors.first_name = "First name must be at least two characters.";
+  const validate = () => {
+    const newErrors = {};
+    if (!formData.first_name.trim()) newErrors.first_name = 'First name is required';
+    if (!formData.last_name.trim()) newErrors.last_name = 'Last name is required';
+    if (!formData.date_of_birth) {
+      newErrors.date_of_birth = 'Date of birth is required';
+    } else if (new Date(formData.date_of_birth) > new Date()) {
+      newErrors.date_of_birth = 'Date of birth cannot be in the future';
     }
-
-    if (!formdata.last_name.trim()) {
-      formErrors.last_name = "Last name cannot be empty.";
-    } else if (formdata.last_name.trim().length < 2) {
-      formErrors.last_name = "Last name must be at least two characters.";
-    }
-
-    if (!formdata.email.trim()) {
-      formErrors.email = "Email cannot be empty.";
-    } else if (!/\S+@\S+\.\S+/.test(formdata.email)) {
-      formErrors.email = "Please enter a valid email address.";
-    }
-
-    const birthDate = new Date(formdata.date_of_birth);
-    if (!formdata.date_of_birth) {
-      formErrors.date_of_birth = "Date of birth cannot be empty.";
-    } else if (birthDate >= today) {
-      formErrors.date_of_birth = "Date of birth must be in the past.";
-    }
-
-    if (!formdata.phone.trim()) {
-      formErrors.phone = "Phone number cannot be empty.";
-    } else if (!/^\d{10}$/.test(formdata.phone)) {
-      formErrors.phone = "Enter a valid phone number (10 digits).";
-    }
-
-    if (!formdata.address.trim()) {
-      formErrors.address = "Address cannot be empty.";
-    }
-
-    if (!formdata.blood_group) {
-      formErrors.blood_group = "Please select a blood group.";
-    }
-
-    setFieldErrors(formErrors);
-    return Object.keys(formErrors).length === 0;
+    if (!formData.phone.trim()) newErrors.phone = 'Phone number is required';
+    else if (!/^\d{10,15}$/.test(formData.phone)) newErrors.phone = 'Enter a valid phone number';
+    if (!formData.email.trim()) newErrors.email = 'Email is required';
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Enter a valid email address';
+    if (!formData.address.trim()) newErrors.address = 'Address is required';
+    if (!formData.blood_group.trim()) newErrors.blood_group = 'Blood group is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setErrors("");
-    setFieldErrors({});
-
-    if (!validateForm(formData)) {
-      setLoading(false);
-      return;
-    }
-
+  const handleSubmit = async () => {
+    if (!validate()) return;
+    setIsSubmitting(true);
     try {
-      const response = await axiosPrivate.post('patients/', formData);
-      setSuccessMessage("Patient successfully Registered!");
-      router.push('/pages/receptionist/appointment');
+      await axiosPrivate.post('/patients/', formData);
+      toast.success('Patient created successfully!');
     } catch (error) {
-      setErrors("An error occurred while registering the patient.");
+      toast.error('Error creating patient');
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
+      setShowModal(false);
     }
   };
+
+  const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
 
   return (
-    <div className="container">
-      <h1 className="header">Register Patient</h1>
-      {successMessage && <p className="success-message">{successMessage}</p>}
-
-      <form className="form" onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>First Name</label>
-          <input
-            type="text"
-            name="first_name"
-            value={formData.first_name}
-            onChange={handleChange}
-            className="input-field"
-          />
-          {fieldErrors.first_name && <p className="error-message">{fieldErrors.first_name}</p>}
+    <motion.div
+      className="container py-5"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+    >
+      <h2 className="mb-4">Register New Patient</h2>
+      <div className="card shadow-sm p-4">
+        <div className="row g-3">
+          <div className="col-md-6">
+            <label className="form-label"><FaUser className="me-2" />First Name</label>
+            <input
+              type="text"
+              name="first_name"
+              value={formData.first_name}
+              onChange={handleChange}
+              className={`form-control ${errors.first_name ? 'is-invalid' : ''}`}
+            />
+            {errors.first_name && <div className="invalid-feedback">{errors.first_name}</div>}
+          </div>
+          <div className="col-md-6">
+            <label className="form-label"><FaUser className="me-2" />Last Name</label>
+            <input
+              type="text"
+              name="last_name"
+              value={formData.last_name}
+              onChange={handleChange}
+              className={`form-control ${errors.last_name ? 'is-invalid' : ''}`}
+            />
+            {errors.last_name && <div className="invalid-feedback">{errors.last_name}</div>}
+          </div>
+          <div className="col-md-6">
+            <label className="form-label"><FaBirthdayCake className="me-2" />Date of Birth</label>
+            <input
+              type="date"
+              name="date_of_birth"
+              value={formData.date_of_birth}
+              onChange={handleChange}
+              className={`form-control ${errors.date_of_birth ? 'is-invalid' : ''}`}
+            />
+            {errors.date_of_birth && <div className="invalid-feedback">{errors.date_of_birth}</div>}
+          </div>
+          <div className="col-md-6">
+            <label className="form-label"><FaPhone className="me-2" />Phone</label>
+            <input
+              type="text"
+              name="phone"
+              value={formData.phone}
+              onChange={handleChange}
+              className={`form-control ${errors.phone ? 'is-invalid' : ''}`}
+            />
+            {errors.phone && <div className="invalid-feedback">{errors.phone}</div>}
+          </div>
+          <div className="col-md-6">
+            <label className="form-label"><FaEnvelope className="me-2" />Email</label>
+            <input
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className={`form-control ${errors.email ? 'is-invalid' : ''}`}
+            />
+            {errors.email && <div className="invalid-feedback">{errors.email}</div>}
+          </div>
+          <div className="col-md-6">
+            <label className="form-label"><FaMapMarkerAlt className="me-2" />Address</label>
+            <input
+              type="text"
+              name="address"
+              value={formData.address}
+              onChange={handleChange}
+              className={`form-control ${errors.address ? 'is-invalid' : ''}`}
+            />
+            {errors.address && <div className="invalid-feedback">{errors.address}</div>}
+          </div>
+          <div className="col-md-6">
+            <label className="form-label"><FaTint className="me-2" />Blood Group</label>
+            <select
+              name="blood_group"
+              value={formData.blood_group}
+              onChange={handleChange}
+              className={`form-select ${errors.blood_group ? 'is-invalid' : ''}`}
+            >
+              <option value="">Select blood group</option>
+              {bloodGroups.map((group) => (
+                <option key={group} value={group}>{group}</option>
+              ))}
+            </select>
+            {errors.blood_group && <div className="invalid-feedback">{errors.blood_group}</div>}
+          </div>
         </div>
-
-        <div className="form-group">
-          <label>Last Name</label>
-          <input
-            type="text"
-            name="last_name"
-            value={formData.last_name}
-            onChange={handleChange}
-            className="input-field"
-          />
-          {fieldErrors.last_name && <p className="error-message">{fieldErrors.last_name}</p>}
-        </div>
-
-        <div className="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            className="input-field"
-          />
-          {fieldErrors.email && <p className="error-message">{fieldErrors.email}</p>}
-        </div>
-
-        <div className="form-group">
-          <label>Date of Birth</label>
-          <input
-            type="date"
-            name="date_of_birth"
-            value={formData.date_of_birth}
-            onChange={handleChange}
-            className="input-field"
-          />
-          {fieldErrors.date_of_birth && <p className="error-message">{fieldErrors.date_of_birth}</p>}
-        </div>
-
-        <div className="form-group">
-          <label>Phone</label>
-          <input
-            type="text"
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            className="input-field"
-          />
-          {fieldErrors.phone && <p className="error-message">{fieldErrors.phone}</p>}
-        </div>
-
-        <div className="form-group">
-          <label>Address</label>
-          <textarea
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            className="input-field"
-          />
-          {fieldErrors.address && <p className="error-message">{fieldErrors.address}</p>}
-        </div>
-
-        <div className="form-group">
-          <label>Blood Group</label>
-          <select
-            name="blood_group"
-            value={formData.blood_group}
-            onChange={handleChange}
-            className="input-field"
+        <div className="mt-4 d-flex gap-3">
+          <button
+            className="btn btn-primary"
+            disabled={isSubmitting}
+            onClick={() => {
+              if (validate()) setShowModal(true);
+            }}
           >
-            <option value="">Select Blood Group</option>
-            {bloodGroups.map((group) => (
-              <option key={group} value={group}>{group}</option>
-            ))}
-          </select>
-          {fieldErrors.blood_group && <p className="error-message">{fieldErrors.blood_group}</p>}
+            {isSubmitting ? 'Submitting...' : 'Submit'}
+          </button>
+          <button
+            className="btn btn-secondary"
+            onClick={() => router.back()}
+          >
+            Cancel
+          </button>
         </div>
+      </div>
 
-        <button type="submit" className="button" disabled={loading}>
-          {loading ? "Registering..." : "Register"}
-        </button>
-
-        {errors && <p className="error-message">{errors}</p>}
-      </form>
-    </div>
+      {/* Confirmation Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            className="modal fade show d-block"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            tabIndex={-1}
+            role="dialog"
+          >
+            <div className="modal-dialog modal-dialog-centered" role="document">
+              <motion.div
+                className="modal-content"
+                initial={{ y: -50 }}
+                animate={{ y: 0 }}
+                exit={{ y: 50 }}
+              >
+                <div className="modal-header">
+                  <h5 className="modal-title">Confirm Patient Registration</h5>
+                  <button
+                    type="button"
+                    className="btn-close"
+                    onClick={() => setShowModal(false)}
+                  ></button>
+                </div>
+                <div className="modal-body">
+                  <p><strong>Name:</strong> {formData.first_name} {formData.last_name}</p>
+                  <p><strong>DOB:</strong> {formData.date_of_birth}</p>
+                  <p><strong>Phone:</strong> {formData.phone}</p>
+                  <p><strong>Email:</strong> {formData.email}</p>
+                  <p><strong>Address:</strong> {formData.address}</p>
+                  <p><strong>Blood Group:</strong> {formData.blood_group}</p>
+                </div>
+                <div className="modal-footer">
+                  <button
+                    type="button"
+                    className="btn btn-success"
+                    onClick={handleSubmit}
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Confirm'}
+                  </button>
+                  <button
+                    type="button"
+                    className="btn btn-secondary"
+                    onClick={() => setShowModal(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </motion.div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.div>
   );
 };
 

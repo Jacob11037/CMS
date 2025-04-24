@@ -70,6 +70,15 @@ class Patient(models.Model):
 
 class Department(models.Model):
     department_name = models.CharField(max_length=100, unique=True)
+    fee = models.DecimalField(max_digits=10, decimal_places=2, default=500.00)
+
+    def clean(self):
+        if self.fee < 0:
+            raise ValidationError("Consultation fee must be a positive number.")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()  # triggers the clean() method
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.department_name
@@ -141,6 +150,7 @@ class Medicine(models.Model):
     medicine_desc = models.CharField(max_length=200)
     manufacturer = models.CharField(max_length=100)
     stock = models.PositiveIntegerField(default=0)
+    requires_prescription = models.BooleanField(default=True)
 
     def __str__(self):
         return self.medicine_name
@@ -150,6 +160,8 @@ class LabTest(models.Model):
     test_name = models.CharField(max_length=100, unique=True)
     price = models.DecimalField(max_digits=10, decimal_places=2)
     test_desc = models.CharField(max_length=200)
+    requires_prescription = models.BooleanField(default=True)
+
 
     def __str__(self):
         return self.test_name
@@ -164,7 +176,7 @@ class Prescription(models.Model):
     notes = models.TextField(blank=True, null=True)
 
     def __str__(self):
-        return f"Prescription for {self.patient} on {self.appointment.appointment_date}"
+        return f"Prescription for {self.patient} on {self.appointment.start_time}"
 
 
 # Custom Intermediate Table for Prescription-Medicine (Many-to-Many with Extra Fields)
@@ -173,7 +185,7 @@ class PrescriptionMedicine(models.Model):
     medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
     dosage = models.CharField(max_length=50)  # E.g., "500mg"
     frequency = models.CharField(max_length=50)  # E.g., "Twice a day"
-    quantity = models.PositiveIntegerField()
+    duration = models.CharField(max_length=50)  # E.g., "5 days"
 
     def __str__(self):
         return f"{self.medicine.medicine_name} for {self.prescription.patient}"
@@ -183,13 +195,10 @@ class PrescriptionMedicine(models.Model):
 class PrescriptionLabTest(models.Model):
     prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE)
     lab_test = models.ForeignKey(LabTest, on_delete=models.CASCADE)
-    test_date = models.DateField()
+    # test_date = models.DateField()
 
     def __str__(self):
         return f"{self.lab_test.test_name} for {self.prescription.patient}"
-
-
-
 
 class MedicalHistory(models.Model):
     patient = models.ForeignKey(Patient, related_name="medical_history", on_delete=models.CASCADE)
@@ -201,56 +210,30 @@ class MedicalHistory(models.Model):
     def __str__(self):
         return f"Medical History for {self.patient} - {self.diagnosis} ({self.date_of_occurrence})"
 
-#
-# @receiver(post_save, sender=Patient)
-# def create_medical_history(sender, instance, created, **kwargs):
-#     if created:
-#         MedicalHistory.objects.create(patient=instance)
-
-
-#REPLACE WITH MEDICINE AND LABTESTBILL
-# class PrescriptionBill(models.Model):
-#     prescription = models.OneToOneField(Prescription, on_delete=CASCADE, null=False, blank=False)
-#     patient = models.ForeignKey(Patient, on_delete=models.CASCADE, null=False, blank=False)
-#     appointment = models.OneToOneField(Appointment, on_delete=models.CASCADE, null=False, blank=False)
-#     amount = models.DecimalField(max_digits=10, decimal_places=2, null=False, blank=False)  # Required field
-#     bill_date = models.DateTimeField(auto_now_add=True, null=False, blank=False)  # Auto-generated date
-#     paid = models.BooleanField(default=False, null=False, blank=False)  # Required field
-#
-#     def __str__(self):
-#         return f"Bill for {self.patient} - Amount: {self.amount}"
-
 class Bill(models.Model):
     BILL_TYPES = [
         ('Medicine', 'Medicine'),
         ('Lab Test', 'Lab Test'),
     ]
-    prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE)
+
+    name = models.CharField(max_length=100, default="Mark Twain")
+    phone_number = models.CharField(max_length=15, null=True)
     paid = models.BooleanField(default=False)
     bill_type = models.CharField(max_length=10, choices=BILL_TYPES)
     bill_date = models.DateTimeField(auto_now_add=True)
     total_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
-    def calculate_total(self):
-        """Calculate the total price based on bill type and quantity."""
-        if self.bill_type == "Medicine":
-            total = sum(
-                pm.medicine.price * pm.quantity  # Multiply price by quantity
-                for pm in PrescriptionMedicine.objects.filter(prescription=self.prescription)
-            )
-        elif self.bill_type == "Lab Test":
-            total = sum(
-                pl.lab_test.price  # Lab tests usually don’t have quantity
-                for pl in PrescriptionLabTest.objects.filter(prescription=self.prescription)
-            )
-        else:
-            total = 0
-
-        self.total_amount = total
-
     def save(self, *args, **kwargs):
-        self.calculate_total()
         super().save(*args, **kwargs)
+
+class MedicineBillItem(models.Model):
+    bill = models.ForeignKey(Bill, on_delete=models.CASCADE, related_name='medicines')
+    medicine = models.ForeignKey(Medicine, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+
+class LabTestBillItem(models.Model):
+    bill = models.ForeignKey(Bill, on_delete=models.CASCADE, related_name='lab_tests')
+    lab_test = models.ForeignKey(LabTest, on_delete=models.CASCADE)
 
 class ConsultationBill(models.Model):  # Renamed from AppointmentBill
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
