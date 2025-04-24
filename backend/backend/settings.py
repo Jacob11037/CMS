@@ -71,7 +71,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),  # Short token lifespan
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=100),  # Short token lifespan
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Longer refresh lifespan
     "ROTATE_REFRESH_TOKENS": True,  # Issue a new refresh token when used
     'AUTH_HEADER_TYPES': ("Bearer",),
@@ -114,11 +114,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "camp4cms",
+        "NAME": "CMSdatabase",
         "USER": "root",
-        "PASSWORD": "root",
+        "PASSWORD": "sindhuarjun@2003",
         "HOST": "localhost",
-        "PORT": "3307",
+        "PORT": "3306",
     }
 }
 

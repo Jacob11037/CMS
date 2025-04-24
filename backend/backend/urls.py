@@ -31,7 +31,8 @@ urlpatterns = [
     path('api/', include([
         # Main app endpoints directly under /api/
         path('', include('api.urls')),  # /api/doctors/, /api/patients/
-
+        path('', include('ADMIN.urls')),  # /api/doctors/, /api/patients
+        
         # New apps with subpaths
         # path('labtechnician/', include('labtechnician.urls')),  # /api/medical/
         # path('pharmacist/', include('pharmacist.urls')),  # /api/pharmacist/
