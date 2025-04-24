@@ -115,7 +115,11 @@ admin.site.register(Appointment)
 admin.site.register(MedicalHistory)
 admin.site.register(Medicine)
 admin.site.register(LabTest)
+<<<<<<< HEAD
 admin.site.register(LabTechnician)
+=======
+admin.site.register(Prescription)
+>>>>>>> a1cfe590bb997220bd1a9ee4bf09c4b435a95d80
 
 
 
