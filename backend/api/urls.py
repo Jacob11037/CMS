@@ -4,7 +4,7 @@ from rest_framework.routers import DefaultRouter
 from api import views
 from api.views import (
     DepartmentReadOnlyViewSet, register_doctor, register_receptionist,
-     doctor_profile, receptionist_profile, check_user_role,
+    doctor_profile, receptionist_profile, check_user_role,
     MedicalHistoryViewSet, MedicineViewSet, LabTestViewSet, DoctorListViewSet
 )
 
@@ -17,6 +17,8 @@ router.register(r'patients', views.PatientViewSet)
 router.register(r'appointments', views.AppointmentViewSet)
 router.register(r'prescription-bills', views.BillViewSet)
 router.register(r'consultation-bills', views.ConsultationBillViewSet)
+router.register(r'bills', views.BillViewSet, basename='general-bill')
+
 router.register(r'medical-history', MedicalHistoryViewSet, basename='medical-history')
 router.register(r'medicines', MedicineViewSet, basename='medicine')
 router.register(r'lab-tests', LabTestViewSet, basename='lab-test')
@@ -44,4 +46,6 @@ urlpatterns = [
     path('receptionist/register/', register_receptionist, name='receptionist-register'),
     path('doctor/profile/', doctor_profile, name='doctor-profile'),
     path('receptionist/profile/', receptionist_profile, name='receptionist-profile'),
+    path('prescriptions/patient/<int:patient_id>/', views.get_prescriptions_by_patient),
+
 ]
