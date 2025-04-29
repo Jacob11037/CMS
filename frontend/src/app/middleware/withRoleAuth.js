@@ -17,9 +17,11 @@ export const withRoleAuth = (allowedRoles) => {
           const token = localStorage.getItem("accessToken");
 
           if (!token) {
-            router.push("/pages/login");
+            const currentPath = window.location.pathname + window.location.search;
+            router.push(`/pages/login?redirectTo=${encodeURIComponent(currentPath)}`);
             return;
           }
+          
 
           try {
             // First verify the token is valid

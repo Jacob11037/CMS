@@ -4,32 +4,38 @@ export const formatDateTime = (dateTimeString) => {
   const date = new Date(dateTimeString);
 
   const formattedDate = date.toLocaleDateString('en-US', {
-    timeZone: 'UTC'
+    year: 'numeric',
+    month: 'numeric',
+    day: 'numeric',
+    timeZone: 'UTC' // Keep UTC for consistent date formatting
   });
 
   const formattedTime = date.toLocaleTimeString('en-US', {
     hour: '2-digit',
     minute: '2-digit',
     hour12: true,
-    timeZone: 'UTC'
+    timeZone: 'UTC' // Ensure UTC for consistent time formatting
   });
 
   return `${formattedDate} ${formattedTime}`;
 };
 
-
-// Optionally add more formatting functions
 export const formatTimeOnly = (dateTimeString) => {
   if (!dateTimeString) return '';
+
   const date = new Date(dateTimeString);
-  return date.toLocaleTimeString([], { 
-    hour: '2-digit', 
+
+  const formattedTime = date.toLocaleTimeString('en-US', {
+    hour: '2-digit',
     minute: '2-digit',
-    hour12: true 
+    hour12: true,
+    timeZone: 'UTC' // Important: Format time in UTC
   });
+
+  return formattedTime;
 };
 
 export const formatDateOnly = (dateTimeString) => {
   if (!dateTimeString) return '';
-  return new Date(dateTimeString).toLocaleDateString();
+  return new Date(dateTimeString).toLocaleDateString(); // Uses the client's local timezone for date
 };
