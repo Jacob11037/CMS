@@ -4,7 +4,7 @@ from django import forms
 from django.contrib.auth.models import User
 from rest_framework.exceptions import ValidationError
 
-from .models import Receptionist, Doctor, Patient, Department, Appointment, MedicalHistory, Medicine, LabTest,Prescription,LabTechnician,Prescription,PrescriptionLabTest
+from .models import Receptionist, Doctor, Patient, Department, Appointment, MedicalHistory, Medicine, LabTest,Prescription,LabTechnician,Prescription,PrescriptionLabTest,Pharmacist
 # # Admin form for creating a new user (admin will enter username and password)
 # class ReceptionistAdminForm(forms.ModelForm):
 #     username = forms.CharField(max_length=150, required=True)

@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     "djoser",
     'rest_framework_simplejwt.token_blacklist',
     'labtechnician',
-    
+    'pharmacist',
+
 ]
 
 MIDDLEWARE = [
@@ -75,7 +76,7 @@ REST_FRAMEWORK = {
 
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),  # Short token lifespan
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=100),  # Short token lifespan
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),  # Longer refresh lifespan
     "ROTATE_REFRESH_TOKENS": True,  # Issue a new refresh token when used
     'AUTH_HEADER_TYPES': ("Bearer",),
@@ -118,11 +119,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "labtechnician",
+        "NAME": "camp4cms",
         "USER": "root",
-        "PASSWORD": "Shreyas@301097",
+        "PASSWORD": "root",
         "HOST": "localhost",
-        "PORT": "3306",
+        "PORT": "3307",
     }
 }
 
