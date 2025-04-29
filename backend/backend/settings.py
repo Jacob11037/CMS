@@ -168,4 +168,4 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-HOSPITAL_NAME = "ABC HOSPITAL"
+# HOSPITAL_NAME = "ABC HOSPITAL"

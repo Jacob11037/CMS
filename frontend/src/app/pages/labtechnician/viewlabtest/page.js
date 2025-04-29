@@ -1,254 +1,175 @@
-// app/labtechnician/page.js
 "use client";
-import { useState, useEffect } from 'react';
-import { Card, Button, Badge, Table, Spinner, Alert, ProgressBar, Modal, Form } from 'react-bootstrap';
-import { 
-  getDashboardStats, 
-  getPendingTests,
-  submitTestResult,
-  generateLabReport,
-  downloadReport
-} from '@/app/services/labServices';
-import { useAuth } from '@/app/context/AuthContext';
 
-export default function LabTechnicianDashboard() {
-  const [stats, setStats] = useState(null);
-  const [pendingTests, setPendingTests] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [showResultModal, setShowResultModal] = useState(false);
-  const [currentTest, setCurrentTest] = useState(null);
-  const [resultData, setResultData] = useState('');
-  const { user } = useAuth();
+import { useEffect, useState } from "react";
+import { fetchLabTests, updateLabTestResult } from "@/app/services/labServices";
+import { Button, Card, Input, Table } from "reactstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
+import UpdateLabTestModal from "@/app/components/UpdateModal";
+
+
+
+export default function ViewLabTestsPage() {
+  const [labTests, setLabTests] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false); // ⬅️ Modal open state
+  const [selectedLabTest, setSelectedLabTest] = useState(null); // ⬅️ Selected lab test for update
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+
 
   useEffect(() => {
-    const fetchData = async () => {
+    async function getLabTests() {
       try {
-        setLoading(true);
-        const [dashboardStats, tests] = await Promise.all([
-          getDashboardStats(),
-          getPendingTests()
-        ]);
-        setStats(dashboardStats);
-        setPendingTests(tests);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        const data = await fetchLabTests();
+        setLabTests(data);
+      } catch (error) {
+        console.error(error);
       }
-    };
-    fetchData();
+    }
+    getLabTests();
   }, []);
 
-  const handleSubmitResult = async () => {
+  const handleOpenUpdate = (labTest) => {
+    setSelectedLabTest(labTest);
+    setIsModalOpen(true);
+  };
+
+  const handleCloseUpdate = () => {
+    setIsModalOpen(false);
+    setSelectedLabTest(null);
+  };
+
+  const handleCancelLabTest = async (labTestId) => {
+    if (!confirm("Are you sure you want to cancel this lab test?")) return;
+  
     try {
-      await submitTestResult(currentTest.id, resultData);
-      setPendingTests(pendingTests.filter(test => test.id !== currentTest.id));
-      setShowResultModal(false);
-      // Refresh stats
-      const updatedStats = await getDashboardStats();
-      setStats(updatedStats);
-    } catch (err) {
-      setError(err.message);
+      await updateLabTestResult(labTestId, { status: "Cancelled" });
+      await refreshLabTests(); // Refresh after update
+    } catch (error) {
+      console.error("Failed to cancel lab test", error);
+    }
+  };
+  
+
+  // Optional: refresh after update
+  const refreshLabTests = async () => {
+    try {
+      const data = await fetchLabTests();
+      setLabTests(data);
+    } catch (error) {
+      console.error(error);
     }
   };
 
-  const handleGenerateReport = async (prescriptionId) => {
-    try {
-      const testResults = pendingTests
-        .filter(test => test.prescription === prescriptionId)
-        .map(test => ({
-          prescription_lab_test_id: test.id,
-          result_data: test.result_data || "Normal" // Default if not entered
-        }));
-      
-      const report = await generateLabReport(
-        prescriptionId,
-        testResults,
-        user.id
-      );
-      
-      // Download the generated report
-      const pdfBlob = await downloadReport(report.id);
-      const url = window.URL.createObjectURL(pdfBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `lab_report_${report.id}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      
-    } catch (err) {
-      setError(err.message);
-    }
-  };
-
-  if (loading) return <Spinner animation="border" className="my-5" />;
-  if (error) return <Alert variant="danger">{error}</Alert>;
+  const filteredTests = labTests.filter((test) =>
+    test.patient.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    test.test_name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   return (
-    <div className="container-fluid">
-      <h2 className="my-4">Lab Technician Dashboard</h2>
-      
-      {/* Stats Overview */}
-      <div className="row mb-4">
-        <div className="col-md-6">
-          <Card className="shadow-sm">
-            <Card.Body>
-              <Card.Title>Pending Tests</Card.Title>
-              <h3 className="text-warning">{stats?.pending_tests || 0}</h3>
-            </Card.Body>
-          </Card>
-        </div>
-        <div className="col-md-6">
-          <Card className="shadow-sm">
-            <Card.Body>
-              <Card.Title>Completed Today</Card.Title>
-              <h3 className="text-success">{stats?.completed_today || 0}</h3>
-            </Card.Body>
-          </Card>
-        </div>
-      </div>
-      
-      {/* Pending Tests Table */}
-      <Card className="shadow-sm mb-4">
-        <Card.Header className="bg-white">
-          <h5>Pending Laboratory Tests</h5>
-        </Card.Header>
-        <Card.Body>
-          <Table striped hover responsive>
-            <thead>
+    <div className="container py-4">
+      <h2 className="mb-4">Lab Tests</h2>
+
+      <div className="d-flex justify-content-between align-items-center mb-4">
+  <Input
+    type="text"
+    placeholder="Search by Patient or Test Name"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    style={{ maxWidth: "300px" }}
+  />
+  <Button color="success" onClick={() => setIsAddModalOpen(true)}>
+    + Add Lab Test
+  </Button>
+</div>
+
+
+      <Card body>
+        <div className="table-responsive">
+          <Table bordered hover>
+            <thead className="thead-dark">
               <tr>
-                <th>Patient</th>
-                <th>Test</th>
+                <th>Test ID</th>
+                <th>Patient Name</th>
+                <th>Test Name</th>
                 <th>Prescribed By</th>
                 <th>Date</th>
                 <th>Status</th>
-                <th>Actions</th>
+                <th>Action</th>
               </tr>
             </thead>
             <tbody>
-              {pendingTests.length > 0 ? (
-                pendingTests.map(test => (
-                  <tr key={test.id}>
+              {filteredTests.length > 0 &&
+                filteredTests.map((test, index) => (
+                  <tr key={index}>
+                    <td>{index + 1}</td>
+                    <td>{test.patient}</td>
+                    <td>{test.test_name}</td>
+                    <td>{test.doctor}</td>
+                    <td>{test.prescribed_date}</td>
                     <td>
-  {test.prescription?.patient?.first_name || ''} {test.prescription?.patient?.last_name || ''}
+  <span
+    className={`badge ${
+      test.status === "Pending"
+        ? "bg-warning text-dark"
+        : test.status === "Completed"
+        ? "bg-success"
+        : "bg-danger"
+    }`}
+  >
+    {test.status}
+  </span>
 </td>
-<td>
-  Dr. {test.prescription?.doctor?.user?.first_name || ''} {test.prescription?.doctor?.user?.last_name || ''}
+
+                    <td>
+  <Button
+    color="primary"
+    size="sm"
+    className="me-2"
+    onClick={() => handleOpenUpdate(test)} // ⬅️ Open modal with selected test
+  >
+    Update
+  </Button>
+  <Button
+    color="danger"
+    size="sm"
+    onClick={() => handleCancelLabTest(test.id)} // ✅ Call cancel function
+  >
+    Cancel
+  </Button>
 </td>
-                    
-                    <td>{new Date(test.created_at).toLocaleDateString()}</td>
-                    <td>
-                      <Badge bg="warning">Pending</Badge>
-                    </td>
-                    <td>
-                      <Button 
-                        variant="outline-primary" 
-                        size="sm"
-                        onClick={() => {
-                          setCurrentTest(test);
-                          setResultData(test.result_data || '');
-                          setShowResultModal(true);
-                        }}
-                      >
-                        Enter Results
-                      </Button>
-                    </td>
+
                   </tr>
-                ))
-              ) : (
+                ))}
+
+              {filteredTests.length === 0 && (
                 <tr>
-                  <td colSpan="6" className="text-center">No pending tests found</td>
+                  <td colSpan="7" className="text-center">
+                    No Lab Tests Found
+                  </td>
                 </tr>
               )}
             </tbody>
           </Table>
-        </Card.Body>
+        </div>
       </Card>
-      
-      {/* Completed Prescriptions (Grouped by prescription) */}
-      {pendingTests.length > 0 && (
-        <Card className="shadow-sm">
-          <Card.Header className="bg-white">
-            <h5>Ready for Report Generation</h5>
-          </Card.Header>
-          <Card.Body>
-            {Array.from(new Set(pendingTests.map(test => test.prescription))).map(prescriptionId => {
-              const prescriptionTests = pendingTests.filter(test => test.prescription === prescriptionId);
-              const completedCount = prescriptionTests.filter(t => t.status === 'Completed').length;
-              
-              return (
-                <div key={prescriptionId} className="mb-3 p-3 border rounded">
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <div>
-                      <strong>Prescription #:</strong> {prescriptionId}
-                      <br />
-                      <strong>Patient:</strong> {prescriptionTests[0]?.prescription?.patient?.full_name || 'Unknown Patient'}
-                    </div>
-                    <div>
-                      <ProgressBar 
-                        now={(completedCount / prescriptionTests.length) * 100} 
-                        label={`${completedCount}/${prescriptionTests.length}`}
-                        className="mb-2"
-                        style={{ width: '200px' }}
-                      />
-                      <Button 
-                        variant="success"
-                        size="sm"
-                        disabled={completedCount !== prescriptionTests.length}
-                        onClick={() => handleGenerateReport(prescriptionId)}
-                      >
-                        Generate Report
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </Card.Body>
-        </Card>
-      )}
-      
-      {/* Result Entry Modal */}
-      <Modal show={showResultModal} onHide={() => setShowResultModal(false)}>
-        <Modal.Header closeButton>
-          <Modal.Title>Enter Test Results</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          {currentTest && (
-            <>
-              <p>
-                <strong>Patient:</strong> {currentTest.prescription.patient.full_name}<br />
-                <strong>Test:</strong> {currentTest.lab_test.name}
-              </p>
-              <Form.Group className="mb-3">
-                <Form.Label>Test Results</Form.Label>
-                <Form.Control
-                  as="textarea"
-                  rows={3}
-                  value={resultData}
-                  onChange={(e) => setResultData(e.target.value)}
-                  placeholder="Enter test results..."
-                />
-                {currentTest.lab_test.reference_range && (
-                  <Form.Text className="text-muted">
-                    Reference Range: {currentTest.lab_test.reference_range}
-                  </Form.Text>
-                )}
-              </Form.Group>
-            </>
-          )}
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => setShowResultModal(false)}>
-            Cancel
-          </Button>
-          <Button variant="primary" onClick={handleSubmitResult}>
-            Submit Results
-          </Button>
-        </Modal.Footer>
-      </Modal>
+
+      {/* ⬇️ Include the Update Modal */}
+      <UpdateLabTestModal
+        isOpen={isModalOpen}
+        onClose={handleCloseUpdate}
+        labTestData={selectedLabTest}
+        onSuccess={refreshLabTests} // refresh list after updating
+      />
+      {isAddModalOpen && (
+  <UpdateLabTestModal
+    isOpen={isAddModalOpen}
+    onClose={() => setIsAddModalOpen(false)}
+    labTestData={null} // pass null for new test
+    onSuccess={refreshLabTests}
+    isNew={true} // flag for new
+  />
+)}
+
     </div>
   );
 }

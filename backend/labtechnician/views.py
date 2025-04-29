@@ -19,7 +19,13 @@ from django.http import FileResponse
 from reportlab.pdfgen import canvas
 from io import BytesIO
 from django.conf import settings
-from rest_framework import generics
+from rest_framework import viewsets, status
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from .models import PrescriptionLabTest
+from .permissions import IsLabTechnician
+from .serializers import PrescriptionLabTestSerializer
+
 
 
 
@@ -192,16 +198,12 @@ class PendingPrescriptionLabTestsView(generics.ListAPIView):
 class LabTechnicianDashboardView(APIView):
     permission_classes = [IsLabTechnician]
     
-    # def get(self, request):
-    #     if not hasattr(request.user, 'labtechnician'):
-    #         return Response({"error": "Lab technician profile missing"}, status=400)
+    
 
     def get(self, request):
         pending_tests = PrescriptionLabTest.objects.filter(status='Pending').count()
         print(request.user)
         completed_today = LabReport.objects.filter(
-            # generated_by=request.user,
-            # created_at__date=timezone.now().date()
         ).count()
         
         return Response({
@@ -242,8 +244,23 @@ class LabTestResultDetailView(generics.UpdateAPIView):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save(status='Completed')  # Auto-update status
+        # serializer.save(status='Completed')  # Auto-update status
         return Response(serializer.data)
+
+
+# views.py
+from rest_framework import generics
+from .models import PrescriptionLabTest
+from .serializers import PrescriptionLabTestUpdateSerializer
+from .permissions import IsLabTechnician
+
+class LabTestResultDetailView(generics.UpdateAPIView):
+    queryset = PrescriptionLabTest.objects.all()
+    serializer_class = PrescriptionLabTestUpdateSerializer
+    permission_classes = [IsLabTechnician]
+    http_method_names = ['get', 'patch', 'put'] 
+
+
 
 class AppointmentLabTestResultsView(generics.ListAPIView):
     serializer_class = LabTestResultSerializer
@@ -319,3 +336,16 @@ class PrescriptionLabTestListAPIView(generics.ListAPIView):
     ).all()
     serializer_class = PrescriptionLabTestSerializer
 
+
+
+class PrescriptionLabTestViewSet(viewsets.ModelViewSet):
+    queryset = PrescriptionLabTest.objects.all()
+    serializer_class = PrescriptionLabTestSerializer
+    permission_classes = [IsLabTechnician]
+
+    # @action(detail=True, methods=['patch'], url_path='cancel')
+    # def cancel_lab_test(self, request, pk=None):
+    #     lab_test = self.get_object()
+    #     lab_test.status = 'Cancelled'
+    #     lab_test.save()
+    #     return Response({"message": "Lab Test cancelled successfully."}, status=status.HTTP_200_OK)

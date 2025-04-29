@@ -42,3 +42,33 @@ export const downloadReport = async (reportId) => {
 };
 
 
+
+
+// Fetch all lab tests
+export const fetchLabTests = async () => {
+  const response = await axiosPrivate.get('/labtechnician/lab-tests/');
+  return response.data;
+};
+
+// Fetch single lab test details
+export const fetchLabTestById = async (id) => {
+  const response = await axiosPrivate.get(`/labtechnician/labtests/${id}/`);
+  return response.data;
+};
+
+// Update a lab test result (for Update button)
+export const updateLabTestResult = async (id, updatedData) => {
+  const response = await axiosPrivate.patch(`/labtechnician/labtests/results/${id}/`, updatedData);
+  return response.data;
+};
+
+// Cancel a lab test (you can just set status to 'Cancelled' manually)
+export const cancelLabTest = async (id) => {
+  const response = await axiosPrivate.put(`/labtechnician/labtests/results/${id}/`, { status: 'Cancelled' });
+  return response.data;
+};
+
+export const createLabTest = async (newData) => {
+  const response = await axiosPrivate.post('/labtechnician/labtests/', newData);
+  return response.data;
+};

@@ -11,7 +11,7 @@ export default function LabTechnicianDashboard() {
           <div className="card shadow-sm border-primary">
             <div className="card-body">
               <h5 className="card-title">🧪 Lab Tests</h5>
-              <p className="card-text">View and manage pending lab tests.</p>
+              <p className="card-text">View and manage lab tests.</p>
               <Link href="/pages/labtechnician/viewlabtest" className="btn btn-primary">
                 Go to Lab Tests
               </Link>

@@ -75,7 +75,7 @@ class PrescriptionLabTestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PrescriptionLabTest
-        fields = ['patient', 'doctor', 'test_name', 'prescribed_date', 'status']
+        fields = ['id','patient', 'doctor', 'test_name', 'prescribed_date', 'status']
 
     def get_patient(self, obj):
         return f"{obj.prescription.patient.first_name} {obj.prescription.patient.last_name}"
@@ -96,8 +96,20 @@ class LabTestResultSerializer(serializers.ModelSerializer):
         model = PrescriptionLabTest
         fields = ['id', 'lab_test', 'status']
         extra_kwargs = {
-            'test': {'read_only': True},  # Prevent test ID changes
-            'status': {'read_only': True}  # Updated automatically
+            'lab_test': {'read_only': True},  # Fix typo: make lab_test readonly
+            'status': {'required': False},     # Allow updating status from frontend
+        }
+
+
+# serializers.py
+class PrescriptionLabTestUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PrescriptionLabTest
+        fields = ['id','status','test_date','prescription','lab_test']
+        extra_kwargs = {
+            'test_date': {'required': False},
+            'prescription': {'required': False},
+            'lab_test': {'required': False},
         }
 
 # class LabTestPrescriptionSerializer(serializers.ModelSerializer):
