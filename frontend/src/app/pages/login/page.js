@@ -3,11 +3,10 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth from your context
-import axiosPrivate from '../../../../utils/axiosPrivate';
-import '../../styles/LoginPage.css'; 
+import axiosPrivate from 'utils/axiosPrivate';
 
 
-export default function LoginPage() {
+export default function loginPage() {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -57,7 +56,7 @@ useEffect(() => {
         router.push('/pages/doctor/profile');
         break;
       case 'pharmacist':
-        router.push('/pages/pharmacist/profile');
+        router.push('/pages/pharmacist/dashboard');
         break;
       case 'labtechnician':
         router.push('/pages/labtechnician/profile');
@@ -67,6 +66,7 @@ useEffect(() => {
         router.push('/pages/forbidden');
         break;
     }
+
   }
 }, [userRole, router]);
 
