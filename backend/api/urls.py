@@ -44,4 +44,6 @@ urlpatterns = [
     path('receptionist/register/', register_receptionist, name='receptionist-register'),
     path('doctor/profile/', doctor_profile, name='doctor-profile'),
     path('receptionist/profile/', receptionist_profile, name='receptionist-profile'),
+    path('prescriptions/patient/<int:patient_id>/', views.get_prescriptions_by_patient),
+
 ]
