@@ -12,6 +12,7 @@ from rest_framework.views import APIView
 from .models import Appointment, Patient, Prescription, Bill, ConsultationBill, Doctor, Department, \
     Receptionist, MedicalHistory, PrescriptionLabTest, LabTest, PrescriptionMedicine, Medicine
 from .permissions import IsDoctor, IsReceptionist, IsAdmin
+from labtechnician.permissions import IsLabTechnician
 from .serializers import AppointmentSerializer, PatientSerializer, PrescriptionSerializer, BillSerializer, \
     ConsultationBillSerializer, DoctorSerializer, ReceptionistSerializer, DoctorViewSerializer, DepartmentSerializer, \
     ReceptionistViewSerializer, MedicalHistorySerializer, MedicineSerializer, LabTestSerializer, BillCreateSerializer
@@ -28,6 +29,7 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
     serializer_class = PrescriptionSerializer
 
     def create(self, request, *args, **kwargs):
+        print(request.data)
         patient_id = request.data.get('patient')
         doctor_id = request.data.get('doctor')
         appointment_id = request.data.get('appointment')
@@ -323,7 +325,7 @@ class MedicineViewSet(viewsets.ModelViewSet):
     serializer_class = MedicineSerializer
 
 class LabTestViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsDoctor | IsAdmin]
+    permission_classes = [IsLabTechnician | IsAdmin | IsDoctor]
 
     queryset = LabTest.objects.all()
     serializer_class = LabTestSerializer

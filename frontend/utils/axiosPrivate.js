@@ -44,6 +44,7 @@ axiosPrivate.interceptors.response.use(
       } catch (err) {
         // Handle error if refreshing the token fails
         console.error('Error refreshing token:', err.response || err.message);
+        
         return Promise.reject(err);
       }
     }

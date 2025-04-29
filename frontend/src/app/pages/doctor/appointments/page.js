@@ -47,14 +47,12 @@ const DoctorPage = () => {
       {...props}
     />
   );
-
   const toggleExpand = (id) => {
     setExpandedItems((prev) => ({
       ...prev,
       [id]: !prev[id],
     }));
   };
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -172,10 +170,7 @@ const DoctorPage = () => {
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) {
-      console.log(errors)
-      return;
-    }
+    if (!validateForm()) return;
 
     setIsSubmitting(true);
     try {

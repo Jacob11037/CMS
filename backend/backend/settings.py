@@ -40,9 +40,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     "rest_framework_simplejwt",
+    
     'api',
     "djoser",
     'rest_framework_simplejwt.token_blacklist',
+    'labtechnician',
     'pharmacist',
 
 ]
@@ -70,6 +72,8 @@ REST_FRAMEWORK = {
             'rest_framework.permissions.IsAuthenticated',
         ),
 }
+
+
 
 SIMPLE_JWT = {
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=100),  # Short token lifespan
@@ -164,3 +168,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# HOSPITAL_NAME = "ABC HOSPITAL"

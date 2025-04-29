@@ -14,19 +14,14 @@ urlpatterns = [
     path('api/', include([
         # Main app endpoints directly under /api/
         path('', include('api.urls')),  # /api/doctors/, /api/patients/
-        path('admin/', include('ADMIN.urls')),  # /api/doctors/, /api/patients
+        path('admin/', include('ADMIN.urls')), 
         
         # New apps with subpaths
-        # path('labtechnician/', include('labtechnician.urls')),  # /api/medical/
-        # path('pharmacist/', include('pharmacist.urls')),  # /api/pharmacist/
-        # path('admin/', include('Admin.urls')),  # /api/admin/
 
-
-
-        # Pharmacist-specific endpoints
-        path('pharmacist/', include('pharmacist.urls')),
+        path('labtechnician/', include('labtechnician.urls')),  # /api/medical/
+        path('pharmacist/', include('pharmacist.urls')),  # /api/pharmacist/
     ])),
+    path('auth/', include('djoser.urls.jwt')),  # /api/auth/token/
 
-    # Default route
     path('', home),
 ]

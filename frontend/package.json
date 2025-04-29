@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "@popperjs/core": "^2.11.8",
     "@fortawesome/fontawesome-svg-core": "^6.7.2",
     "@fortawesome/free-brands-svg-icons": "^6.7.2",
     "@fortawesome/free-regular-svg-icons": "^6.7.2",
@@ -33,6 +34,7 @@
     "react-router-dom": "^7.5.1",
     "react-select": "^5.10.1",
     "react-toastify": "^11.0.5",
+    "reactstrap": "^9.2.3",
     "tempusdominus-bootstrap-4": "^5.39.2",
     "wowjs": "^1.1.3"
   },
