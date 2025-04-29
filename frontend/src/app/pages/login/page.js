@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth from your context
 import axiosPrivate from '../../../../utils/axiosPrivate';
-import '../../styles/LoginPage.css'; 
+import '../../styles/LoginPage.css';
 
 
 export default function LoginPage() {
@@ -15,7 +15,7 @@ export default function LoginPage() {
 
   const [error, setError] = useState('');
   const [formErrors, setFormErrors] = useState({});
-  const [userRole, setUserRole] = useState(null); 
+  const [userRole, setUserRole] = useState(null);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -36,11 +36,12 @@ export default function LoginPage() {
     if (isAuthenticated) {
       if (redirectTo && redirectTo !== '/') {
         router.push(redirectTo);
+        window.location.reload(); // Force page reload after redirect
       } else {
         checkRole(); // already logs the user in based on role
       }
     }
-  },[isAuthenticated]);
+  },[isAuthenticated, redirectTo, router]); // Added redirectTo and router to dependency array
 
   const checkRole = async () => {
   try {
@@ -58,22 +59,28 @@ useEffect(() => {
     switch (userRole) {
       case 'admin':
         router.push('/pages/ADMIN/admindash');
+        window.location.reload(); // Force page reload
         break;
       case 'receptionist':
         router.push('/pages/receptionist/dashboard');
+        window.location.reload(); // Force page reload
         break;
       case 'doctor':
         router.push('/pages/doctor/dashboard');
+        window.location.reload(); // Force page reload
         break;
       case 'pharmacist':
         router.push('/pages/pharmacist/dashboard');
+        window.location.reload(); // Force page reload
         break;
       case 'labtechnician':
         router.push('/pages/labtechnician/dashboard');
+        window.location.reload(); // Force page reload
         break;
       default:
         // For unknown roles or no access
         router.push('/pages/forbidden');
+        window.location.reload(); // Force page reload
         break;
     }
   }
@@ -120,7 +127,7 @@ useEffect(() => {
       }
       else{
         router.push(redirectTo);
-
+        window.location.reload(); // Force page reload after redirect
       }
     } catch (error) {
       setError('Invalid credentials');
@@ -166,7 +173,6 @@ useEffect(() => {
             className="input"
             required
             disabled={isLoading}
-
           />
           {formErrors.password && <p className="error">{formErrors.password}</p>}
         </div>
