@@ -1,7 +1,7 @@
 from rest_framework import permissions
 from .models import Doctor, Receptionist, Appointment, Bill, Prescription, \
     PrescriptionMedicine, PrescriptionLabTest, MedicalHistory, ConsultationBill, Department, \
-    Patient  # Import your Doctor model
+    Patient, LabTest, LabTechnician, Medicine, Pharmacist, MedicineBillItem, LabTestBillItem  # Import your Doctor model
 
 class IsAdmin(permissions.BasePermission):
 
@@ -68,4 +68,72 @@ class IsReceptionist(permissions.BasePermission):
             return True
 
         # Restrict access to prescriptions and medical history
+        return False
+
+
+class IsPharmacist(permissions.BasePermission):
+    """
+    Custom permission to allow only users who are pharmacists to access certain views.
+    Pharmacists can manage prescriptions and medicines but not appointments or medical history.
+    Admins have full access.
+    """
+
+    def has_permission(self, request, view):
+        # Allow full access to admins
+        if request.user.is_superuser or request.user.groups.filter(name="Admin").exists():
+            return True
+
+        # Check if the user is authenticated and is a Pharmacist
+        if request.user and request.user.is_authenticated:
+            return Pharmacist.objects.filter(user=request.user).exists()
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        # Allow full access to admins
+        if request.user.is_superuser or request.user.groups.filter(name="Admin").exists():
+            return True
+
+        # Pharmacists can access medicine-related objects
+        if isinstance(obj, (Prescription, PrescriptionMedicine, MedicineBillItem, Bill)):
+            # Check if the prescription is for medicines (not lab tests)
+            if hasattr(obj, 'medicine'):
+                return True
+
+        # Allow access to medicine inventory views
+        if isinstance(obj, Medicine):  # Assuming you have a Medicine model
+            return True
+
+        return False
+
+
+class IsLabTechnician(permissions.BasePermission):
+    """
+    Custom permission to allow only users who are lab technicians to access certain views.
+    Lab technicians can manage lab tests and results but not prescriptions or appointments.
+    Admins have full access.
+    """
+
+    def has_permission(self, request, view):
+        # Allow full access to admins
+        if request.user.is_superuser or request.user.groups.filter(name="Admin").exists():
+            return True
+
+        # Check if the user is authenticated and is a LabTechnician
+        if request.user and request.user.is_authenticated:
+            return LabTechnician.objects.filter(user=request.user).exists()
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        # Allow full access to admins
+        if request.user.is_superuser or request.user.groups.filter(name="Admin").exists():
+            return True
+
+        # Lab technicians can access lab test-related objects
+        if isinstance(obj, (PrescriptionLabTest, LabTest, LabTestBillItem, Bill)):
+            return True
+
+        # Allow access to view prescriptions that contain their lab tests
+        if isinstance(obj, Prescription):
+            return obj.lab_tests.exists()  # Only if prescription has lab tests
+
         return False

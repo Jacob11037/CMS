@@ -210,7 +210,7 @@ class BillViewSet(viewsets.ModelViewSet):
 class ConsultationBillViewSet(viewsets.ModelViewSet):
     permission_classes = [IsReceptionist | IsAdmin]
 
-    queryset = ConsultationBill.objects.all()
+    queryset = ConsultationBill.objects.all().order_by("-id")
     serializer_class = ConsultationBillSerializer
 
 class DoctorListViewSet(viewsets.ModelViewSet):

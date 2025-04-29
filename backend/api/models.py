@@ -195,7 +195,7 @@ class PrescriptionMedicine(models.Model):
 class PrescriptionLabTest(models.Model):
     prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE)
     lab_test = models.ForeignKey(LabTest, on_delete=models.CASCADE)
-    # test_date = models.DateField()
+    test_date = models.DateField()
 
     def __str__(self):
         return f"{self.lab_test.test_name} for {self.prescription.patient}"
