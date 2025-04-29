@@ -50,5 +50,4 @@ urlpatterns = [
     path('receptionist/profile/', receptionist_profile, name='receptionist-profile'),
     path('prescriptions/patient/<int:patient_id>/', views.get_prescriptions_by_patient),
 
-
 ]

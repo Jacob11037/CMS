@@ -1,0 +1,175 @@
+/* src/app/pages/receptionist/styles/viewAppointments.module.css */
+
+.container {
+    max-width: 900px; /* Adjusted for potentially wider table/list */
+    margin: 40px auto;
+    padding: 30px;
+    background-color: #f8f9fa; /* Lighter background */
+    border-radius: 15px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  }
+  
+  .header {
+    font-size: 2rem; /* Slightly larger header */
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    color: #343a40; /* Darker color */
+    text-align: center;
+  }
+  
+  .filtersCard {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: none;
+  }
+  
+  .filtersCard h5 {
+    margin-bottom: 1rem;
+    font-weight: 600;
+    color: #495057;
+  }
+  
+  /* Style inputs/selects to match the reference */
+  .formControl,
+  .formSelect {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .formControl:focus,
+  .formSelect:focus {
+    border-color: #80bdff;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+  
+  .appointmentsCard {
+    background-color: #ffffff;
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    border: none;
+  }
+  
+  .appointmentItem {
+    background-color: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 1rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Allow wrapping on smaller screens */
+  }
+  
+  .appointmentItem:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.07);
+  }
+  
+  .appointmentDetails {
+    flex-grow: 1;
+    margin-right: 1rem; /* Space between details and buttons */
+    margin-bottom: 0.5rem; /* Space below details if buttons wrap */
+  }
+  
+  .appointmentDetails p {
+    margin-bottom: 0.25rem;
+    color: #495057;
+    font-size: 0.95rem;
+  }
+  
+  .appointmentDetails strong {
+    color: #343a40;
+    font-weight: 600;
+  }
+  
+  .buttonGroup {
+    display: flex;
+    gap: 0.5rem; /* Spacing between buttons */
+    flex-shrink: 0; /* Prevent buttons from shrinking too much */
+  }
+  
+  /* Custom button styling (if needed beyond Bootstrap) */
+  .actionButton {
+    border-radius: 20px; /* Rounded pill style */
+    padding: 0.4rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 500;
+  }
+  
+  .paginationContainer {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .paginationContainer button {
+    border-radius: 20px; /* Match button style */
+  }
+  
+  .statusBadge {
+    padding: 0.3em 0.6em;
+    border-radius: 0.25rem;
+    font-size: 0.85em;
+    font-weight: 600;
+    display: inline-block; /* Needed for padding/background */
+  }
+  
+  .statusPending {
+    background-color: rgba(255, 193, 7, 0.2); /* Bootstrap warning light */
+    color: #856404; /* Bootstrap warning dark */
+  }
+  
+  .statusCompleted {
+    background-color: rgba(40, 167, 69, 0.2); /* Bootstrap success light */
+    color: #155724; /* Bootstrap success dark */
+  }
+  
+  .statusCancelled {
+    background-color: rgba(108, 117, 125, 0.2); /* Bootstrap secondary light */
+    color: #383d41; /* Bootstrap secondary dark */
+  }
+  
+  .loadingText,
+  .errorText,
+  .noAppointmentsText {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.1rem;
+    color: #6c757d;
+  }
+  
+  /* Animation */
+  @keyframes fadeInUp {
+    from {
+      transform: translateY(15px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .fadeInUpAnimation {
+    animation: fadeInUp 0.6s ease-out forwards;
+  }
+  
+  .filtersToggle {
+    border-radius: 20px;
+  }
+  
+  /* Optional: Animation for filter panel */
+  .filtersPanel {
+    overflow: hidden;
+  }

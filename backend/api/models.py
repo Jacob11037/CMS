@@ -196,6 +196,15 @@ class PrescriptionLabTest(models.Model):
     prescription = models.ForeignKey(Prescription, on_delete=models.CASCADE)
     lab_test = models.ForeignKey(LabTest, on_delete=models.CASCADE)
     test_date = models.DateField()
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Completed', 'Completed'),
+        ('Cancelled', 'Cancelled'),
+    ]
+    
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
 
     def __str__(self):
         return f"{self.lab_test.test_name} for {self.prescription.patient}"
@@ -265,8 +274,27 @@ class Pharmacist(models.Model):
     sex = models.CharField(max_length=10, choices=SEX_CHOICES, null=True, blank=True)
     pharmacy_license= models.CharField(max_length=100, null=True, blank=True)
 
+    
+
+    def save (self, *args, **kwargs):
+        if not self.staff_id:
+            last_pharmasist = Pharmacist.objects.order_by('-staff_id').first()
+
+            if last_pharmasist:
+                last_pharmasist_num= int(last_pharmasist.staff_id[2:])
+                new_pharmasist_num = last_pharmasist_num + 1
+            else:
+                new_pharmasist_num = 1001
+
+            self.staff_id = f"PH{new_pharmasist_num:04d}"
+
+        super().save(*args,**kwargs)
+
+    def __str__(self):
+        return self.staff_id
 class LabTechnician(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(User, on_delete=models.CASCADE,related_name='lab_technician'
+)
     staff_id = models.CharField(max_length=10, unique=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
@@ -277,7 +305,6 @@ class LabTechnician(models.Model):
     joining_date = models.DateField(auto_now_add=True)
     address = models.TextField(null=True, blank=True)
     salary = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-
     SEX_CHOICES = [
         ('Male', 'Male'),
         ('Female', 'Female'),
@@ -285,6 +312,23 @@ class LabTechnician(models.Model):
     ]
     sex = models.CharField(max_length=10, choices=SEX_CHOICES, null=True, blank=True)
     lab_certification= models.CharField(max_length=100, null=True, blank=True)
+
+    def save (self, *args, **kwargs):
+        if not self.staff_id:
+            last_labtechnician = LabTechnician.objects.order_by('-staff_id').first()
+
+            if last_labtechnician:
+                last_labtechnician_num = int(last_labtechnician. staff_id[2:])
+                new_labtechnician_num = last_labtechnician_num + 1
+            else:
+                new_labtechnician_num = 1001
+
+            self.staff_id = f"LT{new_labtechnician_num:04d}"
+
+        super().save(*args,**kwargs)
+
+    def __str__(self):
+        return self.staff_id
 
 class Admin(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
