@@ -6,7 +6,8 @@ from .views import (
     LabTechnicianListCreateView, LabTechnicianRetrieveUpdateDestroyView,
     AdminListCreateView, AdminRetrieveUpdateDestroyView,
     MedicineListCreateView, MedicineRetrieveUpdateDestroyView,
-    LabTestListCreateView, LabTestRetrieveUpdateDestroyView
+    LabTestListCreateView, LabTestRetrieveUpdateDestroyView,DepartmentListCreateView, DepartmentRetrieveUpdateDestroyView   
+
 )
 
 urlpatterns = [
@@ -37,4 +38,12 @@ urlpatterns = [
     # Lab Test
     path('lab-tests/', LabTestListCreateView.as_view(), name='labtest-list-create'),
     path('lab-tests/<int:pk>/', LabTestRetrieveUpdateDestroyView.as_view(), name='labtest-detail'),
+
+    path('medicines/', MedicineListCreateView.as_view(), name='medicine-list-create'),
+    path('medicines/<int:pk>/', MedicineRetrieveUpdateDestroyView.as_view(), name='medicine-detail'),
+
+
+    path('departments/', DoctorListCreateView.as_view(), name='department-list-create'),
+    path('departments/<int:pk>/', DoctorRetrieveUpdateDestroyView.as_view(), name='department-detail'),
 ]
+

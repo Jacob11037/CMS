@@ -1,15 +1,17 @@
 'use client';
+
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import styles from '../../../styles/RegisterReceptionist.module.css';
 import withAdminAuth from '@/app/middleware/withAdminAuth';
 import axiosPrivate from '../../../../../utils/axiosPrivate';
 import { useAuth } from '@/app/context/AuthContext';
+import 'bootstrap/dist/css/bootstrap.min.css';
 
 function RegisterLabTechnician() {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
+    staff_id: '',
     first_name: '',
     last_name: '',
     email: '',
@@ -51,12 +53,15 @@ function RegisterLabTechnician() {
 
   const validateForm = () => {
     let newErrors = {};
+
     if (!formData.username.trim()) newErrors.username = 'Username is required';
     if (!formData.password) newErrors.password = 'Password is required';
     if (!formData.first_name.trim()) newErrors.first_name = 'First name is required';
     if (!formData.last_name.trim()) newErrors.last_name = 'Last name is required';
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.date_of_birth) newErrors.date_of_birth = 'Date of birth is required';
+    if (!formData.staff_id.trim()) newErrors.staff_id = 'Staff ID is required';
+    if (!formData.lab_certification.trim()) newErrors.lab_certification = 'Lab certification is required';
 
     if (formData.username.trim().length < 3) newErrors.username = 'Username must be at least 3 characters';
     if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
@@ -66,7 +71,6 @@ function RegisterLabTechnician() {
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-    
   };
 
   const handleSubmit = async (e) => {
@@ -74,34 +78,27 @@ function RegisterLabTechnician() {
     if (!validateForm()) return;
 
     try {
-      // Create user object first (assuming your API requires User first)
-      const userPayload = {
+      const payload = {
         username: formData.username,
         password: formData.password,
-        email: formData.email
-      };
-
-      const userResponse = await axiosPrivate.post('/register-user/', userPayload); // adjust endpoint if needed
-
-      const labTechnicianPayload = {
-        user: userResponse.data.id, // assuming backend returns user ID
+        email: formData.email,
         first_name: formData.first_name,
         last_name: formData.last_name,
-        email: formData.email,
         phone: formData.phone,
         date_of_birth: formData.date_of_birth,
         address: formData.address,
         salary: formData.salary ? parseFloat(formData.salary) : null,
         sex: formData.sex,
+        staff_id: formData.staff_id,
         lab_certification: formData.lab_certification
       };
 
-      await axiosPrivate.post('/labtechnicians/', labTechnicianPayload);
-
+      await axiosPrivate.post('admin/labtechnicians/', payload);
       setSuccessMessage('Lab Technician registered successfully!');
       setFormData({
         username: '',
         password: '',
+        staff_id: '',
         first_name: '',
         last_name: '',
         email: '',
@@ -115,54 +112,122 @@ function RegisterLabTechnician() {
     } catch (error) {
       console.error('Registration error:', error.response?.data);
       setErrors({
-        form: error.response?.data?.error ||
-              'Registration failed. Please try again.'
+        form: error.response?.data?.error || 'Registration failed. Please try again.'
       });
     }
   };
 
   if (isLoading || isAuthenticated === null) {
-    return <div className={styles.loading}>Loading...</div>;
-  }
-
-  if (!isAuthenticated) {
-    return <div className={styles.errorMessage}>You are not authorized to view this page.</div>;
+    return <div className="text-center p-5 text-white">Loading...</div>;
   }
 
   return (
-    <div className={styles.container}>
-      <h1 className={styles.heading}>Register Lab Technician</h1>
+    <div
+      className="d-flex align-items-center justify-content-center"
+      style={{
+        minHeight: '100vh',
+        backgroundImage: 'url("/img/img12.webp")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        padding: '2rem'
+      }}
+    >
+      <div className="card shadow-lg p-4" style={{ maxWidth: '700px', width: '100%' }}>
+        <h2 className="text-center mb-4 fw-bold">Register Lab Technician</h2>
 
-      {successMessage && <div className={styles.successMessage}>{successMessage}</div>}
-      {errors.form && <div className={styles.errorMessage}>{errors.form}</div>}
+        {successMessage && (
+          <div className="alert alert-success">{successMessage}</div>
+        )}
 
-      <form onSubmit={handleSubmit} className={styles.form}>
-        <h2>Account Information</h2>
-        <input type="text" name="username" placeholder="Username" value={formData.username} onChange={handleChange} required />
-        <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required />
-        {errors.username && <span className={styles.errorText}>{errors.username}</span>}
-        {errors.password && <span className={styles.errorText}>{errors.password}</span>}
+        {errors.form && (
+          <div className="alert alert-danger">{errors.form}</div>
+        )}
 
-        <h2>Personal Info</h2>
-        <input type="text" name="first_name" placeholder="First Name" value={formData.first_name} onChange={handleChange} required />
-        <input type="text" name="last_name" placeholder="Last Name" value={formData.last_name} onChange={handleChange} required />
-        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required />
-        <input type="text" name="phone" placeholder="Phone" value={formData.phone} onChange={handleChange} />
-        <input type="date" name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} required />
+        <form onSubmit={handleSubmit}>
+          <div className="row mb-3">
+            <div className="col">
+              <label className="fw-bold">Username*</label>
+              <input type="text" className="form-control" name="username" value={formData.username} onChange={handleChange} />
+              {errors.username && <div className="text-danger">{errors.username}</div>}
+            </div>
+            <div className="col">
+              <label className="fw-bold">Password*</label>
+              <input type="password" className="form-control" name="password" value={formData.password} onChange={handleChange} />
+              {errors.password && <div className="text-danger">{errors.password}</div>}
+            </div>
+          </div>
 
-        <select name="sex" value={formData.sex} onChange={handleChange}>
-          <option value="">Select Gender</option>
-          <option value="Male">Male</option>
-          <option value="Female">Female</option>
-          <option value="Other">Other</option>
-        </select>
+          <div className="row mb-3">
+            <div className="col">
+              <label className="fw-bold">First Name*</label>
+              <input type="text" className="form-control" name="first_name" value={formData.first_name} onChange={handleChange} />
+              {errors.first_name && <div className="text-danger">{errors.first_name}</div>}
+            </div>
+            <div className="col">
+              <label className="fw-bold">Last Name*</label>
+              <input type="text" className="form-control" name="last_name" value={formData.last_name} onChange={handleChange} />
+              {errors.last_name && <div className="text-danger">{errors.last_name}</div>}
+            </div>
+          </div>
 
-        <textarea name="address" placeholder="Address" value={formData.address} onChange={handleChange} rows={3} />
-        <input type="number" name="salary" placeholder="Salary" value={formData.salary} onChange={handleChange} />
-        <input type="text" name="lab_certification" placeholder="Lab Certification" value={formData.lab_certification} onChange={handleChange} />
+          <div className="mb-3">
+            <label className="fw-bold">Email*</label>
+            <input type="email" className="form-control" name="email" value={formData.email} onChange={handleChange} />
+            {errors.email && <div className="text-danger">{errors.email}</div>}
+          </div>
 
-        <button type="submit" className={styles.submitButton}>Register Lab Technician</button>
-      </form>
+          <div className="mb-3">
+            <label className="fw-bold">Staff ID*</label>
+            <input type="text" className="form-control" name="staff_id" value={formData.staff_id} onChange={handleChange} />
+            {errors.staff_id && <div className="text-danger">{errors.staff_id}</div>}
+          </div>
+
+          <div className="row mb-3">
+            <div className="col">
+              <label className="fw-bold">Phone</label>
+              <input type="text" className="form-control" name="phone" value={formData.phone} onChange={handleChange} />
+              {errors.phone && <div className="text-danger">{errors.phone}</div>}
+            </div>
+            <div className="col">
+              <label className="fw-bold">Date of Birth*</label>
+              <input type="date" className="form-control" name="date_of_birth" value={formData.date_of_birth} onChange={handleChange} />
+              {errors.date_of_birth && <div className="text-danger">{errors.date_of_birth}</div>}
+            </div>
+          </div>
+
+          <div className="mb-3">
+            <label className="fw-bold">Gender</label>
+            <select className="form-select" name="sex" value={formData.sex} onChange={handleChange}>
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div className="mb-3">
+            <label className="fw-bold">Lab Certification*</label>
+            <input type="text" className="form-control" name="lab_certification" value={formData.lab_certification} onChange={handleChange} />
+            {errors.lab_certification && <div className="text-danger">{errors.lab_certification}</div>}
+          </div>
+
+          <div className="mb-3">
+            <label className="fw-bold">Address</label>
+            <textarea className="form-control" name="address" rows="3" value={formData.address} onChange={handleChange}></textarea>
+          </div>
+
+          <div className="mb-3">
+            <label className="fw-bold">Salary</label>
+            <input type="number" className="form-control" name="salary" value={formData.salary} onChange={handleChange} />
+            {errors.salary && <div className="text-danger">{errors.salary}</div>}
+          </div>
+
+          <button type="submit" className="btn btn-primary w-100">
+            Register Lab Technician
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

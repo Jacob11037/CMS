@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -7,7 +8,7 @@ import axiosPrivate from '../../../../../utils/axiosPrivate';
 import { useAuth } from '@/app/context/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function RegisterDoctor() {
+function RegisterReceptionist() {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -16,18 +17,16 @@ function RegisterDoctor() {
     email: '',
     phone: '',
     date_of_birth: '',
-    department_id: '',
     address: '',
     salary: '',
-    sex: '',
-    availability: true,
+    sex: ''
   });
 
   const [errors, setErrors] = useState({});
-  const [successMessage, setSuccessMessage] = useState('');
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -38,28 +37,30 @@ function RegisterDoctor() {
       }
       setIsLoading(false);
     }, 50);
+
     return () => clearTimeout(timeoutId);
   }, [isAuthenticated, router]);
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     }));
     setErrors(prev => ({ ...prev, [name]: '' }));
   };
 
   const validateForm = () => {
-    const newErrors = {};
+    let newErrors = {};
+
     if (!formData.username.trim()) newErrors.username = 'Username is required';
     if (!formData.password) newErrors.password = 'Password is required';
     if (!formData.first_name.trim()) newErrors.first_name = 'First name is required';
     if (!formData.last_name.trim()) newErrors.last_name = 'Last name is required';
     if (!formData.email) newErrors.email = 'Email is required';
     if (!formData.date_of_birth) newErrors.date_of_birth = 'Date of birth is required';
-    if (!formData.department_id) newErrors.department_id = 'Department is required';
-    if (formData.username.length < 3) newErrors.username = 'Username must be at least 3 characters';
+
+    if (formData.username.trim().length < 3) newErrors.username = 'Username must be at least 3 characters';
     if (formData.password.length < 8) newErrors.password = 'Password must be at least 8 characters';
     if (!/^\S+@\S+\.\S+$/.test(formData.email)) newErrors.email = 'Invalid email format';
     if (formData.phone && !/^\d{10}$/.test(formData.phone)) newErrors.phone = 'Phone must be 10 digits';
@@ -77,20 +78,18 @@ function RegisterDoctor() {
       const payload = {
         username: formData.username,
         password: formData.password,
+        email: formData.email,
         first_name: formData.first_name,
         last_name: formData.last_name,
-        email: formData.email,
         phone: formData.phone,
         date_of_birth: formData.date_of_birth,
-        department_id: parseInt(formData.department_id),
         address: formData.address,
         salary: formData.salary ? parseFloat(formData.salary) : null,
-        sex: formData.sex,
-        availability: formData.availability,
+        sex: formData.sex
       };
 
-      await axiosPrivate.post('/admin/doctors/', payload);
-      setSuccessMessage('Doctor registered successfully!');
+      await axiosPrivate.post('admin/receptionists/', payload);
+      setSuccessMessage('Receptionist registered successfully!');
       setFormData({
         username: '',
         password: '',
@@ -99,11 +98,9 @@ function RegisterDoctor() {
         email: '',
         phone: '',
         date_of_birth: '',
-        department_id: '',
         address: '',
         salary: '',
-        sex: '',
-        availability: true,
+        sex: ''
       });
     } catch (error) {
       console.error('Registration error:', error.response?.data);
@@ -118,19 +115,27 @@ function RegisterDoctor() {
   }
 
   return (
-    <div className="d-flex align-items-center justify-content-center"
-         style={{
-           minHeight: '100vh',
-           backgroundImage: 'url("/img/img12.webp")',
-           backgroundSize: 'cover',
-           backgroundPosition: 'center',
-           padding: '2rem'
-         }}>
+    <div
+      className="d-flex align-items-center justify-content-center"
+      style={{
+        minHeight: '100vh',
+        backgroundImage: 'url("/img/img12.webp")',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        padding: '2rem'
+      }}
+    >
       <div className="card shadow-lg p-4" style={{ maxWidth: '700px', width: '100%' }}>
-        <h2 className="text-center mb-4 fw-bold">Register Doctor</h2>
+        <h2 className="text-center mb-4 fw-bold">Register Receptionist</h2>
 
-        {successMessage && <div className="alert alert-success">{successMessage}</div>}
-        {errors.form && <div className="alert alert-danger">{errors.form}</div>}
+        {successMessage && (
+          <div className="alert alert-success">{successMessage}</div>
+        )}
+
+        {errors.form && (
+          <div className="alert alert-danger">{errors.form}</div>
+        )}
 
         <form onSubmit={handleSubmit}>
           <div className="row mb-3">
@@ -179,12 +184,6 @@ function RegisterDoctor() {
           </div>
 
           <div className="mb-3">
-            <label className="fw-bold">Department ID*</label>
-            <input type="number" className="form-control" name="department_id" value={formData.department_id} onChange={handleChange} />
-            {errors.department_id && <div className="text-danger">{errors.department_id}</div>}
-          </div>
-
-          <div className="mb-3">
             <label className="fw-bold">Gender</label>
             <select className="form-select" name="sex" value={formData.sex} onChange={handleChange}>
               <option value="">Select Gender</option>
@@ -205,13 +204,8 @@ function RegisterDoctor() {
             {errors.salary && <div className="text-danger">{errors.salary}</div>}
           </div>
 
-          <div className="mb-3 form-check">
-            <input type="checkbox" className="form-check-input" name="availability" checked={formData.availability} onChange={handleChange} />
-            <label className="form-check-label fw-bold">Available</label>
-          </div>
-
           <button type="submit" className="btn btn-primary w-100">
-            Register Doctor
+            Register Receptionist
           </button>
         </form>
       </div>
@@ -219,4 +213,4 @@ function RegisterDoctor() {
   );
 }
 
-export default withAdminAuth(RegisterDoctor);
+export default withAdminAuth(RegisterReceptionist);

@@ -7,11 +7,13 @@ import axiosPrivate from '../../../../../utils/axiosPrivate';
 import { useAuth } from '@/app/context/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-function AddLabTest() {
+function AddMedicine() {
   const [formData, setFormData] = useState({
-    test_name: '',
+    medicine_name: '',
     price: '',
-    test_desc: '',
+    medicine_desc: '',
+    manufacturer: '',
+    stock: '',
     requires_prescription: true
   });
 
@@ -45,11 +47,15 @@ function AddLabTest() {
 
   const validateForm = () => {
     const newErrors = {};
-    if (!formData.test_name.trim()) newErrors.test_name = 'Test name is required';
+    if (!formData.medicine_name.trim()) newErrors.medicine_name = 'Medicine name is required';
     if (!formData.price) newErrors.price = 'Price is required';
     else if (isNaN(formData.price) || parseFloat(formData.price) <= 0)
       newErrors.price = 'Price must be a positive number';
-    if (!formData.test_desc.trim()) newErrors.test_desc = 'Test description is required';
+    if (!formData.medicine_desc.trim()) newErrors.medicine_desc = 'Description is required';
+    if (!formData.manufacturer.trim()) newErrors.manufacturer = 'Manufacturer is required';
+    if (formData.stock === '') newErrors.stock = 'Stock is required';
+    else if (!Number.isInteger(Number(formData.stock)) || Number(formData.stock) < 0)
+      newErrors.stock = 'Stock must be a non-negative integer';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -62,18 +68,21 @@ function AddLabTest() {
     try {
       const payload = {
         ...formData,
-        price: parseFloat(formData.price)
+        price: parseFloat(formData.price),
+        stock: parseInt(formData.stock, 10)
       };
-      await axiosPrivate.post('admin/lab-tests/', payload);
-      setSuccessMessage('Lab test added successfully!');
+      await axiosPrivate.post('admin/medicines/', payload);
+      setSuccessMessage('Medicine added successfully!');
       setFormData({
-        test_name: '',
+        medicine_name: '',
         price: '',
-        test_desc: '',
+        medicine_desc: '',
+        manufacturer: '',
+        stock: '',
         requires_prescription: true
       });
     } catch (error) {
-      console.error('Add Lab Test error:', error.response?.data);
+      console.error('Add Medicine error:', error.response?.data);
       setErrors({
         form: error.response?.data?.error || 'Submission failed. Please try again.'
       });
@@ -97,7 +106,7 @@ function AddLabTest() {
       }}
     >
       <div className="card shadow-lg p-4" style={{ maxWidth: '700px', width: '100%' }}>
-        <h2 className="text-center mb-4 fw-bold">Add Lab Test</h2>
+        <h2 className="text-center mb-4 fw-bold">Add Medicine</h2>
 
         {successMessage && (
           <div className="alert alert-success">{successMessage}</div>
@@ -109,9 +118,9 @@ function AddLabTest() {
 
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label className="fw-bold">Test Name*</label>
-            <input type="text" className="form-control" name="test_name" value={formData.test_name} onChange={handleChange} />
-            {errors.test_name && <div className="text-danger">{errors.test_name}</div>}
+            <label className="fw-bold">Medicine Name*</label>
+            <input type="text" className="form-control" name="medicine_name" value={formData.medicine_name} onChange={handleChange} />
+            {errors.medicine_name && <div className="text-danger">{errors.medicine_name}</div>}
           </div>
 
           <div className="mb-3">
@@ -122,8 +131,20 @@ function AddLabTest() {
 
           <div className="mb-3">
             <label className="fw-bold">Description*</label>
-            <textarea className="form-control" name="test_desc" rows="3" value={formData.test_desc} onChange={handleChange}></textarea>
-            {errors.test_desc && <div className="text-danger">{errors.test_desc}</div>}
+            <textarea className="form-control" name="medicine_desc" rows="3" value={formData.medicine_desc} onChange={handleChange}></textarea>
+            {errors.medicine_desc && <div className="text-danger">{errors.medicine_desc}</div>}
+          </div>
+
+          <div className="mb-3">
+            <label className="fw-bold">Manufacturer*</label>
+            <input type="text" className="form-control" name="manufacturer" value={formData.manufacturer} onChange={handleChange} />
+            {errors.manufacturer && <div className="text-danger">{errors.manufacturer}</div>}
+          </div>
+
+          <div className="mb-3">
+            <label className="fw-bold">Stock*</label>
+            <input type="number" className="form-control" name="stock" value={formData.stock} onChange={handleChange} />
+            {errors.stock && <div className="text-danger">{errors.stock}</div>}
           </div>
 
           <div className="form-check mb-3">
@@ -134,7 +155,7 @@ function AddLabTest() {
           </div>
 
           <button type="submit" className="btn btn-primary w-100">
-            Add Lab Test
+            Add Medicine
           </button>
         </form>
       </div>
@@ -142,4 +163,4 @@ function AddLabTest() {
   );
 }
 
-export default withAdminAuth(AddLabTest);
+export default withAdminAuth(AddMedicine);

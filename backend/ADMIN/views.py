@@ -109,3 +109,19 @@ class LabTestListCreateView(generics.ListCreateAPIView):
 class LabTestRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = LabTest.objects.all()
     serializer_class = LabTestSerializer
+
+
+
+
+from rest_framework import generics
+from api.models import Department
+from .serializers import DepartmentSerializer
+
+class DepartmentListCreateView(generics.ListCreateAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+
+class DepartmentRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+    lookup_field = 'pk'
