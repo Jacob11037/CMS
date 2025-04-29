@@ -117,6 +117,7 @@ admin.site.register(MedicalHistory)
 admin.site.register(Medicine)
 admin.site.register(LabTest)
 admin.site.register(Prescription)
+admin.site.register(Pharmacist)
 
 
 

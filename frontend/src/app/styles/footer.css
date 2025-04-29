@@ -1,0 +1,115 @@
+/* Footer Container */
+.footer-container {
+    margin-top: auto; /* Pushes footer to bottom */
+  }
+  
+  /* Main Footer Styles */
+  .footer {
+    background-color: #1a1a1a !important;
+    padding: 5rem 0 0 0 !important;
+    width: 100%;
+  }
+  
+  .footer h5 {
+    color: #ffffff !important;
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+    font-weight: 600;
+  }
+  
+  .footer p,
+  .footer a {
+    color: #b3b3b3 !important;
+  }
+  
+  /* Social Icons */
+  .footer .btn.btn-social {
+    margin-right: 0.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 50% !important;
+    transition: all 0.3s ease;
+  }
+  
+  .footer .btn.btn-social:hover {
+    color: #1a1a1a !important;
+    background: #ffffff !important;
+    border-color: #ffffff !important;
+  }
+  
+  /* Footer Links */
+  .footer .btn.btn-link {
+    display: block;
+    margin-bottom: 0.5rem;
+    padding: 0;
+    text-align: left;
+    color: #b3b3b3 !important;
+    font-weight: 400;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    position: relative;
+  }
+  
+  .footer .btn.btn-link::before {
+    position: relative;
+    content: "\f105";
+    font-family: "Font Awesome 5 Free";
+    font-weight: 900;
+    margin-right: 0.5rem;
+  }
+  
+  .footer .btn.btn-link:hover {
+    color: #ffffff !important;
+    letter-spacing: 0.5px;
+    box-shadow: none;
+  }
+  
+  /* Newsletter Input */
+  .footer .form-control {
+    background-color: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+  }
+  
+  .footer .form-control:focus {
+    box-shadow: none;
+    border-color: #ffffff;
+  }
+  
+  /* Back to Top Button */
+  .back-to-top {
+    position: fixed;
+    display: none;
+    right: 20px;
+    bottom: 20px;
+    z-index: 999;
+    width: 45px;
+    height: 45px;
+    border-radius: 50% !important;
+    text-align: center;
+    line-height: 45px;
+    color: #ffffff;
+    font-size: 18px;
+    transition: all 0.3s ease;
+  }
+  
+  .back-to-top:hover {
+    background: #0d6efd !important;
+    color: #ffffff;
+  }
+  
+  /* Ensure footer stays at bottom */
+  body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  main {
+    flex: 1;
+  }

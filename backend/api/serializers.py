@@ -9,7 +9,8 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from .models import Appointment, PrescriptionLabTest, PrescriptionMedicine, Prescription, ConsultationBill, \
-    Bill, Doctor, Receptionist, Department, MedicalHistory, Medicine, LabTest, Patient
+    Bill, Doctor, Receptionist, Department, MedicalHistory, Medicine, LabTest, Patient, MedicineBillItem, \
+    LabTestBillItem
 
 
 class PatientSerializer(serializers.ModelSerializer):
@@ -70,7 +71,6 @@ class AppointmentSerializer(serializers.ModelSerializer):
                 start_time__lte=end_time,
                 status='Pending'
             ).exclude(id=self.instance.id if self.instance else None)
-
             if overlapping.exists():
                 raise serializers.ValidationError("Time slot already booked with a pending appointment.")
 
@@ -83,7 +83,7 @@ class PrescriptionMedicineSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = PrescriptionMedicine
-        fields = ['medicine_id', 'medicine_name', 'dosage', 'frequency', 'quantity']
+        fields = ['medicine_id', 'medicine_name', 'dosage', 'frequency', 'duration']
 
 class PrescriptionLabTestSerializer(serializers.ModelSerializer):
     test_name = serializers.CharField(source='lab_test.test_name')
@@ -110,7 +110,7 @@ class MedicalHistorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = MedicalHistory
-        fields = ['id', 'patient', 'diagnosis', 'medical_notes', 'prescription']  # Include prescription field
+        fields = ['id', 'patient', 'diagnosis', 'prescription']  # Include prescription field
 
 
 
@@ -125,10 +125,69 @@ class LabTestSerializer(serializers.ModelSerializer):
         model = LabTest
         fields = '__all__'
 
+class MedicineBillItemSerializer(serializers.ModelSerializer):
+    medicine = MedicineSerializer()
+
+    class Meta:
+        model = MedicineBillItem
+        fields = ['id', 'medicine', 'quantity']
+
+class LabTestBillItemSerializer(serializers.ModelSerializer):
+    lab_test = LabTestSerializer()
+
+    class Meta:
+        model = LabTestBillItem
+        fields = ['id', 'lab_test']
+
 class BillSerializer(serializers.ModelSerializer):
+    medicines = MedicineBillItemSerializer(many=True, read_only=True)
+    lab_tests = LabTestBillItemSerializer(many=True, read_only=True)
+
     class Meta:
         model = Bill
-        fields = '__all__'
+        fields = [
+            'id', 'name', 'phone_number',
+            'bill_type', 'bill_date', 'paid', 'total_amount',
+            'medicines', 'lab_tests'
+        ]
+
+
+
+class MedicineBillItemCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = MedicineBillItem
+        fields = ['medicine', 'quantity']
+
+class LabTestBillItemCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = LabTestBillItem
+        fields = ['lab_test']
+
+class BillCreateSerializer(serializers.ModelSerializer):
+    medicines = MedicineBillItemCreateSerializer(many=True, required=False)
+    lab_tests = LabTestBillItemCreateSerializer(many=True, required=False)
+
+    class Meta:
+        model = Bill
+        fields = [
+            'name', 'phone_number',
+            'bill_type', 'paid', 'total_amount',
+            'medicines', 'lab_tests'
+        ]
+
+
+    def create(self, validated_data):
+        print(validated_data)
+        medicines_data = validated_data.pop('medicines', [])
+        lab_tests_data = validated_data.pop('lab_tests', [])
+        bill = Bill.objects.create(**validated_data)
+
+        for med in medicines_data:
+            MedicineBillItem.objects.create(bill=bill, **med)
+        for test in lab_tests_data:
+            LabTestBillItem.objects.create(bill=bill, **test)
+
+        return bill
 
 class ConsultationBillSerializer(serializers.ModelSerializer):  # Renamed from AppointmentBillSerializer
     class Meta:
@@ -143,10 +202,11 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 class DoctorViewSerializer(serializers.ModelSerializer):
     department_name = serializers.SerializerMethodField()  # Custom field for department name
+    consultation_fee = serializers.DecimalField(source='department_id.fee', max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = Doctor
-        fields = ['staff_id', 'first_name', 'last_name', 'department_id', 'department_name', 'email', 'phone']
+        fields = ['staff_id', 'first_name', 'last_name', 'department_id',  'email', 'phone', 'department_name','consultation_fee']
 
     def get_department_name(self, obj):
         # Fetch the department name using the department_id
@@ -186,10 +246,14 @@ class ReceptionistSerializer(serializers.ModelSerializer):
 class DoctorSerializer(serializers.ModelSerializer):
     username = serializers.CharField(write_only=True)  # Handle username separately
     password = serializers.CharField(write_only=True)  # Hide password from responses
+    department_name = serializers.CharField(source='department_id.department_name', read_only=True)
+    consultation_fee = serializers.CharField(source='department_id.consultation_fee', read_only=True)
+
+
     class Meta:
         model = Doctor
         fields = ['id', 'username', 'password', 'email', 'first_name', 'last_name', 'department_id', 'phone', 'date_of_birth',
-                  'address', 'sex', 'is_active', 'joining_date', 'salary']
+                  'address', 'sex', 'is_active', 'joining_date', 'salary', 'department_name','consultation_fee']
 
     def create(self, validated_data):
         try:

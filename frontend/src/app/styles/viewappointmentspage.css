@@ -76,4 +76,41 @@
   .deleteButton:hover {
     background-color: #c0392b;
   }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+    gap: 10px;
+  }
+  
+  .pagination button {
+    padding: 8px 12px;
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .pagination button:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .page-info {
+    font-weight: bold;
+  }
+
+  .appointmentLink {
+    color: #3498db;
+    text-decoration: underline;
+    cursor: pointer;
+  }
+  
+  .appointmentLink:hover {
+    color: #21618c;
+  }
+  
   

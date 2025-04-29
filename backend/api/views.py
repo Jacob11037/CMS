@@ -1,22 +1,23 @@
 from django.contrib.auth.models import Group
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import JsonResponse
-from django.shortcuts import render, get_object_or_404
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework import status, viewsets, filters
+from rest_framework.views import APIView
+
 from .models import Appointment, Patient, Prescription, Bill, ConsultationBill, Doctor, Department, \
     Receptionist, MedicalHistory, PrescriptionLabTest, LabTest, PrescriptionMedicine, Medicine
 from .permissions import IsDoctor, IsReceptionist, IsAdmin
 from .serializers import AppointmentSerializer, PatientSerializer, PrescriptionSerializer, BillSerializer, \
     ConsultationBillSerializer, DoctorSerializer, ReceptionistSerializer, DoctorViewSerializer, DepartmentSerializer, \
-    ReceptionistViewSerializer, MedicalHistorySerializer, MedicineSerializer, LabTestSerializer
-from rest_framework.pagination import PageNumberPagination
+    ReceptionistViewSerializer, MedicalHistorySerializer, MedicineSerializer, LabTestSerializer, BillCreateSerializer
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .utils.filters import AppointmentFilter
+from .utils.filters import AppointmentFilter, BillFilter
 from .utils.pagination import LimitTenPagination
 from .utils.roles import get_user_role
 
@@ -49,7 +50,9 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
                 prescription=prescription,
                 medicine_id=medicine_data['id'],
                 dosage=medicine_data['dosage'],
-                frequency=medicine_data['frequency']
+                frequency=medicine_data['frequency'],
+                duration = medicine_data['duration']
+
             )
 
         # Add lab tests with test_date
@@ -64,20 +67,21 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
         medical_history = MedicalHistory.objects.create(
             patient_id=patient_id,
             diagnosis=diagnosis,
-            medical_notes=medical_notes,
             prescription=prescription
         )
 
-        # medicine_bill = Bill.objects.create(
-        #     billtype = "medicine"
-        # )
-        #
-        # labtest_bill = Bill.objects.create(
-        #     billtype="lab test"
-        # )
-
         serializer = self.get_serializer(prescription)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(['GET'])
+def get_prescriptions_by_patient(request, patient_id):
+    try:
+        prescriptions = Prescription.objects.filter(patient__id=patient_id)
+        serializer = PrescriptionSerializer(prescriptions, many=True)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
 
 class MedicalHistoryViewSet(viewsets.ModelViewSet):
     serializer_class = MedicalHistorySerializer
@@ -92,12 +96,20 @@ class MedicalHistoryViewSet(viewsets.ModelViewSet):
         role = get_user_role(user)
 
         if role == "admin":
-            return MedicalHistory.objects.all().select_related(
+            queryset= MedicalHistory.objects.all().select_related(
                 'prescription'
             ).prefetch_related(
                 'prescription__prescriptionmedicine_set',
                 'prescription__prescriptionlabtest_set'
             )
+            patient_id = self.request.query_params.get('patient_id')
+            if patient_id:
+                try:
+                    patient_id = int(patient_id)
+                    queryset = queryset.filter(patient_id=patient_id)
+                except ValueError:
+                    raise ValidationError("Invalid patient_id provided.")
+            return queryset
 
         elif role == "doctor":
             doctor = Doctor.objects.filter(user=user).first()
@@ -164,13 +176,36 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         # If the user is neither, return an empty queryset (or raise a permission error)
         raise PermissionDenied("You do not have permission to view appointments.")
 
+    def perform_create(self, serializer):
+        appointment = serializer.save()
+        doctor = appointment.doctor
+
+        try:
+            department = doctor.department_id
+            price = department.fee if department and department.fee else 500.00
+        except ObjectDoesNotExist:
+            # Fallback if somehow doctor has no department
+            price = 500.00
+
+        # Create consultation bill
+        ConsultationBill.objects.create(
+            appointment=appointment,
+            amount=price
+        )
 
 
 class BillViewSet(viewsets.ModelViewSet):
     permission_classes = [IsDoctor | IsReceptionist | IsAdmin]
+    queryset = Bill.objects.all().order_by('-bill_date')
+    pagination_class = LimitTenPagination
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = BillFilter
 
-    queryset = Bill.objects.all()
-    serializer_class = BillSerializer
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return BillCreateSerializer
+        return BillSerializer
+
 
 class ConsultationBillViewSet(viewsets.ModelViewSet):
     permission_classes = [IsReceptionist | IsAdmin]

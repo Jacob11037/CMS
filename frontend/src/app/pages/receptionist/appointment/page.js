@@ -6,6 +6,7 @@ import axiosPrivate from "../../../../../utils/axiosPrivate";
 import "../../../styles/appointmentform.css";
 import withReceptionistAuth from "@/app/middleware/withReceptionistAuth";
 import { toast } from 'react-toastify';
+import { motion } from 'framer-motion';
 
 
 const AppointmentForm = () => {
@@ -29,9 +30,41 @@ const AppointmentForm = () => {
   const [isRescheduling, setIsRescheduling] = useState(false);
   const [justSelected, setJustSelected] = useState(false);
 
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [appointmentSummary, setAppointmentSummary] = useState({});
+
 
   const router = useRouter();
 
+  const ConfirmationModal = ({ isOpen, onClose, onConfirm, details }) => {
+    if (!isOpen) return null;
+  
+    return (
+      <div className="modal-overlay">
+        <motion.div 
+          className="modal-content"
+          initial={{ scale: 0.9, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <h2>Confirm Appointment</h2>
+          <ul>
+            <li><strong>Patient:</strong> {details.patient}</li>
+            <li><strong>Department:</strong> {details.department}</li>
+            <li><strong>Doctor:</strong> {details.doctor}</li>
+            <li><strong>Start Time:</strong> {details.start_time}</li>
+            <li><strong>End Time:</strong> {details.end_time}</li>
+            <li><strong>Consultation Fee:</strong> ${details.fee}</li>
+          </ul>
+          <div className="modal-buttons">
+            <button onClick={onConfirm}>Confirm</button>
+            <button onClick={onClose}>Cancel</button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  };
+  
   // Fetch initial data
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -42,6 +75,7 @@ const AppointmentForm = () => {
         ]);
         setDepartments(deptRes.data);
         setDoctors(doctorsRes.data);
+        console.log(doctors)
 
         // Check for reschedule params
         if (searchParams.get('reschedule')) {
@@ -163,29 +197,55 @@ const AppointmentForm = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    // Combine start date with end time
+  
     const combinedData = {
       ...formData,
       end_time: formData.start_time 
         ? `${formData.start_time.split('T')[0]}T${formData.end_time || '00:00'}`
         : ''
     };
-
+  
     if (!validateForm(combinedData)) return;
+  
+    // Get display names
+    const selectedDoctor = doctors.find(doc => doc.staff_id === combinedData.doctor);
+    const selectedDept = departments.find(dep => dep.id == selectedDepartment);
+    const patientDisplay = searchQuery || "Selected Patient";
+  
+    const summary = {
+      patient: patientDisplay,
+      doctor: selectedDoctor 
+        ? `Dr. ${selectedDoctor.first_name} ${selectedDoctor.last_name}` 
+        : "",
+      department: selectedDept?.department_name || "",
+      start_time: combinedData.start_time,
+      end_time: combinedData.end_time,
+      fee: selectedDept?.fee || 0
+    };
+  
+    setAppointmentSummary(summary);
+    setShowConfirmModal(true);
+  };
 
+  const confirmAppointment = async () => {
+    setShowConfirmModal(false);
+  
+    const finalData = {
+      ...formData,
+      end_time: formData.start_time 
+        ? `${formData.start_time.split('T')[0]}T${formData.end_time || '00:00'}`
+        : ''
+    };
+  
     try {
       setLoading(true);
-      await axiosPrivate.post("appointments/", combinedData);
-
-      toast.success(
-        isRescheduling 
-          ? 'Appointment rescheduled successfully!' 
-          : 'Appointment created successfully!'
-      );
-
-      // Reset form
+      await axiosPrivate.post("appointments/", finalData);
+  
+      toast.success(isRescheduling ? "Appointment rescheduled!" : "Appointment created!");
+  
+      // Reset
       setFormData({
         patient: "",
         doctor: "",
@@ -197,27 +257,32 @@ const AppointmentForm = () => {
       setFilteredPatients([]);
       setSelectedDepartment("");
       setIsRescheduling(false);
-
     } catch (error) {
-      const errorMsg = error.response?.data?.message || 
-        (isRescheduling 
-          ? "Failed to reschedule appointment" 
-          : "Failed to create appointment");
-      setErrors({ submit: errorMsg });
+      const errorMsg = error.response?.data?.message || "Something went wrong";
       toast.error(errorMsg);
+      setErrors({ submit: errorMsg });
     } finally {
       setLoading(false);
     }
   };
+  
 
-  return (
-    <div className="container">
-      <h1 className="header">
-        {isRescheduling ? 'Reschedule Appointment' : 'Create Appointment'}
-      </h1>
-      
-      <form onSubmit={handleSubmit} className="form">
-        {/* Patient Search */}
+return (
+  <motion.div 
+    className="container"
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.6, ease: 'easeOut' }}
+  >
+    <h1 className="header">
+      {isRescheduling ? 'Reschedule Appointment' : 'Create Appointment'}
+    </h1>
+
+    <form onSubmit={handleSubmit} className="form">
+
+      {/* Card 1: Patient Info */}
+      <div className="card">
+        <h2 className="card-title">Patient Information</h2>
         <div className="form-group">
           <label>Search Patient:</label>
           <input
@@ -225,7 +290,7 @@ const AppointmentForm = () => {
             placeholder="Search by name, phone, or email"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            disabled={isRescheduling} // Disable if rescheduling
+            disabled={isRescheduling}
           />
           {filteredPatients.length > 0 && (
             <div className="dropdown">
@@ -236,7 +301,7 @@ const AppointmentForm = () => {
                     setFormData({ ...formData, patient: patient.id });
                     setSearchQuery(`${patient.first_name} ${patient.last_name}`);
                     setFilteredPatients([]);
-                    setJustSelected(true); // Prevent follow-up search
+                    setJustSelected(true);
                   }}
                 >
                   {patient.first_name} {patient.last_name} ({patient.phone})
@@ -246,15 +311,19 @@ const AppointmentForm = () => {
           )}
           {errors.patient && <span className="error">{errors.patient}</span>}
         </div>
+      </div>
 
-        {/* Department Selection */}
+      {/* Card 2: Appointment Details */}
+      <div className="card">
+        <h2 className="card-title">Appointment Details</h2>
+
         <div className="form-group">
           <label>Department:</label>
           <select 
             value={selectedDepartment} 
             onChange={handleDepartmentChange}
             required
-            disabled={isRescheduling} // Disable if rescheduling
+            disabled={isRescheduling}
           >
             <option value="">Select Department</option>
             {departments.map(dept => (
@@ -265,7 +334,16 @@ const AppointmentForm = () => {
           </select>
         </div>
 
-        {/* Doctor Selection */}
+        {selectedDepartment && (() => {
+          const selectedDept = departments.find(dep => dep.id == selectedDepartment);
+          return (
+            <div className="form-group">
+              <label>Consultation Fee: </label>
+              <p>{selectedDept?.fee || 'N/A'}</p>
+            </div>
+          );
+        })()}
+
         {selectedDepartment && (
           <div className="form-group">
             <label>Doctor:</label>
@@ -274,7 +352,7 @@ const AppointmentForm = () => {
               value={formData.doctor}
               onChange={handleChange}
               required
-              disabled={isRescheduling} // Disable if rescheduling
+              disabled={isRescheduling}
             >
               <option value="">Select Doctor</option>
               {filteredDoctors.map(doctor => (
@@ -287,7 +365,6 @@ const AppointmentForm = () => {
           </div>
         )}
 
-        {/* Start Time */}
         <div className="form-group">
           <label>Start Time:</label>
           <input
@@ -300,7 +377,6 @@ const AppointmentForm = () => {
           {errors.start_time && <span className="error">{errors.start_time}</span>}
         </div>
 
-        {/* End Time */}
         <div className="form-group">
           <label>End Time:</label>
           <input
@@ -312,7 +388,11 @@ const AppointmentForm = () => {
           />
           {errors.end_time && <span className="error">{errors.end_time}</span>}
         </div>
+      </div>
 
+      {/* Card 3: Actions */}
+      <div className="card">
+        <h2 className="card-title">Actions</h2>
         <div className="button-group">
           <button type="submit" disabled={loading}>
             {loading 
@@ -326,11 +406,20 @@ const AppointmentForm = () => {
             Back to Appointments
           </button>
         </div>
-
         {errors.submit && <div className="error">{errors.submit}</div>}
-      </form>
-    </div>
-  );
+      </div>
+
+    </form>
+    <ConfirmationModal
+  isOpen={showConfirmModal}
+  onClose={() => setShowConfirmModal(false)}
+  onConfirm={confirmAppointment}
+  details={appointmentSummary}
+/>
+
+  </motion.div>
+);
+
 };
 
 export default withReceptionistAuth(AppointmentForm);

@@ -1,10 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+
 from api import views
 from api.views import (
     DepartmentReadOnlyViewSet, register_doctor, register_receptionist,
-     doctor_profile, receptionist_profile, check_user_role,
+    doctor_profile, receptionist_profile, check_user_role,
     MedicalHistoryViewSet, MedicineViewSet, LabTestViewSet, DoctorListViewSet
 )
 
@@ -17,6 +18,8 @@ router.register(r'patients', views.PatientViewSet)
 router.register(r'appointments', views.AppointmentViewSet)
 router.register(r'prescription-bills', views.BillViewSet)
 router.register(r'consultation-bills', views.ConsultationBillViewSet)
+router.register(r'bills', views.BillViewSet, basename='general-bill')
+
 router.register(r'medical-history', MedicalHistoryViewSet, basename='medical-history')
 router.register(r'medicines', MedicineViewSet, basename='medicine')
 router.register(r'lab-tests', LabTestViewSet, basename='lab-test')
@@ -38,6 +41,7 @@ urlpatterns = [
     path('auth/check-role/', check_user_role, name='check-user-role'),
     path('auth/', include('djoser.urls')),  # Registration, password reset, etc.
     path('auth/token/', include('djoser.urls.jwt')),  # JWT-based authentication
+    path('api/pharmacist/', include('pharmacist.urls')),  # ✅ make sure this exists
 
     # User management endpoints
     path('doctor/register/', register_doctor, name='doctor-register'),
