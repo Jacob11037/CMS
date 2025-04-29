@@ -1,6 +1,6 @@
 'use client';
 
-import PatientForm from '../..//components/PatientForm';
+import PatientForm from '@/app/components/PatientForm';
 import withReceptionistAuth from '@/app/middleware/withReceptionistAuth';
 
 

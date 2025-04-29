@@ -101,7 +101,7 @@ function ViewBillsPage() {
                         {bill.appointment}
                     </a>
                     </p>
-                  <p className="appointmentText"><strong>Amount:</strong> ${parseFloat(bill.amount).toFixed(2)}</p>
+                  <p className="appointmentText"><strong>Amount:</strong> ₹{parseFloat(bill.amount).toFixed(2)}</p>
                   <p className="appointmentText"><strong>Paid:</strong> {bill.paid ? 'Yes' : 'No'}</p>
                   <p className="appointmentText"><strong>Date:</strong> {new Date(bill.bill_date).toLocaleString()}</p>
                   <button
