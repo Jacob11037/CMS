@@ -9,7 +9,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   faUserMd,
   faCalendarCheck,
-  faPrescription,
   faRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons';
 
@@ -22,8 +21,6 @@ const DoctorDashboard = () => {
     setUsername(localStorage.getItem('username'));
     setRole(localStorage.getItem('role'));
   }, []);
-
-
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -45,11 +42,9 @@ const DoctorDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <div className="section">
+      <div className="section text-center"> {/* Added text-center class */}
         <h2 className="welcome">Welcome to Doctor Dashboard</h2>
       </div>
-
-
 
       <div className="container">
         <h4 className="text-center mb-4">Doctor Actions</h4>
@@ -70,14 +65,7 @@ const DoctorDashboard = () => {
             <FontAwesomeIcon icon={faCalendarCheck} size="2x" className="mb-2" />
             View Appointments
           </div>
-          <div
-            className="col-md-2 text-center btn btn-light"
-            style={cardStyle}
-            onClick={() => handleNavigation('/pages/doctor/view-prescriptions')}
-          >
-            <FontAwesomeIcon icon={faPrescription} size="2x" className="mb-2" />
-            Prescriptions
-          </div>
+          {/* Removed the Prescriptions card */}
         </div>
       </div>
     </div>

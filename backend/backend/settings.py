@@ -115,11 +115,11 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 DATABASES = {
     'default': {
         "ENGINE": "django.db.backends.mysql",
-        "NAME": "CMSdatabase",
+        "NAME": "camp4cms",
         "USER": "root",
-        "PASSWORD": "sindhuarjun@2003",
+        "PASSWORD": "root",
         "HOST": "localhost",
-        "PORT": "3306",
+        "PORT": "3307",
     }
 }
 
