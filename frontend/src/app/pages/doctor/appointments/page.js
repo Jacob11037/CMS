@@ -3,7 +3,10 @@
 import { useState, useEffect, useMemo } from 'react';
 import axiosPrivate from '../../../../../utils/axiosPrivate';
 import Select from 'react-select';
-import { Form, Toast, Spinner } from 'react-bootstrap';
+import { Form, Spinner } from 'react-bootstrap';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 import { formatDateTime } from '../../../../../utils/dateFormatter';
 import withDoctorAuth from '@/app/middleware/withDoctorAuth';
 
@@ -19,7 +22,6 @@ const DoctorPage = () => {
   const [labTests, setLabTests] = useState([]);
   const [availableMedicines, setAvailableMedicines] = useState([]);
   const [availableLabTests, setAvailableLabTests] = useState([]);
-  const [showToast, setShowToast] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [expandedItems, setExpandedItems] = useState({});
@@ -133,31 +135,51 @@ const DoctorPage = () => {
   };
 
   const isFormValid = useMemo(() => {
+    const hasValidMedicines = medicines.length > 0 && !medicines.some(m => !m.dosage || !m.frequency || !m.duration);
+    const hasValidLabTests = labTests.length > 0 && !labTests.some(l => !l.test_date);
+  
     return (
       selectedAppointment &&
-      diagnosis.trim().length >= 5 &&
-      (medicines.length > 0 || labTests.length > 0) &&
-      !medicines.some(m => !m.dosage || !m.frequency || !m.duration) &&
-      !labTests.some(l => !l.test_date) &&
+      diagnosis.trim().length >= 3 &&
+      (hasValidMedicines || hasValidLabTests) &&
       notes.length <= 500
     );
   }, [selectedAppointment, diagnosis, medicines, labTests, notes]);
   
+  
+  
 
   const validateForm = () => {
     const errs = {};
+    const hasValidMedicines = medicines.length > 0 && !medicines.some(m => !m.dosage || !m.frequency || !m.duration);
+    const hasValidLabTests = labTests.length > 0 && !labTests.some(l => !l.test_date);
+  
     if (!selectedAppointment) errs.appointment = "Appointment required";
-    if (!diagnosis || diagnosis.trim().length < 5) errs.diagnosis = "Diagnosis must be at least 5 characters";
-    if (!medicines.length && !labTests.length) errs.selection = "Select at least one medicine or lab test";
+    if (!diagnosis || diagnosis.trim().length < 3) errs.diagnosis = "Diagnosis must be at least 3 characters";
+    if (!hasValidMedicines && !hasValidLabTests) errs.selection = "Select at least one valid medicine or lab test";
     if (notes.length > 500) errs.notes = "Notes too long";
-    if (medicines.some(m => !m.dosage || !m.frequency || !m.duration)) errs.medicines = "Complete all medicine fields";
-    if (labTests.some(l => !l.test_date)) errs.labTests = "Fill all lab test dates";
+    if (medicines.length > 0 && medicines.some(m => !m.dosage || !m.frequency || !m.duration)) {
+      errs.medicines = "Complete all medicine fields";
+    }
+    if (labTests.length > 0 && labTests.some(l => !l.test_date)) {
+      errs.labTests = "Fill all lab test dates";
+    }
+    if (labTests.some(l => !l.test_date || new Date(l.test_date) < new Date().setHours(0,0,0,0))) {
+      errs.labTests = "Lab test dates must be today or in the future";
+    }
+    
+  
     setErrors(errs);
     return Object.keys(errs).length === 0;
   };
-
+  
   const handleSubmit = async () => {
-    if (!validateForm()) return;
+    if (!validateForm()) {
+      console.log(errors)
+
+      return;
+    }
+      
 
     setIsSubmitting(true);
     try {
@@ -180,7 +202,8 @@ const DoctorPage = () => {
       };
       await axiosPrivate.post('/prescriptions/', payload);
 
-      setShowToast(true);
+      toast.success('Prescription submitted successfully!');
+
       setDiagnosis('');
       setNotes('');
       setMedicines([]);
@@ -203,50 +226,59 @@ const DoctorPage = () => {
         {/* Left Column: Appointments */}
         <div className="col-md-3">
           <h5>Appointments</h5>
-          <button onClick={() => setShowFilters(!showFilters)}>
-          {showFilters ? 'Hide Filters' : 'Show Filters'}
-        </button>
-        {showFilters && 
-                    <div className="filters-panel">
-                    <input 
-                    type="text" 
-                    placeholder="Search Patient" 
+          <div className="mb-2">
+            <button onClick={() => setShowFilters(!showFilters)} className="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50">
+              {showFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
+            {showFilters &&
+              <div className="mt-2 p-3 border rounded bg-light">
+                <div className="mb-2">
+                  <input
+                    type="text"
+                    className="form-control form-control-sm"
+                    placeholder="Search Patient"
                     value={filters.patient_name}
                     onChange={(e) => {
-                        setFilters({ ...filters, patient_name: e.target.value })
-                        setCurrentPage(1); // reset to first page when filter changes
+                      setFilters({ ...filters, patient_name: e.target.value });
+                      setCurrentPage(1); // reset to first page when filter changes
                     }}
-                    />
-                    <input 
+                  />
+                </div>
+                <div className="mb-2">
+                  <input
                     type="date"
+                    className="form-control form-control-sm"
                     value={filters.start_time}
                     onChange={(e) => {
-                        setFilters({ ...filters, start_time: e.target.value })
-                        setCurrentPage(1);
+                      setFilters({ ...filters, start_time: e.target.value });
+                      setCurrentPage(1);
                     }}
-                    />
-                    <select
+                  />
+                </div>
+                <div className="mb-2">
+                  <select
+                    className="form-select form-select-sm"
                     value={filters.status}
                     onChange={(e) => {
-                        setFilters({ ...filters, status: e.target.value })
-                        setCurrentPage(1);
+                      setFilters({ ...filters, status: e.target.value });
+                      setCurrentPage(1);
                     }}
-                    >
+                  >
                     <option value="">All Statuses</option>
                     <option value="Pending">Pending</option>
                     <option value="Completed">Completed</option>
                     <option value="Cancelled">Cancelled</option>
-                    </select>
-                    <button className="button"
-                    onClick={()=>setFilters({
-                        status:'',
-                        patient_name:'',
-                        start_time:''
-                      })}>
-                        Reset Filters
-                    </button>
+                  </select>
                 </div>
+                <button
+                  className="px-3 py-1 rounded border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+                  onClick={() => setFilters({ status: '', patient_name: '', start_time: '' })}
+                >
+                  Reset Filters
+                </button>
+              </div>
                 }
+            </div>
           <div className="d-flex flex-column gap-2">
             {appointments.map(appt => (
               <Button
@@ -352,6 +384,8 @@ const DoctorPage = () => {
                   rows={2}
                   isInvalid={!!errors.diagnosis}
                 />
+                  {errors.diagnosis && <div className="text-danger">{errors.diagnosis}</div>}
+
               </Form.Group>
               <Form.Group className="mb-3">
                 <Form.Label>Notes</Form.Label>
@@ -362,6 +396,8 @@ const DoctorPage = () => {
                   rows={2}
                   isInvalid={!!errors.notes}
                 />
+                  {errors.notes && <div className="text-danger">{errors.notes}</div>}
+
               </Form.Group>
 
 
@@ -377,6 +413,7 @@ const DoctorPage = () => {
           onChange={handleMedicineChange}
           value={medicines}
         />
+        {errors.medicines && <div className="text-danger">{errors.medicines}</div>}
         {medicines.map((m, i) => (
           <div key={m.value} className="mt-3 p-3 border rounded">
             <h6 className="mb-3">{m.label} {/* Display medicine name */}</h6>
@@ -410,8 +447,11 @@ const DoctorPage = () => {
                     onChange={(e) => handleInputChange(i, 'duration', e.target.value)}
                   />
                 </Form.Group>
+                
               </div>
             </div>
+            
+
           </div>
         ))}
       </Form.Group>
@@ -435,37 +475,35 @@ const DoctorPage = () => {
               <Form.Label>Test Date</Form.Label>
               <Form.Control
                 type="date"
+                min={new Date().toISOString().split('T')[0]} // prevents past dates
                 value={l.test_date}
                 onChange={(e) => handleInputChange(i, 'test_date', e.target.value, 'lab')}
               />
+
             </Form.Group>
+            {errors.labTests && <div className="text-danger">{errors.labTests}</div>}
+
           </div>
         ))}
+        {errors.selection && <div className="text-danger">{errors.selection}</div>}
       </Form.Group>
               <Button
                 variant="success"
                 onClick={handleSubmit}
-                disabled={!isFormValid  || isSubmitting}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? <Spinner animation="border" size="sm" /> : 'Submit Prescription'}
               </Button>
+              
+
             </Form>
           ) : (
             <p>Select an appointment to begin a prescription.</p>
           )}
         </div>
       </div>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
 
-      <Toast
-        onClose={() => setShowToast(false)}
-        show={showToast}
-        delay={3000}
-        autohide
-        bg="success"
-        style={{ position: 'fixed', top: 20, right: 20 }}
-      >
-        <Toast.Body className="text-white">Prescription submitted successfully!</Toast.Body>
-      </Toast>
     </div>
   );
 };

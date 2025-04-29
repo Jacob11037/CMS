@@ -23,10 +23,7 @@ const DoctorDashboard = () => {
     setRole(localStorage.getItem('role'));
   }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    router.push('/');
-  };
+
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -52,19 +49,7 @@ const DoctorDashboard = () => {
         <h2 className="welcome">Welcome to Doctor Dashboard</h2>
       </div>
 
-      <div className="user-info-bar text-center mb-4">
-        <p className="user-secondary-text">
-          Welcome <span className="underline-text">{username}</span> & Role
-          <span className="underline-text"> {role} </span>
-          <span
-            className="underline-text logout-link"
-            onClick={handleLogout}
-            style={{ cursor: 'pointer', marginLeft: '10px' }}
-          >
-            <FontAwesomeIcon icon={faRightFromBracket} /> Logout
-          </span>
-        </p>
-      </div>
+
 
       <div className="container">
         <h4 className="text-center mb-4">Doctor Actions</h4>

@@ -12,6 +12,8 @@ import {
   faCalendarAlt,
   faFileInvoiceDollar,
   faRightFromBracket,
+  faCalendarPlus,
+  faFileCirclePlus,
 } from '@fortawesome/free-solid-svg-icons';
 
 const ReceptionistDashboard = () => {
@@ -24,10 +26,7 @@ const ReceptionistDashboard = () => {
     setRole(localStorage.getItem('role'));
   }, []);
 
-  const handleLogout = () => {
-    localStorage.clear();
-    router.push('/');
-  };
+
 
   const handleNavigation = (path) => {
     router.push(path);
@@ -49,23 +48,11 @@ const ReceptionistDashboard = () => {
 
   return (
     <div className="dashboard-container">
-      <div className="section">
+      <div className="section text-center">
         <h2 className="welcome">Welcome to Receptionist Dashboard</h2>
       </div>
 
-      <div className="user-info-bar text-center mb-4">
-        <p className="user-secondary-text">
-          Welcome <span className="underline-text">{username}</span> & Role
-          <span className="underline-text"> {role} </span>
-          <span
-            className="underline-text logout-link"
-            onClick={handleLogout}
-            style={{ cursor: 'pointer', marginLeft: '10px' }}
-          >
-            <FontAwesomeIcon icon={faRightFromBracket} /> Logout
-          </span>
-        </p>
-      </div>
+
 
       <div className="container">
         <h4 className="text-center mb-4">Receptionist Actions</h4>
@@ -102,6 +89,15 @@ const ReceptionistDashboard = () => {
             <FontAwesomeIcon icon={faFileInvoiceDollar} size="2x" className="mb-2" />
             View Bills
           </div>
+          <div
+            className="col-md-2 text-center btn btn-light"
+            style={cardStyle}
+            onClick={() => handleNavigation('/pages/receptionist/appointment')}
+          >
+            <FontAwesomeIcon icon={faCalendarPlus} size="2x" className="mb-2" />
+            Create Appointment
+          </div>
+          
         </div>
       </div>
     </div>

@@ -5,13 +5,10 @@ import { useAuth } from '../../../../context/AuthContext'; // Adjust path if nee
 import axiosPrivate from '../../../../../../utils/axiosPrivate'; // Adjust path if needed
 import withReceptionistAuth from '@/app/middleware/withReceptionistAuth'; // Adjust path if needed
 import { toast } from 'react-toastify';
-import styles from '../../../../styles/receptionist/updateAppointment.module.css' // Import the CSS module
+import styles from '../../../../styles/receptionist/updateAppointment.module.css'; // Import the CSS module
 import { motion } from 'framer-motion';
-// Import Bootstrap components if needed, or rely on global CSS
-// import Spinner from 'react-bootstrap/Spinner';
-// import Alert from 'react-bootstrap/Alert';
+import { formatDateTime } from '../../../../../../utils/dateFormatter'; // Import the formatter
 
-// Standard way to get params in App Router Page Components
 function UpdateAppointmentPage({ params }) {
   const { appointmentid } = params; // Get ID from params prop
   const [appointment, setAppointment] = useState(null);
@@ -31,10 +28,10 @@ function UpdateAppointmentPage({ params }) {
     }
 
     if (!appointmentid) {
-        setError('Appointment ID is missing.');
-        setIsLoading(false);
-        toast.error('Appointment ID is missing.');
-        return;
+      setError('Appointment ID is missing.');
+      setIsLoading(false);
+      toast.error('Appointment ID is missing.');
+      return;
     }
 
     const fetchAppointmentDetails = async () => {
@@ -49,7 +46,7 @@ function UpdateAppointmentPage({ params }) {
         setError('Failed to fetch appointment details. It might not exist or there was a network issue.');
         toast.error('Failed to fetch appointment details');
       } finally {
-          setIsLoading(false);
+        setIsLoading(false);
       }
     };
 
@@ -74,12 +71,12 @@ function UpdateAppointmentPage({ params }) {
       setError(errorMessage);
       toast.error(errorMessage);
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
   const handleReschedule = async () => {
-     if (!appointment) {
+    if (!appointment) {
       toast.error("Appointment details not loaded yet.");
       return;
     }
@@ -131,105 +128,105 @@ function UpdateAppointmentPage({ params }) {
 
   return (
     <motion.div
-        className={styles.container}
-        variants={pageVariants}
-        initial="hidden"
-        animate="visible"
+      className={styles.container}
+      variants={pageVariants}
+      initial="hidden"
+      animate="visible"
     >
-        <div className={styles.card}> {/* Main card for content */}
-            <h1 className={styles.header}>Update Appointment</h1>
+      <div className={styles.card}> {/* Main card for content */}
+        <h1 className={styles.header}>Update Appointment</h1>
 
-            {isLoading ? (
-                 <div className="d-flex justify-content-center">
-                    <div className={`spinner-border text-primary ${styles.loadingSpinner}`} role="status">
-                        <span className="visually-hidden">Loading...</span>
-                    </div>
-                </div>
-            ) : error ? (
-                 <div className={`alert alert-danger ${styles.errorAlert}`} role="alert">
-                     {error}
-                </div>
-            ) : appointment ? (
-                <>
-                {/* Details Section */}
-                <div className={styles.detailsCard}>
-                    <p><strong>Patient:</strong> {appointment.patient_name || 'N/A'}</p>
-                    <p><strong>Doctor:</strong> {appointment.doctor_name || 'N/A'}</p>
-                    <p><strong>Start Time:</strong> {new Date(appointment.start_time).toLocaleString()}</p>
-                    <p><strong>End Time:</strong> {new Date(appointment.end_time).toLocaleString()}</p>
-                    <p><strong>Current Status:</strong> <span className={`badge bg-${appointment.status === 'Completed' ? 'success' : appointment.status === 'Cancelled' ? 'secondary' : 'warning'}`}>{appointment.status}</span></p>
-                 </div>
+        {isLoading ? (
+          <div className="d-flex justify-content-center">
+            <div className={`spinner-border text-primary ${styles.loadingSpinner}`} role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+          </div>
+        ) : error ? (
+          <div className={`alert alert-danger ${styles.errorAlert}`} role="alert">
+            {error}
+          </div>
+        ) : appointment ? (
+          <>
+            {/* Details Section */}
+            <div className={styles.detailsCard}>
+              <p><strong>Patient:</strong> {appointment.patient_name || 'N/A'}</p>
+              <p><strong>Doctor:</strong> {appointment.doctor_name || 'N/A'}</p>
+              <p><strong>Start Time:</strong> {formatDateTime(appointment.start_time)}</p>
+              <p><strong>End Time:</strong> {formatDateTime(appointment.end_time)}</p>
+              <p><strong>Current Status:</strong> <span className={`badge bg-${appointment.status === 'Completed' ? 'success' : appointment.status === 'Cancelled' ? 'secondary' : 'warning'}`}>{appointment.status}</span></p>
+            </div>
 
-                {/* Update Form */}
-                <form onSubmit={handleUpdateSubmit}>
-                    <div className="mb-4"> {/* Increased margin bottom */}
-                        <label htmlFor="status" className={styles.formLabel}>Update Status:</label>
-                        <select
-                            id="status"
-                            className={`form-select ${styles.formSelect}`} // Use Bootstrap and custom styles
-                            value={status}
-                            onChange={(e) => setStatus(e.target.value)}
-                            disabled={isSubmitting} // Disable while submitting
-                            required
-                        >
-                            <option value="Pending">Pending</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Cancelled">Cancelled</option>
-                        </select>
-                    </div>
+            {/* Update Form */}
+            <form onSubmit={handleUpdateSubmit}>
+              <div className="mb-4"> {/* Increased margin bottom */}
+                <label htmlFor="status" className={styles.formLabel}>Update Status:</label>
+                <select
+                  id="status"
+                  className={`form-select ${styles.formSelect}`} // Use Bootstrap and custom styles
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value)}
+                  disabled={isSubmitting} // Disable while submitting
+                  required
+                >
+                  <option value="Pending">Pending</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Cancelled">Cancelled</option>
+                </select>
+              </div>
 
-                    {/* Action Buttons */}
-                    <div className={styles.buttonGroup}>
-                        <button
-                            type="submit"
-                            className={`btn btn-primary ${styles.actionButton}`}
-                            disabled={isSubmitting || isLoading} // Disable on load/submit
-                        >
-                             {isSubmitting ? (
-                                <>
-                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span className="ms-1">Updating...</span>
-                                </>
-                            ) : (
-                                <>
-                                <i className="bi bi-check-circle"></i> Update Status
-                                </>
-                            )}
-                        </button>
+              {/* Action Buttons */}
+              <div className={styles.buttonGroup}>
+                <button
+                  type="submit"
+                  className={`btn btn-primary ${styles.actionButton}`}
+                  disabled={isSubmitting || isLoading} // Disable on load/submit
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      <span className="ms-1">Updating...</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-check-circle"></i> Update Status
+                    </>
+                  )}
+                </button>
 
-                        <button
-                            type="button"
-                            className={`btn btn-outline-secondary ${styles.actionButton}`} // Changed style for reschedule
-                            onClick={handleReschedule}
-                            disabled={isSubmitting || isLoading} // Disable on load/submit
-                        >
-                             {isSubmitting ? (
-                                <>
-                                <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
-                                <span className="ms-1">Processing...</span>
-                                </>
-                            ) : (
-                                <>
-                                 <i className="bi bi-calendar-plus"></i> Reschedule Appointment
-                                </>
-                            )}
-                        </button>
+                <button
+                  type="button"
+                  className={`btn btn-outline-secondary ${styles.actionButton}`} // Changed style for reschedule
+                  onClick={handleReschedule}
+                  disabled={isSubmitting || isLoading} // Disable on load/submit
+                >
+                  {isSubmitting ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+                      <span className="ms-1">Processing...</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="bi bi-calendar-plus"></i> Reschedule Appointment
+                    </>
+                  )}
+                </button>
 
-                         <button
-                            type="button"
-                            className={`btn btn-link ${styles.actionButton} mt-2`} // Back button styled as link
-                            onClick={() => router.push('/pages/receptionist/view-appointments')}
-                            disabled={isSubmitting}
-                        >
-                            Back to Appointments List
-                        </button>
-                    </div>
-                 </form>
-                </>
-            ) : (
-                 <p className="text-center text-muted mt-4">Could not load appointment details.</p> // Fallback if no error but no appointment
-            )}
-        </div>
+                <button
+                  type="button"
+                  className={`btn btn-link ${styles.actionButton} mt-2`} // Back button styled as link
+                  onClick={() => router.push('/pages/receptionist/view-appointments')}
+                  disabled={isSubmitting}
+                >
+                  Back to Appointments List
+                </button>
+              </div>
+            </form>
+          </>
+        ) : (
+          <p className="text-center text-muted mt-4">Could not load appointment details.</p> // Fallback if no error but no appointment
+        )}
+      </div>
     </motion.div>
   );
 }
