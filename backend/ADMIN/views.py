@@ -11,7 +11,7 @@ class ReceptionistListCreateView(generics.ListCreateAPIView):
 class ReceptionistRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Receptionist.objects.all()
     serializer_class = ReceptionistSerializer
-    lookup_field = 'id'
+    # lookup_field = 'id'
 
 
 
