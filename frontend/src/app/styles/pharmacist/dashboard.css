@@ -18,9 +18,9 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    width: 0%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    background: rgba(187, 23, 23, 0.5);
     z-index: -1;
   }
 
@@ -49,7 +49,7 @@
     margin-top: 42px;
     padding: 1px;
     color: yellow;
-    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 -4px 8px rgba(86, 127, 239, 0.2);
 }
 
 .navbar .logo {
@@ -86,7 +86,30 @@
     background: linear-gradient(to right, #0080ff, #00bfff); /* Brighter Blue Gradient */
     border-radius: 5px;
     transition: all 0.3s ease-in-out;
+
 }
+
+.square-button {
+  width: 500px;
+  height: 200px;
+  font-size: 18px;
+  text-align: center;
+  padding: 20px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 20px; /* rectangular but with rounded edges */
+  box-shadow: 0 4px 8px rgba(89, 147, 248, 0.2);
+  transition: transform 0.2s ease;
+  font-weight: bold;
+  font-weight: bolder;
+}
+
+.square-button:hover {
+  transform: scale(1.05);
+}
+
+
 
 
 /* Section Styling */
@@ -169,12 +192,41 @@
     text-decoration: underline;
   }
   .action-button.manage {
-    background-color: #4CAF50; /* Green */
-    color: white;
+    background-color: #58c8e7; /* Green */
+    color: rgb(17, 1, 1);
   }
   
   .action-button.bills {
-    background-color: #2196F3; /* Blue */
-    color: white;
+    background-color: #4caaf8; /* Blue */
+    color: rgba(51, 45, 45, 0.249);
   }
+  .transparent-button {
+    background-color: rgba(69, 67, 67, 0.208); /* transparent white */
+    color: white;
+    border: 2px solid white;
+    transition: all 0.3s ease;
+    border-radius: 15px;
+    font-style: oblique;
+  }
+  
+  .transparent-button:hover {
+    background-color: rgba(255, 255, 255, 0.185);
+    transform: scale(1.05);
+  }
+  .manage-transparent-button {
+    background-color: rgba(6, 95, 190, 0.2); /* Light blue transparent */
+    border: 2px solid #767a7e94;
+    color: hsl(216, 100%, 1%);
+    border-radius: 15px;
+    font-style: oblique;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+  
+  .manage-transparent-button:hover {
+    background-color: rgba(41, 130, 226, 0.66); /* Slightly darker on hover */
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(24, 55, 88, 0.46);
+  }
+  
   

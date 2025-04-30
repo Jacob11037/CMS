@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import withAdminAuth from '@/app/middleware/withAdminAuth';
+import withAdminAuth from 'app/middleware/withAdminAuth';
 import axiosPrivate from '../../../../../utils/axiosPrivate';
-import { useAuth } from '@/app/context/AuthContext';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import { useAuth } from 'app/context/AuthContext';
 
 function ViewReceptionists() {
   const [receptionists, setReceptionists] = useState([]);
@@ -174,13 +174,11 @@ function ViewReceptionists() {
                           <Link href={`/admin/receptionists/${rec.id}`} className="btn btn-primary btn-sm me-2">Edit</Link>
                           <button
                             className="btn btn-danger btn-sm"
-                            onClick={() => {
-                              setDeleteReceptionistId(rec.id);
-                              setShowDeleteModal(true);
-                            }}
+                            onClick={() => handleDelete(rec.id)}
                           >
                             Delete
                           </button>
+
                         </td>
                       </tr>
               ))}

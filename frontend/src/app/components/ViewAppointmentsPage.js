@@ -3,9 +3,9 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext'; // Assuming path is correct
 import axiosPrivate from '../../../utils/axiosPrivate';
-import { formatDateTime, formatTimeOnly } from '../../../utils/dateFormatter';
 import styles from '../styles/receptionist/viewAppointments.module.css'; // Import the CSS module
 import { motion, AnimatePresence } from 'framer-motion'; // Import framer-motion
+import { formatDateTime, formatTimeOnly } from '@/utils/dateFormatter';
 
 // Ensure Bootstrap CSS is imported globally, e.g., in your layout.js or _app.js
 // import 'bootstrap/dist/css/bootstrap.min.css';

@@ -7,7 +7,7 @@ import axiosPrivate from '../../../../utils/axiosPrivate';
 import '../../styles/LoginPage.css';
 
 
-export default function LoginPage() {
+export default function loginPage() {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -83,6 +83,7 @@ useEffect(() => {
         window.location.reload(); // Force page reload
         break;
     }
+
   }
 }, [userRole, router]);
 
