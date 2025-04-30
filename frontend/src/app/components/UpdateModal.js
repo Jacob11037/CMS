@@ -10,14 +10,20 @@ import {
   Form,
   FormGroup,
   Label,
-  Input
+  Input,
 } from "reactstrap";
 import {
   updateLabTestResult,
-  createLabTest // <-- You must define this in your service for POST
+  createLabTest,
 } from "@/app/services/labServices";
 
-export default function UpdateLabTestModal({ isOpen, onClose, labTestData, onSuccess, isNew = false }) {
+export default function UpdateLabTestModal({
+  isOpen,
+  onClose,
+  labTestData,
+  onSuccess,
+  isNew = false,
+}) {
   const [formData, setFormData] = useState({
     id: "",
     patient: "",
@@ -25,8 +31,11 @@ export default function UpdateLabTestModal({ isOpen, onClose, labTestData, onSuc
     prescribed_by: "",
     doctor: "",
     prescribed_date: "",
-    status: "Pending"
+    status: "Pending",
   });
+
+  const [patients, setPatients] = useState([]);
+  const [doctors, setDoctors] = useState([]);
 
   useEffect(() => {
     if (labTestData) {
@@ -37,10 +46,9 @@ export default function UpdateLabTestModal({ isOpen, onClose, labTestData, onSuc
         prescribed_by: labTestData.prescribed_by || "",
         doctor: labTestData.doctor || "",
         prescribed_date: labTestData.prescribed_date || "",
-        status: labTestData.status || "Pending"
+        status: labTestData.status || "Pending",
       });
     } else {
-      // New lab test
       setFormData({
         id: "",
         patient: "",
@@ -48,10 +56,29 @@ export default function UpdateLabTestModal({ isOpen, onClose, labTestData, onSuc
         prescribed_by: "",
         doctor: "",
         prescribed_date: "",
-        status: "Pending"
+        status: "Pending",
       });
     }
   }, [labTestData]);
+
+  useEffect(() => {
+    async function fetchDropdownData() {
+      try {
+        const [patientRes, doctorRes] = await Promise.all([
+          fetch("/api/patients/"),
+          fetch("/api/doctors/"),
+        ]);
+        const patientData = await patientRes.json();
+        const doctorData = await doctorRes.json();
+        setPatients(patientData);
+        setDoctors(doctorData);
+      } catch (error) {
+        console.error("Failed to fetch dropdown data", error);
+      }
+    }
+
+    if (isNew) fetchDropdownData(); // Only needed for new entries
+  }, [isNew]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -62,14 +89,10 @@ export default function UpdateLabTestModal({ isOpen, onClose, labTestData, onSuc
 
     try {
       if (isNew) {
-        await createLabTest(formData); // <-- Must be defined in services (POST)
+        await createLabTest(formData);
       } else {
-        await updateLabTestResult(labTestData.id, {
-          patient: formData.patient,
-          test_name: formData.test_name,
-          doctor: formData.doctor,
-          prescribed_date: formData.prescribed_date,
-          status: formData.status
+        await updateLabTestResult(formData.id, {
+          status: formData.status,
         });
       }
 
@@ -90,24 +113,31 @@ export default function UpdateLabTestModal({ isOpen, onClose, labTestData, onSuc
           {!isNew && (
             <FormGroup>
               <Label for="test_id">Test ID</Label>
-              <Input
-                id="test_id"
-                name="id"
-                value={formData.id}
-                disabled
-              />
+              <Input id="test_id" name="id" value={formData.id} disabled />
             </FormGroup>
           )}
 
           <FormGroup>
-            <Label for="patient">Patient Name</Label>
-            <Input
-              id="patient"
-              name="patient"
-              value={formData.patient}
-              onChange={handleChange}
-              disabled
-            />
+            <Label for="patient">Patient</Label>
+            {isNew ? (
+              <Input
+                type="select"
+                id="patient"
+                name="patient"
+                value={formData.patient}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Patient</option>
+                {patients.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </Input>
+            ) : (
+              <Input value={formData.patient} disabled />
+            )}
           </FormGroup>
 
           <FormGroup>
@@ -117,19 +147,32 @@ export default function UpdateLabTestModal({ isOpen, onClose, labTestData, onSuc
               name="test_name"
               value={formData.test_name}
               onChange={handleChange}
-              disabled
+              disabled={!isNew}
+              required
             />
           </FormGroup>
 
           <FormGroup>
             <Label for="doctor">Prescribed By</Label>
-            <Input
-              id="doctor"
-              name="doctor"
-              value={formData.doctor}
-              onChange={handleChange}
-              disabled
-            />
+            {isNew ? (
+              <Input
+                type="select"
+                id="doctor"
+                name="doctor"
+                value={formData.doctor}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Select Doctor</option>
+                {doctors.map((d) => (
+                  <option key={d.id} value={d.id}>
+                    {d.name}
+                  </option>
+                ))}
+              </Input>
+            ) : (
+              <Input value={formData.doctor} disabled />
+            )}
           </FormGroup>
 
           <FormGroup>
@@ -140,7 +183,8 @@ export default function UpdateLabTestModal({ isOpen, onClose, labTestData, onSuc
               name="prescribed_date"
               value={formData.prescribed_date}
               onChange={handleChange}
-              disabled
+              disabled={!isNew}
+              required
             />
           </FormGroup>
 

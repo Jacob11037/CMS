@@ -349,3 +349,20 @@ class PrescriptionLabTestViewSet(viewsets.ModelViewSet):
     #     lab_test.status = 'Cancelled'
     #     lab_test.save()
     #     return Response({"message": "Lab Test cancelled successfully."}, status=status.HTTP_200_OK)
+
+
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
+from .models import Patient, Doctor
+from .serializers import PatientDropdownSerializer, DoctorDropdownSerializer
+
+class PatientListAPIView(ListAPIView):
+    queryset = Patient.objects.all()
+    serializer_class = PatientDropdownSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class DoctorListAPIView(ListAPIView):
+    queryset = Doctor.objects.all()
+    serializer_class = DoctorDropdownSerializer
+    permission_classes = [IsAuthenticated]

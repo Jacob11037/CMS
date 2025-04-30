@@ -8,6 +8,7 @@ from api.views import (
     MedicalHistoryViewSet, MedicineViewSet, LabTestViewSet, DoctorListViewSet
 )
 
+
 # Initialize the router
 router = DefaultRouter()
 
@@ -26,12 +27,9 @@ router.register(r'doctors', DoctorListViewSet, basename='doctor')
 router.register(r'receptionists', views.ReceptionistViewSet)
 router.register(r'admin/departments', views.DepartmentAdminViewSet, basename="admin-department")
 router.register(r'admin/doctors', DoctorListViewSet, basename='admin-doctor')
-
-
-
-
-
 router.register(r'departments', DepartmentReadOnlyViewSet, basename='department')
+
+
 
 urlpatterns = [
     path('', include(router.urls)),

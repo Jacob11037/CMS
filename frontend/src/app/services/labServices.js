@@ -41,6 +41,17 @@ export const downloadReport = async (reportId) => {
   return response.data;
 };
 
+// Fetch patients
+export const fetchPatients = async () => {
+  const response = await axiosPrivate.get("/patients/");
+  return response.data;
+};
+
+// Fetch doctors
+export const fetchDoctors = async () => {
+  const response = await axiosPrivate.get("/doctors/");
+  return response.data;
+};
 
 
 

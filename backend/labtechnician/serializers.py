@@ -116,3 +116,30 @@ class PrescriptionLabTestUpdateSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = PrescriptionLabTest
 #         fields = '__all__'
+
+
+# serializers.py
+
+from rest_framework import serializers
+from .models import Patient, Doctor
+
+class PatientDropdownSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Patient
+        fields = ['id', 'name']  # "name" will be the full name
+
+    def get_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}"
+
+
+class DoctorDropdownSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Doctor
+        fields = ['id', 'name']
+
+    def get_name(self, obj):
+        return f"{obj.first_name} {obj.last_name}"

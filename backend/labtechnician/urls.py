@@ -5,6 +5,7 @@ from django.urls import path
 from . import views
 from labtechnician.views import PrescriptionLabTestListAPIView
 from django.utils import timezone
+from .views import PatientListAPIView, DoctorListAPIView
 
 urlpatterns = [
     # Lab Test Prescription Endpoints
@@ -38,7 +39,14 @@ urlpatterns = [
     path('labtests/', views.LabTestListView.as_view(), name='labtest-list'),
     path('labtests/<int:pk>/', views.LabTestDetailView.as_view(), name='labtest-detail'),
     path('lab-tests/', views.PrescriptionLabTestListAPIView.as_view(), name='prescription-lab-tests'),
+
+    path('api/patients/', PatientListAPIView.as_view(), name='patient-list'),
+    path('api/doctors/', DoctorListAPIView.as_view(), name='doctor-list'),
 ]
+
+  
+
+
 
 
 
