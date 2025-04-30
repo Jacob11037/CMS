@@ -7,7 +7,7 @@ import withReceptionistAuth from '@/app/middleware/withReceptionistAuth'; // Adj
 import { toast } from 'react-toastify';
 import styles from '../../../../styles/receptionist/updateAppointment.module.css'; // Import the CSS module
 import { motion } from 'framer-motion';
-import { formatDateTime } from '../../../../../../utils/dateFormatter'; // Import the formatter
+import { formatDateTime } from '@/utils/dateFormatter';
 
 function UpdateAppointmentPage({ params }) {
   const { appointmentid } = params; // Get ID from params prop

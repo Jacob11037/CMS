@@ -3,12 +3,8 @@ import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth from your context
-<<<<<<< HEAD
-import axiosPrivate from 'utils/axiosPrivate';
-=======
 import axiosPrivate from '../../../../utils/axiosPrivate';
 import '../../styles/LoginPage.css';
->>>>>>> b86ad45e49a24cd59bb46e6186a8e3d6db985d43
 
 
 export default function loginPage() {
@@ -75,10 +71,7 @@ useEffect(() => {
         break;
       case 'pharmacist':
         router.push('/pages/pharmacist/dashboard');
-<<<<<<< HEAD
-=======
         window.location.reload(); // Force page reload
->>>>>>> b86ad45e49a24cd59bb46e6186a8e3d6db985d43
         break;
       case 'labtechnician':
         router.push('/pages/labtechnician/dashboard');

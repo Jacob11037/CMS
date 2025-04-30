@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import withReceptionistAuth from '@/app/middleware/withReceptionistAuth';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -15,6 +14,7 @@ import {
   faSyringe,
   faRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons';
+import withAdminAuth from '@/app/middleware/withAdminAuth';
 
 const AdminDashboard = () => {
   const [username, setUsername] = useState('');
@@ -95,7 +95,7 @@ const AdminDashboard = () => {
 
           {/* First Row - 4 buttons */}
           <div className="row justify-content-center gap-4 mb-4">
-            <div className="col-md-2 text-center btn btn-light" style={cardStyle} onClick={() => handleNavigation('/pages/ADMIN/doctors')}>
+            <div className="col-md-2 text-center btn btn-light" style={cardStyle} onClick={() => handleNavigation('/pages/register-doctor')}>
               <FontAwesomeIcon icon={faUserDoctor} size="2x" className="mb-2" />
               Doctor
             </div>
@@ -138,4 +138,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default withReceptionistAuth(AdminDashboard);
+export default withAdminAuth(AdminDashboard);

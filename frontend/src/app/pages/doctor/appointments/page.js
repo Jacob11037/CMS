@@ -7,8 +7,8 @@ import { Form, Spinner } from 'react-bootstrap';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { formatDateTime } from '../../../../../utils/dateFormatter';
 import withDoctorAuth from '@/app/middleware/withDoctorAuth';
+import { formatDateTime } from '@/utils/dateFormatter';
 
 
 const DoctorPage = () => {
