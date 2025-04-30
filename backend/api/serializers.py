@@ -31,7 +31,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
     doctor_name = serializers.CharField(source="doctor.first_name", read_only=True)
     patient_name = serializers.SerializerMethodField(read_only=True)
     doctor = serializers.SlugRelatedField(
-        slug_field='staff_id',  # Use staff_id as the unique identifier
+        slug_field='staff_id',
         queryset=Doctor.objects.all()
     )
 
@@ -40,7 +40,6 @@ class AppointmentSerializer(serializers.ModelSerializer):
         fields = ['id', 'doctor', 'doctor_name', 'patient', 'patient_name', 'start_time', 'end_time', 'status']
 
     def get_patient_name(self, obj):
-        """Custom method to return the patient's full name."""
         return f"{obj.patient.first_name} {obj.patient.last_name}"
 
     def validate(self, data):
@@ -62,6 +61,16 @@ class AppointmentSerializer(serializers.ModelSerializer):
         if end_time <= start_time:
             raise serializers.ValidationError("End time must be after start time.")
 
+        # Business Hours Validation (10 AM to 5 PM)
+        start_hour = start_time.time().hour
+        end_hour = end_time.time().hour
+
+        if start_hour < 10 or end_hour > 17:
+            raise serializers.ValidationError("Appointments can only be booked between 10 AM and 5 PM.")
+
+        if start_time.weekday() >= 5:  # 5 = Saturday, 6 = Sunday
+            raise serializers.ValidationError("Appointments can only be booked on weekdays.")
+
         # Overlap Validation (only for new/full updates)
         if not self.partial:
             overlapping = Appointment.objects.filter(
@@ -76,45 +85,6 @@ class AppointmentSerializer(serializers.ModelSerializer):
 
         return data
 
-
-class PrescriptionMedicineSerializer(serializers.ModelSerializer):
-    medicine_name = serializers.CharField(source='medicine.medicine_name')
-    medicine_id = serializers.PrimaryKeyRelatedField(source='medicine', read_only=True)
-
-    class Meta:
-        model = PrescriptionMedicine
-        fields = ['medicine_id', 'medicine_name', 'dosage', 'frequency', 'duration']
-
-class PrescriptionLabTestSerializer(serializers.ModelSerializer):
-    test_name = serializers.CharField(source='lab_test.test_name')
-    test_id = serializers.PrimaryKeyRelatedField(source='lab_test', read_only=True)
-
-    class Meta:
-        model = PrescriptionLabTest
-        fields = ['test_id', 'test_name', 'test_date']  # Include test date
-
-
-class PrescriptionSerializer(serializers.ModelSerializer):
-    patient = serializers.PrimaryKeyRelatedField(queryset=Patient.objects.all())  # Accepts patient ID
-    doctor = serializers.PrimaryKeyRelatedField(queryset=Doctor.objects.all())  # Accepts doctor ID
-    medicines = PrescriptionMedicineSerializer(many=True, source='prescriptionmedicine_set')  # Include medicines
-    lab_tests = PrescriptionLabTestSerializer(many=True, source='prescriptionlabtest_set')  # Include lab tests
-
-    class Meta:
-        model = Prescription
-        fields = ['id', 'patient', 'doctor', 'appointment', 'medicines', 'lab_tests', 'notes']
-
-
-class MedicalHistorySerializer(serializers.ModelSerializer):
-    prescription = PrescriptionSerializer()  # Include the nested Prescription object
-
-    class Meta:
-        model = MedicalHistory
-        fields = ['id', 'patient', 'diagnosis', 'prescription']  # Include prescription field
-
-
-
-
 class MedicineSerializer(serializers.ModelSerializer):
     class Meta:
         model = Medicine
@@ -124,6 +94,42 @@ class LabTestSerializer(serializers.ModelSerializer):
     class Meta:
         model = LabTest
         fields = '__all__'
+
+class PrescriptionMedicineSerializer(serializers.ModelSerializer):
+    medicine = MedicineSerializer()
+
+    class Meta:
+        model = PrescriptionMedicine
+        fields = ['medicine', 'dosage', 'frequency', 'duration']
+
+class PrescriptionLabTestSerializer(serializers.ModelSerializer):
+    lab_test = LabTestSerializer()
+
+    class Meta:
+        model = PrescriptionLabTest
+        fields = ['lab_test', 'test_date']
+
+class PrescriptionSerializer(serializers.ModelSerializer):
+    medicines = PrescriptionMedicineSerializer(source='prescriptionmedicine_set', many=True)
+    lab_tests = PrescriptionLabTestSerializer(source='prescriptionlabtest_set', many=True)
+
+    class Meta:
+        model = Prescription
+        fields = ['id', 'patient', 'doctor', 'appointment', 'notes', 'medicines', 'lab_tests']
+
+
+class MedicalHistorySerializer(serializers.ModelSerializer):
+    patient = PatientSerializer()  # optional, but helpful if you want full patient info
+    prescription = PrescriptionSerializer()
+    date_of_occurrence = serializers.DateField(format="%Y-%m-%d", read_only=True)
+
+    class Meta:
+        model = MedicalHistory
+        fields = ['id', 'patient', 'diagnosis', 'prescription', 'date_of_occurrence']
+        read_only_fields = ['date_of_occurrence']
+
+
+
 
 class MedicineBillItemSerializer(serializers.ModelSerializer):
     medicine = MedicineSerializer()

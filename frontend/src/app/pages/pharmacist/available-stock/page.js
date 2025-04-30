@@ -1,9 +1,10 @@
 'use client';
-import withReceptionistAuth from '@/app/middleware/withReceptionistAuth';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { useEffect, useState } from 'react';
 
-function AvailableMedicineStocks() {
+import { useEffect, useState } from 'react';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import withPharmacistAuth from '@/app/middleware/withPharmacistAuth';
+
+const AvailableStock = () => {
   const [stock, setStock] = useState([]);
 
   useEffect(() => {
@@ -15,7 +16,7 @@ function AvailableMedicineStocks() {
 
   return (
     <div className="container mt-5">
-      <h2 className="text-center mb-4">Available Medicine Stocks</h2>
+      <h2 className="text-center mb-4">📦 Available Medicine Stock</h2>
       <table className="table table-bordered table-striped">
         <thead className="table-dark">
           <tr>
@@ -45,6 +46,6 @@ function AvailableMedicineStocks() {
       </div>
     </div>
   );
-}
+};
 
-export default withReceptionistAuth(AvailableMedicineStocks);
+export default withPharmacistAuth(AvailableStock); // Or export based on role
