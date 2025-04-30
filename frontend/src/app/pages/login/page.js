@@ -1,13 +1,13 @@
 'use client';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth from your context
 import axiosPrivate from '../../../../utils/axiosPrivate';
-import '../../styles/LoginPage.css'; 
+import '../../styles/LoginPage.css';
 
 
-export default function LoginPage() {
+export default function loginPage() {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -15,9 +15,15 @@ export default function LoginPage() {
 
   const [error, setError] = useState('');
   const [formErrors, setFormErrors] = useState({});
-  const [userRole, setUserRole] = useState(null); 
+  const [userRole, setUserRole] = useState(null);
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
+
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get('redirectTo') || '/';  // fallback to home
+
   const { login } = useAuth(); // Get login function from context
   const { isAuthenticated } = useAuth(); // Get authentication state
 
@@ -28,10 +34,14 @@ export default function LoginPage() {
     }
 
     if (isAuthenticated) {
-      router.push('/'); // Redirect to login if authenticated
-      return;
+      if (redirectTo && redirectTo !== '/') {
+        router.push(redirectTo);
+        window.location.reload(); // Force page reload after redirect
+      } else {
+        checkRole(); // already logs the user in based on role
+      }
     }
-  });
+  },[isAuthenticated, redirectTo, router]); // Added redirectTo and router to dependency array
 
   const checkRole = async () => {
   try {
@@ -48,25 +58,32 @@ useEffect(() => {
   if (userRole !== null) {
     switch (userRole) {
       case 'admin':
-        router.push('/pages/admin/profile');
+        router.push('/pages/ADMIN/admindash');
+        window.location.reload(); // Force page reload
         break;
       case 'receptionist':
-        router.push('/pages/receptionist/profile');
+        router.push('/pages/receptionist/dashboard');
+        window.location.reload(); // Force page reload
         break;
       case 'doctor':
-        router.push('/pages/doctor/profile');
+        router.push('/pages/doctor/dashboard');
+        window.location.reload(); // Force page reload
         break;
       case 'pharmacist':
-        router.push('/pages/pharmacist/profile');
+        router.push('/pages/pharmacist/dashboard');
+        window.location.reload(); // Force page reload
         break;
       case 'labtechnician':
-        router.push('/pages/labtechnician/profile');
+        router.push('/pages/labtechnician/dashboard');
+        window.location.reload(); // Force page reload
         break;
       default:
         // For unknown roles or no access
         router.push('/pages/forbidden');
+        window.location.reload(); // Force page reload
         break;
     }
+
   }
 }, [userRole, router]);
 
@@ -95,6 +112,8 @@ useEffect(() => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+    setIsLoading(true);
+    setError('');
 
     try {
       const response = await axios.post('http://127.0.0.1:8000/auth/jwt/create/', formData);
@@ -104,9 +123,17 @@ useEffect(() => {
       login(access, refresh);
 
       // Check the user's role
-      await checkRole();
+      if(redirectTo === '/'){
+        await checkRole();
+      }
+      else{
+        router.push(redirectTo);
+        window.location.reload(); // Force page reload after redirect
+      }
     } catch (error) {
       setError('Invalid credentials');
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -114,6 +141,15 @@ useEffect(() => {
     <div className="container">
       <h2 className="header">Login</h2>
       {error && <p className="errorMessage">{error}</p>}
+
+      {isLoading && (
+        <div className="d-flex justify-content-center my-3">
+          <div className="spinner-border text-primary" role="status">
+            <span className="visually-hidden">Loading...</span>
+          </div>
+        </div>
+      )}
+
       <form className="form" onSubmit={handleSubmit}>
         <div className="formGroup">
           <label className="label">Username</label>
@@ -124,6 +160,7 @@ useEffect(() => {
             onChange={handleChange}
             className="input"
             required
+            disabled={isLoading}
           />
           {formErrors.username && <p className="error">{formErrors.username}</p>}
         </div>
@@ -136,10 +173,13 @@ useEffect(() => {
             onChange={handleChange}
             className="input"
             required
+            disabled={isLoading}
           />
           {formErrors.password && <p className="error">{formErrors.password}</p>}
         </div>
-        <button type="submit" className="button">Login</button>
+        <button type="submit" className="button btn btn-primary w-100" disabled={isLoading}>
+          {isLoading ? 'Logging in...' : 'Login'}
+        </button>
       </form>
     </div>
   );

@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import axiosPrivate from '../../../../../utils/axiosPrivate';
 import withAdminAuth from '@/app/middleware/withAdminAuth';
 import { useAuth } from '@/app/context/AuthContext';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import withAdminAuth from '@/app/middleware/withAdminAuth';
 
 function ViewLabTests() {
   const [labTests, setLabTests] = useState([]);

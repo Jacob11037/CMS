@@ -1,9 +1,9 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { jwtDecode } from "jwt-decode";
-import axios from "axios";
-import axiosPrivate from "../../../utils/axiosPrivate";
+import axiosPrivate from "utils/axiosPrivate";
 
 export const withRoleAuth = (allowedRoles) => {
   return (WrappedComponent) => {
@@ -17,18 +17,20 @@ export const withRoleAuth = (allowedRoles) => {
           const token = localStorage.getItem("accessToken");
 
           if (!token) {
-            router.push("/pages/login");
+            const currentPath = window.location.pathname + window.location.search;
+            router.push(`/pages/login?redirectTo=${encodeURIComponent(currentPath)}`);
             return;
           }
+          
 
           try {
-            // First verify the token is valid
+            // Decode the token first
             const decoded = jwtDecode(token);
-            
+
             // Then make API call to check user role
-            const response = await axiosPrivate.get("auth/check-role/");
+            const response = await axiosPrivate.get("/auth/check-role/"); // ✅ Base URL already set
             const { role } = response.data;
-            
+
             if (allowedRoles.includes(role)) {
               setIsAuthorized(true);
             } else {
