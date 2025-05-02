@@ -166,10 +166,16 @@ function ViewBillsPage() {
             <div key={bill.id} className="col-md-6 col-lg-4 mb-4 animate__animated animate__fadeInUp">
               <div className="card shadow-sm h-100 border-0 rounded-4">
                 <div className="card-body">
-                  <h5 className="card-title">Appointment ID: {bill.appointment}</h5>
-                  <p className="card-text"><strong>Amount:</strong> ₹{parseFloat(bill.amount).toFixed(2)}</p>
-                  <p className="card-text"><strong>Paid:</strong> {bill.paid ? 'Yes' : 'No'}</p>
-                  <p className="card-text"><strong>Date:</strong> {new Date(bill.bill_date).toLocaleString()}</p>
+                  {console.log(bill)}
+                <h5 className="card-title">Appointment ID: {bill.appointment.id}</h5>
+                <p className="card-text"><strong>Patient:</strong> {bill.appointment.patient_name}</p>
+                <p className="card-text"><strong>Doctor:</strong> {bill.appointment.doctor_name}</p>
+                <p className="card-text"><strong>Department:</strong> {bill.appointment.department_name}</p>
+                <p className="card-text"><strong>Start Time:</strong> {new Date(bill.appointment.start_time).toLocaleString()}</p>
+                <p className="card-text"><strong>Amount:</strong> ₹{parseFloat(bill.amount).toFixed(2)}</p>
+                <p className="card-text"><strong>Paid:</strong> {bill.paid ? 'Yes' : 'No'}</p>
+                <p className="card-text"><strong>Date:</strong> {new Date(bill.bill_date).toLocaleString()}</p>
+
                   <button onClick={() => handleEdit(bill.id)} className="btn btn-primary btn-sm mt-2">
                     Edit
                   </button>

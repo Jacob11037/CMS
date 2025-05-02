@@ -2,6 +2,7 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import transaction
 from django.http import JsonResponse
+from django.utils.timezone import now
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -163,13 +164,17 @@ class AppointmentViewSet(viewsets.ModelViewSet):
         user = self.request.user
         queryset = super().get_queryset()
 
+        queryset.filter(status='Pending', start_time__lt=now()).update(status='Cancelled')
+
         if user.is_superuser or user.groups.filter(name="Admin").exists():
             return queryset
 
         # Check if the user is a doctor
         if Doctor.objects.filter(user=user).exists():
             doctor = Doctor.objects.get(user=user)
-            return queryset.filter(doctor__staff_id=doctor.staff_id)
+            queryset =  queryset.filter(doctor__staff_id=doctor.staff_id)
+            queryset = queryset.filter(consultationbill__paid=True)
+            return queryset
 
         # Check if the user is a receptionist
         if Receptionist.objects.filter(user=user).exists():
@@ -319,7 +324,6 @@ def check_user_role(request):
 
 
 class MedicineViewSet(viewsets.ModelViewSet):
-    permission_classes = [IsDoctor | IsAdmin]
 
     queryset = Medicine.objects.all()
     serializer_class = MedicineSerializer

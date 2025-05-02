@@ -64,7 +64,11 @@ function UpdateBillPage({ params }) {
       {bill ? (
         <div className="card shadow-sm p-4 rounded-4 animate__animated animate__fadeInUp">
           <div className="mb-3">
-            <p><strong>Appointment ID:</strong> {bill.appointment}</p>
+          <p><strong>Appointment ID:</strong> {bill.appointment.id}</p>
+          <p><strong>Patient:</strong> {bill.appointment.patient_name}</p>
+          <p><strong>Doctor:</strong> {bill.appointment.doctor_name}</p>
+          <p><strong>Department:</strong> {bill.appointment.department_name}</p>
+          <p><strong>Appointment Time:</strong> {new Date(bill.appointment.start_time).toLocaleString()}</p>
             <p><strong>Amount:</strong> ₹{parseFloat(bill.amount).toFixed(2)}</p>
             <p><strong>Bill Date:</strong> {new Date(bill.bill_date).toLocaleString()}</p>
             <p>

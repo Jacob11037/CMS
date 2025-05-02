@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../../../styles/pharmacist/dashboard.css'
-import withPharmacistAuth from 'app/middleware/withPharmacistAuth';
+import withPharmacistAuth from '@/app/middleware/withPharmacistAuth';
 
 const Dashboard = () => {
   const [username, setUsername] = useState('');
@@ -67,7 +67,7 @@ const Dashboard = () => {
 
           <button
             className="btn square-button transparent-button"
-            onClick={() => router.push('/MedicineBilling')}
+            onClick={() => router.push('/pages/pharmacist/create-bill')}
           >
             💵 Medicine Billing
           </button>

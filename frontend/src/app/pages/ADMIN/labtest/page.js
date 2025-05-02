@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import axiosPrivate from '../../../../../utils/axiosPrivate';
-import withAdminAuth from '@/app/middleware/withAdminAuth';
 import { useAuth } from '@/app/context/AuthContext';
 import withAdminAuth from '@/app/middleware/withAdminAuth';
 

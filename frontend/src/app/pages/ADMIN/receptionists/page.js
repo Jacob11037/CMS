@@ -3,10 +3,10 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import withAdminAuth from 'app/middleware/withAdminAuth';
+import withAdminAuth from '@/app/middleware/withAdminAuth';
 import axiosPrivate from '../../../../../utils/axiosPrivate';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import { useAuth } from 'app/context/AuthContext';
+import { useAuth } from '@/app/context/AuthContext';
 
 function ViewReceptionists() {
   const [receptionists, setReceptionists] = useState([]);

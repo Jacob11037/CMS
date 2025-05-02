@@ -180,12 +180,18 @@ const AppointmentForm = () => {
     if (formData.start_time && formData.end_time) {
       const start = new Date(formData.start_time);
       const end = new Date(`${formData.start_time.split('T')[0]}T${formData.end_time}`);
+      const now = new Date();
+      
+      // Past date validation
+      if (start < now) {
+        newErrors.start_time = "Cannot schedule appointments in the past";
+      }
       
       if (end <= start) {
         newErrors.end_time = "End time must be after start time";
       }
     }
-
+  
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -357,14 +363,20 @@ const AppointmentForm = () => {
           )}
 
           <div className={styles.formGroup}>
-            <label className={styles.label}>Start Time:</label>
+            <label>Start Time:</label>
             <input
               type="datetime-local"
-              className={styles.input}
               name="start_time"
               value={formData.start_time}
               onChange={handleChange}
               required
+              min={new Date().toISOString().slice(0, 16)} // Prevents past dates
+              max={(() => {
+                const now = new Date();
+                const threeDaysLater = new Date(now);
+                threeDaysLater.setDate(now.getDate() + 3);
+                return threeDaysLater.toISOString().slice(0, 16);
+              })()} // Sets max date to 3 days in the future
             />
             {errors.start_time && <span className={styles.error}>{errors.start_time}</span>}
           </div>

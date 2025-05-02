@@ -195,10 +195,33 @@ class BillCreateSerializer(serializers.ModelSerializer):
 
         return bill
 
-class ConsultationBillSerializer(serializers.ModelSerializer):  # Renamed from AppointmentBillSerializer
+class AppointmentSummarySerializer(serializers.ModelSerializer):
+    patient_name = serializers.SerializerMethodField()
+    doctor_name = serializers.SerializerMethodField()
+    department_name = serializers.SerializerMethodField()
+    start_time = serializers.DateTimeField()
+
+    class Meta:
+        model = Appointment
+        fields = ['id', 'patient_name', 'doctor_name', 'department_name', 'start_time']
+
+    def get_patient_name(self, obj):
+        return f"{obj.patient.first_name} {obj.patient.last_name}"
+
+    def get_doctor_name(self, obj):
+        return f"{obj.doctor.first_name} {obj.doctor.last_name}"
+
+    def get_department_name(self, obj):
+        return obj.doctor.department_id.department_name if obj.doctor.department_id else "N/A"
+
+
+class ConsultationBillSerializer(serializers.ModelSerializer):
+    appointment = AppointmentSummarySerializer()
+
     class Meta:
         model = ConsultationBill
-        fields = '__all__'
+        fields = ['id', 'appointment', 'amount', 'paid', 'bill_date']
+
 
 
 class DepartmentSerializer(serializers.ModelSerializer):

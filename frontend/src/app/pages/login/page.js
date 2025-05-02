@@ -5,6 +5,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth from your context
 import axiosPrivate from '../../../../utils/axiosPrivate';
 import '../../styles/LoginPage.css';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 
 export default function loginPage() {
@@ -70,7 +73,7 @@ useEffect(() => {
         window.location.reload(); // Force page reload
         break;
       case 'pharmacist':
-        router.push('/pages/pharmacist/dashboard');
+        router.push('/pages/pharmacist/Dashboard');
         window.location.reload(); // Force page reload
         break;
       case 'labtechnician':
@@ -132,6 +135,8 @@ useEffect(() => {
       }
     } catch (error) {
       setError('Invalid credentials');
+      toast.error('Invalid credentials');
+
     } finally {
       setIsLoading(false);
     }
@@ -140,7 +145,6 @@ useEffect(() => {
   return (
     <div className="container">
       <h2 className="header">Login</h2>
-      {error && <p className="errorMessage">{error}</p>}
 
       {isLoading && (
         <div className="d-flex justify-content-center my-3">
