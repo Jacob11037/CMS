@@ -1,6 +1,6 @@
 'use client';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import '../../styles/pharmacist/dashboard.module.css'
+import '../../styles/pharmacist/dashboard.css'
 import withReceptionistAuth from '@/app/middleware/withReceptionistAuth';
 
 function PharmacistDashboard() {

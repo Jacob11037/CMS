@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../../../context/AuthContext';
 import axiosPrivate from '../../../../../utils/axiosPrivate';
-import "../../../styles/ReceptionistProfilePage.css"; // Import the CSS file
+import "../../../styles/receptionistprofilepage.css";
 import withReceptionistAuth from '@/app/middleware/withReceptionistAuth';
 
 function ReceptionistProfilePage() {

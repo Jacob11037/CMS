@@ -4,7 +4,7 @@ import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '../../context/AuthContext'; // Import useAuth from your context
 import axiosPrivate from '../../../../utils/axiosPrivate';
-import '../../styles/LoginPage.css';
+import '../../styles/loginpage.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
