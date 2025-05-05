@@ -1,9 +1,7 @@
 import axios from 'axios';
 
 const axiosPrivate = axios.create({
-  baseURL: process.env.NODE_ENV === 'development' 
-    ? 'http://127.0.0.1:8000/api'  // For local development
-    : 'https://yourproductionurl.com/api'  // Replace with your actual production URL
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000/api',
 });
 
 // Request interceptor: Add Authorization token
