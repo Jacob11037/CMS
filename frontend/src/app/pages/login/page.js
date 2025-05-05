@@ -10,7 +10,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 
 
-export default function loginPage() {
+export default function LoginPage() {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
