@@ -149,6 +149,7 @@ function UpdateAppointmentPage({ params }) {
         ) : appointment ? (
           <>
             {/* Details Section */}
+            {/* test */}
             <div className={styles.detailsCard}>
               <p><strong>Patient:</strong> {appointment.patient_name || 'N/A'}</p>
               <p><strong>Doctor:</strong> {appointment.doctor_name || 'N/A'}</p>
