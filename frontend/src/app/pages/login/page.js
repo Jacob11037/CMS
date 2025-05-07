@@ -8,7 +8,7 @@ import '../../styles/loginpage.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ;
+const API_URL = 'https://jacob.pythonanywhere.com/' ;
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -93,7 +93,7 @@ export default function LoginPage() {
     console.log('env:', process.env.NEXT_PUBLIC_API_URL)
 
     try {
-      const response = await axios.post(`${API_URL}/auth/jwt/create/`, formData);
+      const response = await axios.post(`${API_URL}auth/jwt/create/`, formData);
       const { access, refresh } = response.data;
       login(access, refresh);
       if (redirectTo === '/') {
