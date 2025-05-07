@@ -89,6 +89,8 @@ export default function LoginPage() {
     if (!validateForm()) return;
     setIsLoading(true);
     setError('');
+    console.log('API_URL in LoginPage:', API_URL);
+    console.log('env:', process.env.NEXT_PUBLIC_API_URL)
 
     try {
       const response = await axios.post(`${API_URL}/auth/jwt/create/`, formData);
