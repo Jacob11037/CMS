@@ -2,13 +2,13 @@
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useAuth } from '../../context/AuthContext'; // Import useAuth from your context
+import { useAuth } from '../../context/AuthContext';
 import axiosPrivate from '../../../../utils/axiosPrivate';
 import '../../styles/loginpage.css';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -19,76 +19,50 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [formErrors, setFormErrors] = useState({});
   const [userRole, setUserRole] = useState(null);
-
   const [isLoading, setIsLoading] = useState(false);
 
   const router = useRouter();
-
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get('redirectTo') || '/';  // fallback to home
+  const redirectTo = searchParams.get('redirectTo') || '/';
 
-  const { login } = useAuth(); // Get login function from context
-  const { isAuthenticated } = useAuth(); // Get authentication state
+  const { login, isAuthenticated } = useAuth();
 
-  // Check if isAuthenticated is not null before proceeding
   useEffect(() => {
-    if (isAuthenticated === null) {
-      return; // Do not proceed until isAuthenticated is determined
-    }
-
+    if (isAuthenticated === null) return;
     if (isAuthenticated) {
       if (redirectTo && redirectTo !== '/') {
         router.push(redirectTo);
-        window.location.reload(); // Force page reload after redirect
+        window.location.reload();
       } else {
-        checkRole(); // already logs the user in based on role
+        checkRole();
       }
     }
-  },[isAuthenticated, redirectTo, router]); // Added redirectTo and router to dependency array
+  }, [isAuthenticated, redirectTo, router]);
 
   const checkRole = async () => {
-  try {
-    const response = await axiosPrivate.get('/auth/check-role/');
-    setUserRole(response.data.role);
-  } catch (error) {
-    console.error('Error checking role:', error);
-    setUserRole(null);
-  }
-};
-
-// Handle redirection based on role
-useEffect(() => {
-  if (userRole !== null) {
-    switch (userRole) {
-      case 'admin':
-        router.push('/pages/ADMIN/admindash');
-        window.location.reload(); // Force page reload
-        break;
-      case 'receptionist':
-        router.push('/pages/receptionist/dashboard');
-        window.location.reload(); // Force page reload
-        break;
-      case 'doctor':
-        router.push('/pages/doctor/dashboard');
-        window.location.reload(); // Force page reload
-        break;
-      case 'pharmacist':
-        router.push('/pages/pharmacist/Dashboard');
-        window.location.reload(); // Force page reload
-        break;
-      case 'labtechnician':
-        router.push('/pages/labtechnician/dashboard');
-        window.location.reload(); // Force page reload
-        break;
-      default:
-        // For unknown roles or no access
-        router.push('/pages/forbidden');
-        window.location.reload(); // Force page reload
-        break;
+    try {
+      const response = await axiosPrivate.get('/auth/check-role/');
+      setUserRole(response.data.role);
+    } catch (error) {
+      console.error('Error checking role:', error);
+      setUserRole(null);
     }
+  };
 
-  }
-}, [userRole, router]);
+  useEffect(() => {
+    if (userRole !== null) {
+      const routes = {
+        admin: '/pages/ADMIN/admindash',
+        receptionist: '/pages/receptionist/dashboard',
+        doctor: '/pages/doctor/dashboard',
+        pharmacist: '/pages/pharmacist/Dashboard',
+        labtechnician: '/pages/labtechnician/dashboard',
+      };
+      const destination = routes[userRole] || '/pages/forbidden';
+      router.push(destination);
+      window.location.reload();
+    }
+  }, [userRole, router]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -100,9 +74,7 @@ useEffect(() => {
 
   const validateForm = () => {
     let errors = {};
-    if (!formData.username.trim()) {
-      errors.username = 'Username is required';
-    }
+    if (!formData.username.trim()) errors.username = 'Username is required';
     if (!formData.password) {
       errors.password = 'Password is required';
     } else if (formData.password.length < 4) {
@@ -119,24 +91,18 @@ useEffect(() => {
     setError('');
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/auth/jwt/create/', formData);
+      const response = await axios.post(`${API_URL}/auth/jwt/create/`, formData);
       const { access, refresh } = response.data;
-
-      // Call login function from AuthProvider
       login(access, refresh);
-
-      // Check the user's role
-      if(redirectTo === '/'){
+      if (redirectTo === '/') {
         await checkRole();
-      }
-      else{
+      } else {
         router.push(redirectTo);
-        window.location.reload(); // Force page reload after redirect
+        window.location.reload();
       }
     } catch (error) {
       setError('Invalid credentials');
       toast.error('Invalid credentials');
-
     } finally {
       setIsLoading(false);
     }
@@ -144,6 +110,7 @@ useEffect(() => {
 
   return (
     <div className="container">
+      <ToastContainer />
       <h2 className="header">Login</h2>
 
       {isLoading && (
