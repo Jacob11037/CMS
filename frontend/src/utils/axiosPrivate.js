@@ -45,7 +45,7 @@ axiosPrivate.interceptors.response.use(
 
       try {
         // Refresh the access token by calling the refresh endpoint
-        const refreshResponse = await axios.post('/auth/jwt/refresh/', {
+        const refreshResponse = await axios.post('https://jacob.pythonanywhere.com/auth/jwt/refresh/', {
           refresh: refreshToken,
         });
         const { access } = refreshResponse.data;
