@@ -28,7 +28,7 @@ export const withRoleAuth = (allowedRoles) => {
             const decoded = jwtDecode(token);
 
             // Then make API call to check user role
-            const response = await axiosPrivate.get("/auth/check-role/"); // ✅ Base URL already set
+            const response = await axiosPrivate.get("/auth/check-role/");
             const { role } = response.data;
 
             if (allowedRoles.includes(role)) {
@@ -38,7 +38,8 @@ export const withRoleAuth = (allowedRoles) => {
             }
           } catch (error) {
             console.error("Auth verification failed:", error);
-            router.push("/pages/login");
+            localStorage.removeItem("accessToken");
+            router.replace("/login");
           } finally {
             setIsLoading(false);
           }
