@@ -1,8 +1,23 @@
 import axios from 'axios';
 
-const axiosPrivate = axios.create({
-  baseURL: 'http://127.0.0.1:8000/api',  
+// utils/api.js (or axios config)
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 
+  (process.env.NODE_ENV === 'development' 
+    ? "http://localhost:8000" 
+    : "https://jacob.pythonanywhere.com");
+
+// Ensure trailing slash and append 'api/' correctly
+const baseURL = API_URL.endsWith('/')
+  ? `${API_URL}api/`
+  : `${API_URL}/api/`;
+
+export const axiosPrivate = axios.create({
+  baseURL: baseURL,
+  headers: {
+    "Content-Type": "application/json",
+  }
 });
+
 
 // Add a request interceptor to include the JWT token in every request
 axiosPrivate.interceptors.request.use(
