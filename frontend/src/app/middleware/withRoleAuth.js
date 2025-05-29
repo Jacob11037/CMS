@@ -26,6 +26,12 @@ export const withRoleAuth = (allowedRoles) => {
           try {
             // Decode the token first
             const decoded = jwtDecode(token);
+            const now = Math.floor(Date.now() / 1000);
+            if (decoded.exp < now) {
+              console.log("Token expired");
+              router.push("/pages/login");
+            }
+
 
             // Then make API call to check user role
             const response = await axiosPrivate.get("/auth/check-role/");
