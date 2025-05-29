@@ -1,114 +1,552 @@
-
+/* Update Appointment Modern Styles */
 .container {
-    max-width: 700px; /* Or adjust as needed */
-    margin: 50px auto;
-    padding: 0; /* Padding will be handled by the card */
+  min-height: calc(100vh - 120px);
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  padding: 2rem 1rem !important;
+  position: relative !important;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 20px !important;
+  border: none !important;
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1) !important;
+  padding: 3rem !important;
+  width: 100% !important;
+  max-width: 600px !important;
+  margin: 1rem !important;
+  transform: translateY(0);
+  opacity: 1;
+  transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.header {
+  color: #2d3748 !important;
+  font-size: 2rem !important;
+  font-weight: bold !important;
+  margin-bottom: 2rem !important;
+  margin-top: 0 !important;
+  text-align: center !important;
+  position: relative !important;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 3px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2px;
+}
+
+.detailsCard {
+  background: rgba(102, 126, 234, 0.05) !important;
+  border: 1px solid rgba(102, 126, 234, 0.1) !important;
+  border-radius: 15px !important;
+  padding: 1.5rem !important;
+  margin-bottom: 2rem !important;
+  animation: slideIn 0.6s ease-out !important;
+}
+
+.detailsCard p {
+  margin-bottom: 0.75rem !important;
+  color: #4a5568 !important;
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+.detailsCard p:last-child {
+  margin-bottom: 0 !important;
+}
+
+.detailsCard strong {
+  color: #2d3748 !important;
+  font-weight: 600 !important;
+}
+
+.formLabel {
+  color: #4a5568 !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.75rem !important;
+  display: block !important;
+  font-size: 1rem !important;
+}
+
+.formSelect {
+  width: 100% !important;
+  padding: 1rem !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  font-size: 1rem !important;
+  background: #fff !important;
+  transition: all 0.3s ease !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.formSelect:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+}
+
+.buttonGroup {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 1rem !important;
+  align-items: stretch !important;
+}
+
+.actionButton {
+  padding: 1rem 1.5rem !important;
+  border-radius: 12px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  transform: translateY(0) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+  text-decoration: none !important;
+  border: 2px solid transparent !important;
+}
+
+/* Primary Button (Update Status) */
+.actionButton.btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+}
+
+.actionButton.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
+}
+
+.actionButton.btn-primary:disabled {
+  background: #a0aec0 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Secondary Button (Reschedule) */
+.actionButton.btn-outline-secondary {
+  background: transparent !important;
+  border: 2px solid #e2e8f0 !important;
+  color: #4a5568 !important;
+}
+
+.actionButton.btn-outline-secondary:hover:not(:disabled) {
+  background: rgba(102, 126, 234, 0.1) !important;
+  border-color: #667eea !important;
+  color: #667eea !important;
+  transform: translateY(-2px) !important;
+}
+
+.actionButton.btn-outline-secondary:disabled {
+  background: transparent !important;
+  border-color: #e2e8f0 !important;
+  color: #a0aec0 !important;
+  cursor: not-allowed !important;
+}
+
+/* Link Button (Back) */
+.actionButton.btn-link {
+  background: transparent !important;
+  border: none !important;
+  color: #718096 !important;
+  padding: 0.75rem !important;
+  font-size: 0.95rem !important;
+}
+
+.actionButton.btn-link:hover:not(:disabled) {
+  color: #667eea !important;
+  text-decoration: underline !important;
+  transform: none !important;
+}
+
+.loadingSpinner {
+  width: 3rem !important;
+  height: 3rem !important;
+  margin: 2rem auto !important;
+}
+
+.errorAlert {
+  background: rgba(220, 53, 69, 0.1) !important;
+  border: 1px solid rgba(220, 53, 69, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 1rem !important;
+  margin-bottom: 1.5rem !important;
+  animation: slideIn 0.3s ease-out !important;
+  color: #dc3545 !important;
+}
+
+/* Badge Styling */
+/* updateAppointment.module.css */
+
+/* Base badge style */
+.statusBadge {
+  padding: 0.5rem 1rem; /* No !important needed usually if properly scoped */
+  border-radius: 20px;
+  font-weight: 600; /* Example: make text bolder */
+  display: inline-flex; /* Example: adjust display */
+  align-items: center;
+  justify-content: center;
+  min-width: 80px; /* Example: ensure consistent width */
+  text-align: center;
+  color: white; /* Default text color */
+}
+
+/* Specific status colors */
+.statusSuccess {
+  background-color: #28a745; /* Bootstrap's bg-success green */
+}
+
+.statusSecondary {
+  background-color: #6c757d; /* Bootstrap's bg-secondary gray */
+}
+
+.statusWarning {
+  background-color: #ffc107; /* Bootstrap's bg-warning yellow */
+  color: #212529; /* Adjust text color for warning badge for readability */
+}
+
+/* Remove :global(.badge) if it was in this file */
+/* :global(.badge) {
+    padding: 0.5rem 1rem !important;
+    border-radius: 20px !important;
+} */
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Background Elements */
+.bgElements {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+.bgCircle1 {
+  position: absolute !important;
+  width: 300px !important;
+  height: 300px !important;
+  background: rgba(255,255,255,0.1) !important;
+  border-radius: 50% !important;
+  top: -150px !important;
+  right: -150px !important;
+  animation: float 6s ease-in-out infinite !important;
+}
+
+.bgCircle2 {
+  position: absolute !important;
+  width: 200px !important;
+  height: 200px !important;
+  background: rgba(255,255,255,0.1) !important;
+  border-radius: 50% !important;
+  bottom: -100px !important;
+  left: -100px !important;
+  animation: float 8s ease-in-out infinite reverse !important;
+}
+
+/* Header Section */
+.headerSection {
+  text-align: center !important;
+  margin-bottom: 2.5rem !important;
+}
+
+.headerIcon {
+  width: 80px !important;
+  height: 80px !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 1rem !important;
+  animation: pulse 2s infinite !important;
+}
+
+.subtitle {
+  color: #718096 !important;
+  margin-bottom: 0 !important;
+  font-size: 1rem !important;
+}
+
+/* Details Card Enhancement */
+.detailsHeader {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.75rem !important;
+  margin-bottom: 1.5rem !important;
+  color: #2d3748 !important;
+  font-weight: 600 !important;
+}
+
+.detailsHeader h3 {
+  margin: 0 !important;
+  font-size: 1.25rem !important;
+}
+
+.detailsGrid {
+  display: grid !important;
+  gap: 1rem !important;
+}
+
+.detailItem {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  padding: 0.75rem 0 !important;
+  border-bottom: 1px solid rgba(226, 232, 240, 0.5) !important;
+}
+
+.detailItem:last-child {
+  border-bottom: none !important;
+}
+
+.detailLabel {
+  font-weight: 600 !important;
+  color: #4a5568 !important;
+}
+
+.detailValue {
+  color: #2d3748 !important;
+  text-align: right !important;
+}
+
+.statusBadge {
+  font-size: 0.875rem !important;
+  padding: 0.5rem 1rem !important;
+  border-radius: 20px !important;
+}
+
+/* Form Enhancements */
+.updateForm {
+  margin-top: 2rem !important;
+}
+
+.formGroup {
+  margin-bottom: 2rem !important;
+}
+
+.selectWrapper {
+  position: relative !important;
+}
+
+.selectIcon {
+  position: absolute !important;
+  right: 1rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #a0aec0 !important;
+  pointer-events: none !important;
+}
+
+/* Button Enhancements */
+.primaryButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+}
+
+.secondaryButton {
+  background: transparent !important;
+  border: 2px solid #e2e8f0 !important;
+  color: #4a5568 !important;
+}
+
+.linkButton {
+  background: transparent !important;
+  border: none !important;
+  color: #718096 !important;
+  font-size: 0.95rem !important;
+}
+
+/* Loading States */
+.loadingContainer {
+  text-align: center !important;
+  padding: 3rem 1rem !important;
+}
+
+.modernSpinner {
+  width: 3rem !important;
+  height: 3rem !important;
+  border: 3px solid rgba(102, 126, 234, 0.3) !important;
+  border-top: 3px solid #667eea !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+  margin: 0 auto 1rem auto !important;
+}
+
+.loadingText {
+  color: #718096 !important;
+  font-size: 1.1rem !important;
+  margin: 0 !important;
+}
+
+.buttonSpinner {
+  width: 1rem !important;
+  height: 1rem !important;
+  border: 2px solid rgba(255,255,255,0.3) !important;
+  border-top: 2px solid white !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Error Content */
+.errorContent {
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+}
+
+/* No Data State */
+.noDataContainer {
+  text-align: center !important;
+  padding: 3rem 1rem !important;
+  color: #718096 !important;
+}
+
+.noDataContainer svg {
+  margin-bottom: 1rem !important;
+  opacity: 0.5 !important;
+}
+
+.noDataContainer p {
+  font-size: 1.1rem !important;
+  margin: 0 !important;
+}
+
+/* Additional Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem 0.5rem !important;
   }
   
   .card {
-    background-color: #ffffff;
-    border-radius: 15px;
-    padding: 2rem 2.5rem; /* More padding inside the card */
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    border: none;
+    margin: 0.5rem !important;
+    padding: 2rem 1.5rem !important;
+    max-width: 100% !important;
   }
   
   .header {
-    font-size: 1.8rem;
-    font-weight: 700;
-    margin-bottom: 1.5rem;
-    color: #2C3E50; /* Match form style */
-    text-align: center;
+    font-size: 1.75rem !important;
+    margin-bottom: 1.5rem !important;
   }
   
   .detailsCard {
-    background-color: #f8f9fa; /* Slightly different background for details */
-    border: 1px solid #e9ecef;
-    border-radius: 10px;
-    padding: 1.25rem;
-    margin-bottom: 2rem;
-  }
-  
-  .detailsCard p {
-    margin-bottom: 0.6rem;
-    font-size: 1rem;
-    color: #495057;
-  }
-  
-  .detailsCard p strong {
-    color: #343a40;
-    margin-right: 8px; /* Space after label */
-    min-width: 100px; /* Align values slightly */
-    display: inline-block;
-  }
-  
-  .formLabel {
-    font-weight: 600;
-    margin-bottom: 0.5rem;
-    color: #34495E; /* Match form style */
-  }
-  
-  .formSelect {
-    border-radius: 10px; /* Match form style */
-    border: 1px solid #ccc;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    transition: border-color 0.3s ease, box-shadow 0.3s ease;
-  }
-  
-  .formSelect:focus {
-    border-color: #3498DB; /* Match form style */
-    outline: 0;
-    box-shadow: 0 0 8px rgba(52, 152, 219, 0.3); /* Match form style */
+    padding: 1.25rem !important;
   }
   
   .buttonGroup {
-    display: flex;
-    flex-direction: column; /* Stack buttons vertically */
-    gap: 0.8rem; /* Space between buttons */
-    margin-top: 1.5rem;
-    align-items: center; /* Center buttons */
+    gap: 0.75rem !important;
   }
   
   .actionButton {
-    width: 100%; /* Make buttons full width */
-    max-width: 300px; /* Max width for larger screens */
-    padding: 0.8rem 1.5rem;
-    font-size: 1rem;
-    border-radius: 30px; /* Rounded pill style */
-    font-weight: 600;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem; /* Space between icon and text */
+    padding: 0.875rem 1.25rem !important;
+    font-size: 0.95rem !important;
   }
   
-  .actionButton:hover {
-      transform: translateY(-2px);
+  .detailItem {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 0.5rem !important;
   }
   
-  .loadingSpinner {
-    display: block;
-    margin: 3rem auto; /* Center spinner */
+  .detailValue {
+    text-align: left !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .card {
+    padding: 1.5rem 1rem !important;
   }
   
-  .errorAlert {
-    margin-top: 1.5rem;
+  .header {
+    font-size: 1.5rem !important;
   }
   
-  /* Animation */
-  @keyframes fadeInUp {
-    from {
-      transform: translateY(20px);
-      opacity: 0;
-    }
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+  .headerIcon {
+    width: 60px !important;
+    height: 60px !important;
   }
   
-  .fadeInUpAnimation {
-    animation: fadeInUp 0.6s ease-out forwards;
+  .detailsCard p {
+    font-size: 0.95rem !important;
   }
+  
+  .actionButton {
+    padding: 0.75rem 1rem !important;
+    font-size: 0.9rem !important;
+  }
+  
+  .bgCircle1 {
+    width: 200px !important;
+    height: 200px !important;
+    top: -100px !important;
+    right: -100px !important;
+  }
+  
+  .bgCircle2 {
+    width: 150px !important;
+    height: 150px !important;
+    bottom: -75px !important;
+    left: -75px !important;
+  }
+}

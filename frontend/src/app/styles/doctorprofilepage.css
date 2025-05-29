@@ -1,72 +1,487 @@
-/* doctorprofilepage.css */
+/* Modern Doctor Profile Styles */
+.modern-doctor-container {
+  min-height: 100vh !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  position: relative !important;
+  overflow-x: hidden !important;
+}
 
-/* === Hero Section === */
-.bg-primary {
-    background-color: #007bff !important;
+/* Background Elements */
+.modern-bg-elements {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  pointer-events: none !important;
+  z-index: 0 !important;
+}
+
+.modern-bg-circle-1 {
+  position: absolute !important;
+  width: 400px !important;
+  height: 400px !important;
+  background: rgba(255,255,255,0.1) !important;
+  border-radius: 50% !important;
+  top: -200px !important;
+  right: -200px !important;
+  animation: float 8s ease-in-out infinite !important;
+}
+
+.modern-bg-circle-2 {
+  position: absolute !important;
+  width: 300px !important;
+  height: 300px !important;
+  background: rgba(255,255,255,0.08) !important;
+  border-radius: 50% !important;
+  bottom: -150px !important;
+  left: -150px !important;
+  animation: float 10s ease-in-out infinite reverse !important;
+}
+
+.modern-bg-circle-3 {
+  position: absolute !important;
+  width: 200px !important;
+  height: 200px !important;
+  background: rgba(255,255,255,0.06) !important;
+  border-radius: 50% !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
+  animation: pulse 6s ease-in-out infinite !important;
+}
+
+/* Hero Section */
+.modern-hero-section {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2) !important;
+  padding: 4rem 0 !important;
+  text-align: center !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.modern-hero-content {
+  max-width: 600px !important;
+  margin: 0 auto !important;
+  padding: 0 2rem !important;
+}
+
+.modern-hero-icon {
+  width: 80px !important;
+  height: 80px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-bottom: 1.5rem !important;
+  animation: pulse 3s infinite !important;
+}
+
+.modern-hero-title {
+  color: white !important;
+  font-size: 3rem !important;
+  font-weight: bold !important;
+  margin-bottom: 1rem !important;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.modern-hero-subtitle {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-size: 1.2rem !important;
+  margin-bottom: 0 !important;
+}
+
+/* Content Wrapper */
+.modern-content-wrapper {
+  padding: 3rem 2rem !important;
+  position: relative !important;
+  z-index: 1 !important;
+  max-width: 1200px !important;
+  margin: 0 auto !important;
+}
+
+/* Profile Card */
+.modern-profile-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1) !important;
+  padding: 3rem !important;
+  margin-bottom: 2rem !important;
+  animation: slideUp 0.8s ease-out !important;
+}
+
+.modern-profile-header {
+  display: grid !important;
+  grid-template-columns: auto 1fr !important;
+  gap: 3rem !important;
+  align-items: center !important;
+  margin-bottom: 3rem !important;
+}
+
+/* Avatar Section */
+.modern-avatar-section {
+  display: flex !important;
+  justify-content: center !important;
+}
+
+.modern-avatar-wrapper {
+  position: relative !important;
+  display: inline-block !important;
+}
+
+.modern-avatar {
+  width: 150px !important;
+  height: 150px !important;
+  border-radius: 50% !important;
+  border: 4px solid white !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2) !important;
+  object-fit: cover !important;
+  transition: transform 0.3s ease !important;
+}
+
+.modern-avatar:hover {
+  transform: scale(1.05) !important;
+}
+
+.modern-status-indicator {
+  position: absolute !important;
+  bottom: 10px !important;
+  right: 10px !important;
+  width: 24px !important;
+  height: 24px !important;
+  background: #10b981 !important;
+  border: 3px solid white !important;
+  border-radius: 50% !important;
+  animation: pulse 2s infinite !important;
+}
+
+/* Profile Info */
+.modern-profile-info {
+  flex: 1 !important;
+}
+
+.modern-doctor-name {
+  color: #2d3748 !important;
+  font-size: 2.5rem !important;
+  font-weight: bold !important;
+  margin-bottom: 0.5rem !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  -webkit-background-clip: text !important;
+  -webkit-text-fill-color: transparent !important;
+  background-clip: text !important;
+}
+
+.modern-department {
+  color: #718096 !important;
+  font-size: 1.2rem !important;
+  font-weight: 500 !important;
+  margin-bottom: 2rem !important;
+}
+
+/* Contact Grid */
+.modern-contact-grid {
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 1.5rem !important;
+}
+
+.modern-contact-item {
+  display: flex !important;
+  align-items: center !important;
+  gap: 1rem !important;
+  padding: 1.5rem !important;
+  background: rgba(102, 126, 234, 0.05) !important;
+  border-radius: 16px !important;
+  border: 1px solid rgba(102, 126, 234, 0.1) !important;
+  transition: all 0.3s ease !important;
+}
+
+.modern-contact-item:hover {
+  background: rgba(102, 126, 234, 0.1) !important;
+  transform: translateY(-2px) !important;
+}
+
+.modern-contact-icon {
+  width: 48px !important;
+  height: 48px !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-radius: 12px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: white !important;
+  flex-shrink: 0 !important;
+}
+
+.modern-contact-details {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.modern-contact-label {
+  color: #718096 !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+  margin-bottom: 0.25rem !important;
+}
+
+.modern-contact-value {
+  color: #2d3748 !important;
+  font-weight: 600 !important;
+}
+
+/* Profile Actions */
+.modern-profile-actions {
+  display: flex !important;
+  gap: 1rem !important;
+  margin-bottom: 3rem !important;
+  flex-wrap: wrap !important;
+}
+
+.modern-primary-btn {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+  padding: 1rem 2rem !important;
+  border-radius: 16px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+}
+
+.modern-primary-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
+}
+
+.modern-secondary-btn {
+  background: rgba(102, 126, 234, 0.1) !important;
+  border: 2px solid rgba(102, 126, 234, 0.2) !important;
+  color: #667eea !important;
+  padding: 1rem 2rem !important;
+  border-radius: 16px !important;
+  font-size: 1.1rem !important;
+  font-weight: 600 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.modern-secondary-btn:hover {
+  background: rgba(102, 126, 234, 0.2) !important;
+  transform: translateY(-2px) !important;
+}
+
+/* Stats Grid */
+.modern-stats-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)) !important;
+  gap: 1.5rem !important;
+}
+
+.modern-stat-card {
+  background: rgba(255, 255, 255, 0.7) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 20px !important;
+  padding: 2rem !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 1.5rem !important;
+  transition: all 0.3s ease !important;
+}
+
+.modern-stat-card:hover {
+  transform: translateY(-4px) !important;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1) !important;
+}
+
+.modern-stat-icon {
+  width: 60px !important;
+  height: 60px !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-radius: 16px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: white !important;
+  flex-shrink: 0 !important;
+}
+
+.modern-stat-info h4 {
+  color: #4a5568 !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.modern-stat-number {
+  color: #2d3748 !important;
+  font-size: 2rem !important;
+  font-weight: bold !important;
+  margin: 0 !important;
+}
+
+/* Loading Card */
+.modern-loading-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1) !important;
+  padding: 4rem !important;
+  text-align: center !important;
+  animation: slideUp 0.8s ease-out !important;
+}
+
+.modern-loading-content h3 {
+  color: #2d3748 !important;
+  font-size: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.modern-loading-content p {
+  color: #718096 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Error Card */
+.modern-error-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(20px) !important;
+  border-radius: 24px !important;
+  border: 1px solid rgba(220, 53, 69, 0.2) !important;
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1) !important;
+  padding: 4rem !important;
+  text-align: center !important;
+  max-width: 500px !important;
+  margin: 3rem auto !important;
+  animation: slideUp 0.8s ease-out !important;
+}
+
+.modern-error-icon {
+  width: 80px !important;
+  height: 80px !important;
+  background: rgba(220, 53, 69, 0.1) !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #dc3545 !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.modern-error-card h3 {
+  color: #2d3748 !important;
+  font-size: 1.5rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.modern-error-card p {
+  color: #718096 !important;
+  margin-bottom: 2rem !important;
+}
+
+.modern-retry-btn {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%) !important;
+  border: none !important;
+  color: white !important;
+  padding: 1rem 2rem !important;
+  border-radius: 12px !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+}
+
+.modern-retry-btn:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(220, 53, 69, 0.4) !important;
+}
+
+/* Spinner */
+.modern-spinner {
+  width: 3rem !important;
+  height: 3rem !important;
+  border: 4px solid rgba(102, 126, 234, 0.2) !important;
+  border-top: 4px solid #667eea !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+  margin: 0 auto 2rem !important;
+}
+
+/* Animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-20px); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .modern-hero-title {
+    font-size: 2rem !important;
   }
   
-  /* === Avatar Styling === */
-  .doctor-avatar {
-    width: 150px;
-    height: 150px;
-    object-fit: cover;
-    border-radius: 50%;
-    transition: transform 0.3s ease;
+  .modern-profile-header {
+    grid-template-columns: 1fr !important;
+    text-align: center !important;
+    gap: 2rem !important;
   }
   
-  .doctor-avatar:hover {
-    transform: scale(1.05);
+  .modern-doctor-name {
+    font-size: 2rem !important;
   }
   
-  /* === Profile Card === */
-  .profile-card {
-    background-color: #ffffff;
-    border-radius: 1rem;
-    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease-in-out;
+  .modern-contact-grid {
+    grid-template-columns: 1fr !important;
   }
   
-  .profile-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 1rem 2rem rgba(0, 123, 255, 0.2);
+  .modern-profile-actions {
+    flex-direction: column !important;
   }
   
-  /* === Card Content === */
-  .card-title {
-    font-size: 1.75rem;
-    font-weight: 600;
+  .modern-stats-grid {
+    grid-template-columns: 1fr !important;
   }
   
-  .card-body p {
-    font-size: 1rem;
-    color: #333;
+  .modern-content-wrapper {
+    padding: 2rem 1rem !important;
   }
   
-  .card-body hr {
-    border-color: #ddd;
+  .modern-profile-card {
+    padding: 2rem !important;
   }
-  
-  /* === Button Styling === */
-  .btn-outline-primary {
-    font-size: 1rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-  }
-  
-  .btn-outline-primary:hover {
-    background-color: #007bff;
-    color: #fff;
-    border-color: #007bff;
-  }
-  
-  /* === Loader & Error === */
-  .spinner-border {
-    width: 3rem;
-    height: 3rem;
-  }
-  
-  .alert-danger {
-    font-size: 1.1rem;
-    border-radius: 0.5rem;
-  }
-  
+}

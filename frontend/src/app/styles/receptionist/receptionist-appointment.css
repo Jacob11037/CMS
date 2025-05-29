@@ -1,0 +1,377 @@
+/* Error styling */
+.modern-error {
+  color: #dc3545 !important;
+  font-size: 0.875rem !important;
+  margin-top: 0.25rem !important;
+  display: block !important;
+  animation: slideIn 0.3s ease-out !important;
+}
+
+.modern-alert {
+  background: rgba(220, 53, 69, 0.1) !important;
+  border: 1px solid rgba(220, 53, 69, 0.2) !important;
+  border-radius: 12px !important;
+  padding: 1rem !important;
+  margin-top: 1rem !important;
+  animation: slideIn 0.3s ease-out !important;
+  color: #dc3545 !important;
+}
+
+/* Button styling */
+.modern-button/* Modern Appointment Form Styles - Matching Login Design */
+.modern-appointment-container {
+  min-height: calc(100vh - 120px);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  padding: 2rem !important;
+  position: relative !important;
+}
+
+.modern-appointment-header {
+  color: white !important;
+  font-size: 2.5rem !important;
+  font-weight: bold !important;
+  text-align: center !important;
+  margin-bottom: 2rem !important;
+  margin-top: 0 !important;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+}
+
+.modern-appointment-form {
+  max-width: 800px !important;
+  margin: 0 auto !important;
+  width: 100% !important;
+}
+
+.modern-appointment-card {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px) !important;
+  border-radius: 20px !important;
+  border: none !important;
+  box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1) !important;
+  padding: 2.5rem !important;
+  margin-bottom: 1.5rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+}
+
+.modern-appointment-card:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 30px 50px rgba(0, 0, 0, 0.15) !important;
+}
+
+.modern-card-header {
+  display: flex !important;
+  align-items: center !important;
+  margin-bottom: 2rem !important;
+  padding-bottom: 1rem !important;
+  border-bottom: 2px solid #e2e8f0 !important;
+  position: relative !important;
+}
+
+.modern-card-header::after {
+  content: '';
+  position: absolute !important;
+  bottom: -2px !important;
+  left: 0 !important;
+  width: 80px !important;
+  height: 2px !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+}
+
+.modern-card-icon {
+  width: 50px !important;
+  height: 50px !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-right: 1rem !important;
+  color: white !important;
+  animation: pulse 2s infinite !important;
+}
+
+.modern-card-title {
+  color: #2d3748 !important;
+  font-size: 1.5rem !important;
+  font-weight: bold !important;
+  margin: 0 !important;
+}
+
+.modern-form-group {
+  margin-bottom: 1.5rem !important;
+  position: relative !important;
+}
+
+.modern-form-label {
+  color: #4a5568 !important;
+  font-weight: 600 !important;
+  margin-bottom: 0.5rem !important;
+  display: block !important;
+  font-size: 0.9rem !important;
+}
+
+.modern-input-wrapper {
+  position: relative !important;
+}
+
+.modern-input, .modern-select {
+  width: 100% !important;
+  padding: 1rem 1rem 1rem 3rem !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  font-size: 1rem !important;
+  background: #fff !important;
+  transition: all 0.3s ease !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+
+.modern-input:focus, .modern-select:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+  transform: translateY(-1px) !important;
+}
+
+.modern-input:disabled, .modern-select:disabled {
+  background: #f7fafc !important;
+  color: #a0aec0 !important;
+  cursor: not-allowed !important;
+}
+
+.modern-input.is-invalid, .modern-select.is-invalid {
+  border-color: #dc3545 !important;
+}
+
+.modern-input-icon {
+  position: absolute !important;
+  left: 1rem !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  color: #a0aec0 !important;
+  z-index: 2 !important;
+}
+
+/* Dropdown for patient search */
+.modern-dropdown {
+  position: absolute !important;
+  top: 100% !important;
+  left: 0 !important;
+  right: 0 !important;
+  background: white !important;
+  border: 2px solid #e2e8f0 !important;
+  border-top: none !important;
+  border-radius: 0 0 12px 12px !important;
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  z-index: 10 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+}
+
+.modern-dropdown-item {
+  padding: 0.75rem 1rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  border-bottom: 1px solid #f7fafc !important;
+}
+
+.modern-dropdown-item:hover {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%) !important;
+  color: #667eea !important;
+}
+
+.modern-dropdown-item:last-child {
+  border-bottom: none !important;
+  border-radius: 0 0 10px 10px !important;
+}
+
+.patient-info {
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+.patient-name {
+  font-weight: 600 !important;
+  color: #2d3748 !important;
+}
+
+.patient-phone {
+  font-size: 0.85rem !important;
+  color: #718096 !important;
+}
+
+/* Fee display */
+.modern-fee-display {
+  display: flex !important;
+  align-items: center !important;
+  color: #2d3748 !important;
+  font-weight: 600 !important;
+  font-size: 1.1rem !important;
+  padding: 0.75rem 1rem !important;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%) !important;
+  border-radius: 8px !important;
+  border-left: 4px solid #667eea !important;
+}
+
+.modern-fee-display svg {
+  margin-right: 0.5rem !important;
+  color: #667eea !important;
+}
+
+/* Error styling */
+.error {
+  color: #dc3545 !important;
+  font-size: 0.875rem !important;
+  margin-top: 0.25rem !important;
+  display: block !important;
+  animation: slideIn 0.3s ease-out !important;
+}
+
+/* Button styling */
+.buttonGroup {
+  display: flex !important;
+  gap: 1rem !important;
+  flex-wrap: wrap !important;
+}
+
+.button {
+  padding: 1rem 2rem !important;
+  border: none !important;
+  border-radius: 12px !important;
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  min-width: 180px !important;
+  position: relative !important;
+}
+
+.submitButton {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+  flex: 1 !important;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
+}
+
+.submitButton:disabled {
+  background: #a0aec0 !important;
+  cursor: not-allowed !important;
+  transform: none !important;
+}
+
+.cancelButton {
+  background: white !important;
+  color: #4a5568 !important;
+  border: 2px solid #e2e8f0 !important;
+  flex: 1 !important;
+}
+
+.cancelButton:hover {
+  background: #f7fafc !important;
+  border-color: #cbd5e0 !important;
+  transform: translateY(-1px) !important;
+}
+
+/* Loading spinner */
+.loading {
+  display: inline-block !important;
+  width: 1rem !important;
+  height: 1rem !important;
+  border: 2px solid rgba(255, 255, 255, 0.3) !important;
+  border-top: 2px solid white !important;
+  border-radius: 50% !important;
+  animation: spin 1s linear infinite !important;
+  margin-right: 0.5rem !important;
+}
+
+/* Consultation fee display */
+.formGroup p {
+  color: #2d3748 !important;
+  font-weight: 600 !important;
+  font-size: 1.1rem !important;
+  margin: 0 !important;
+  padding: 0.75rem 1rem !important;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%) !important;
+  border-radius: 8px !important;
+  border-left: 4px solid #667eea !important;
+}
+
+/* Input type datetime-local and time specific styling */
+input[type="datetime-local"], input[type="time"] {
+  color-scheme: light !important;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-radius: 4px !important;
+  padding: 2px !important;
+  cursor: pointer !important;
+}
+
+/* Animations */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem !important;
+  }
+  
+  .header {
+    font-size: 2rem !important;
+  }
+  
+  .card {
+    padding: 1.5rem !important;
+  }
+  
+  .cardTitle {
+    font-size: 1.25rem !important;
+  }
+  
+  .buttonGroup {
+    flex-direction: column !important;
+  }
+  
+  .button {
+    min-width: 100% !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .header {
+    font-size: 1.75rem !important;
+  }
+  
+  .card {
+    padding: 1rem !important;
+  }
+  
+  .input, .select {
+    padding: 0.75rem !important;
+  }
+}

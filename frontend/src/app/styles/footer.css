@@ -1,115 +1,285 @@
-/* Footer Container */
+/* Modern Footer Styles - Matching Login Page Design */
+
 .footer-container {
-    margin-top: auto; /* Pushes footer to bottom */
-  }
-  
-  /* Main Footer Styles */
-  .footer {
-    background-color: #1a1a1a !important;
-    padding: 5rem 0 0 0 !important;
-    width: 100%;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+}
+
+.footer {
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.footer::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(circle at 20% 80%, rgba(102, 126, 234, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 80% 20%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.footer .container {
+  position: relative;
+  z-index: 1;
+}
+
+/* Footer Headings */
+.footer h5 {
+  color: #fff !important;
+  font-weight: 700 !important;
+  font-size: 1.2rem !important;
+  margin-bottom: 1.5rem !important;
+  position: relative !important;
+  padding-bottom: 0.5rem !important;
+}
+
+.footer h5::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 2px;
+}
+
+/* Footer Text */
+.footer p {
+  color: #cbd5e0 !important;
+  font-size: 0.95rem !important;
+  line-height: 1.6 !important;
+  margin-bottom: 1rem !important;
+}
+
+.footer p i {
+  color: #667eea !important;
+  width: 20px !important;
+  text-align: center !important;
+}
+
+/* Footer Links */
+.footer .btn-link {
+  color: #cbd5e0 !important;
+  text-decoration: none !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  display: block !important;
+  padding: 0.5rem 0 !important;
+  border: none !important;
+  text-align: left !important;
+  background: none !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  padding-left: 1rem !important;
+}
+
+.footer .btn-link::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 4px;
+  background: #667eea;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+}
+
+.footer .btn-link:hover {
+  color: #667eea !important;
+  transform: translateX(5px) !important;
+  text-decoration: none !important;
+}
+
+.footer .btn-link:hover::before {
+  background: #764ba2;
+  transform: translateY(-50%) scale(1.5);
+}
+
+/* Social Media Buttons */
+.btn-social {
+  width: 45px !important;
+  height: 45px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin-right: 0.75rem !important;
+  border: 2px solid rgba(102, 126, 234, 0.3) !important;
+  color: #cbd5e0 !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+.btn-social::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  transition: all 0.3s ease;
+  z-index: -1;
+}
+
+.btn-social:hover {
+  color: white !important;
+  border-color: #667eea !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+}
+
+.btn-social:hover::before {
+  left: 0;
+}
+
+/* Newsletter Section */
+.footer .form-control {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border: 2px solid rgba(102, 126, 234, 0.2) !important;
+  border-radius: 25px !important;
+  color: #fff !important;
+  font-size: 0.95rem !important;
+  padding: 0.75rem 1.25rem !important;
+  backdrop-filter: blur(10px) !important;
+  transition: all 0.3s ease !important;
+}
+
+.footer .form-control::placeholder {
+  color: #a0aec0 !important;
+}
+
+.footer .form-control:focus {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25) !important;
+  color: #fff !important;
+}
+
+.footer .btn-primary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  border-radius: 20px !important;
+  font-weight: 600 !important;
+  font-size: 0.9rem !important;
+  padding: 0.6rem 1.2rem !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4) !important;
+}
+
+.footer .btn-primary:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6) !important;
+}
+
+/* Back to Top Button */
+.back-to-top {
+  position: fixed !important;
+  bottom: 30px !important;
+  right: 30px !important;
+  width: 60px !important;
+  height: 60px !important;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border: none !important;
+  color: white !important;
+  font-size: 1.2rem !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4) !important;
+  z-index: 1000 !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+  transform: scale(0.8) !important;
+}
+
+.back-to-top.show {
+  opacity: 1 !important;
+  visibility: visible !important;
+  transform: scale(1) !important;
+}
+
+.back-to-top:hover {
+  transform: translateY(-5px) scale(1.1) !important;
+  box-shadow: 0 15px 35px rgba(102, 126, 234, 0.6) !important;
+  color: white !important;
+}
+
+/* Newsletter Input Container */
+.position-relative {
+  border-radius: 25px !important;
+  overflow: hidden !important;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .footer .container {
+    padding: 2rem 1rem !important;
   }
   
   .footer h5 {
-    color: #ffffff !important;
-    font-size: 1.25rem;
-    margin-bottom: 1.5rem;
-    font-weight: 600;
+    font-size: 1.1rem !important;
+    margin-bottom: 1rem !important;
   }
   
-  .footer p,
-  .footer a {
-    color: #b3b3b3 !important;
+  .btn-social {
+    width: 40px !important;
+    height: 40px !important;
+    margin-right: 0.5rem !important;
   }
   
-  /* Social Icons */
-  .footer .btn.btn-social {
-    margin-right: 0.5rem;
-    width: 2.5rem;
-    height: 2.5rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 50% !important;
-    transition: all 0.3s ease;
-  }
-  
-  .footer .btn.btn-social:hover {
-    color: #1a1a1a !important;
-    background: #ffffff !important;
-    border-color: #ffffff !important;
-  }
-  
-  /* Footer Links */
-  .footer .btn.btn-link {
-    display: block;
-    margin-bottom: 0.5rem;
-    padding: 0;
-    text-align: left;
-    color: #b3b3b3 !important;
-    font-weight: 400;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    position: relative;
-  }
-  
-  .footer .btn.btn-link::before {
-    position: relative;
-    content: "\f105";
-    font-family: "Font Awesome 5 Free";
-    font-weight: 900;
-    margin-right: 0.5rem;
-  }
-  
-  .footer .btn.btn-link:hover {
-    color: #ffffff !important;
-    letter-spacing: 0.5px;
-    box-shadow: none;
-  }
-  
-  /* Newsletter Input */
-  .footer .form-control {
-    background-color: rgba(255, 255, 255, 0.1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    color: #ffffff;
-  }
-  
-  .footer .form-control:focus {
-    box-shadow: none;
-    border-color: #ffffff;
-  }
-  
-  /* Back to Top Button */
   .back-to-top {
-    position: fixed;
-    display: none;
-    right: 20px;
-    bottom: 20px;
-    z-index: 999;
-    width: 45px;
-    height: 45px;
-    border-radius: 50% !important;
-    text-align: center;
-    line-height: 45px;
-    color: #ffffff;
-    font-size: 18px;
-    transition: all 0.3s ease;
+    width: 50px !important;
+    height: 50px !important;
+    bottom: 20px !important;
+    right: 20px !important;
+    font-size: 1rem !important;
   }
   
-  .back-to-top:hover {
-    background: #0d6efd !important;
-    color: #ffffff;
+  .footer .form-control {
+    margin-bottom: 0.5rem !important;
   }
   
-  /* Ensure footer stays at bottom */
-  body {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
+  .footer .btn-primary {
+    position: static !important;
+    width: 100% !important;
+    margin-top: 0.5rem !important;
   }
-  
-  main {
-    flex: 1;
+}
+
+/* Animation for footer content */
+.footer .row > div {
+  animation: fadeInUp 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+.footer .row > div:nth-child(1) { animation-delay: 0.1s; }
+.footer .row > div:nth-child(2) { animation-delay: 0.2s; }
+.footer .row > div:nth-child(3) { animation-delay: 0.3s; }
+.footer .row > div:nth-child(4) { animation-delay: 0.4s; }
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
   }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Additional hover effects */
+.footer .col-lg-3:hover {
+  transform: translateY(-5px);
+  transition: all 0.3s ease;
+}

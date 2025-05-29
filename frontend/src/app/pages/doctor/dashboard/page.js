@@ -132,13 +132,7 @@ const DoctorDashboard = () => {
           <div className="modern-dashboard-bg-circle-3"></div>
         </div>
         
-        {/* User Info */}
-        {doctorData && (
-          <div className="modern-dashboard-user-info">
-            {console.log(doctorData)}
-            👨‍⚕️ Dr. {doctorData?.first_name} 
-          </div>
-        )}
+        
         
         {/* Main Content */}
         <div className="modern-dashboard-content">

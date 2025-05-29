@@ -5,8 +5,7 @@ import { toast } from 'react-toastify';
 import withReceptionistAuth from '@/app/middleware/withReceptionistAuth';
 import { useAuth } from '@/app/context/AuthContext';
 import axiosPrivate from '../../../../../utils/axiosPrivate';
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'animate.css';
+import '../../../styles/receptionist/receptionist-viewbills.css'; // Import the modern styles
 
 function ViewBillsPage() {
   const [bills, setBills] = useState([]);
@@ -17,7 +16,7 @@ function ViewBillsPage() {
   const [maxAmount, setMaxAmount] = useState('');
   const [startDate, setStartDate] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const billsPerPage = 5;
+  const billsPerPage = 6;
   const { isAuthenticated } = useAuth();
   const router = useRouter();
 
@@ -65,7 +64,6 @@ function ViewBillsPage() {
       result = result.filter((bill) => new Date(bill.bill_date) >= new Date(startDate));
     }
 
-
     setFilteredBills(result);
     setCurrentPage(1);
   }, [bills, paymentStatus, minAmount, maxAmount, startDate]);
@@ -93,123 +91,215 @@ function ViewBillsPage() {
   };
 
   if (isAuthenticated === null) {
-    return <p className="text-center mt-5">Loading...</p>;
+    return (
+      <div className="modern-bills-container">
+        <div className="modern-bg-elements">
+          <div className="modern-bg-circle-1"></div>
+          <div className="modern-bg-circle-2"></div>
+        </div>
+        <div className="modern-loading">
+          <div className="modern-spinner"></div>
+          Loading...
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container mt-5">
-      <h2 className="text-center mb-4 animate__animated animate__fadeInDown">View Consultation Bills</h2>
-      {error && <div className="alert alert-danger">{error}</div>}
-
-      {/* Filters */}
-      <div className="row g-3 mb-4">
-        <div className="col-md-3">
-          <label className="form-label">Payment Status</label>
-          <select
-            className="form-select"
-            value={paymentStatus}
-            onChange={(e) => setPaymentStatus(e.target.value)}
-          >
-            <option value="All">All</option>
-            <option value="Paid">Paid</option>
-            <option value="Unpaid">Unpaid</option>
-          </select>
-        </div>
-
-        <div className="col-md-3">
-          <label className="form-label">Min Amount</label>
-          <input
-            type="number"
-            className="form-control"
-            value={minAmount}
-            onChange={(e) => setMinAmount(e.target.value)}
-            placeholder="₹ Min"
-          />
-        </div>
-
-        <div className="col-md-3">
-          <label className="form-label">Max Amount</label>
-          <input
-            type="number"
-            className="form-control"
-            value={maxAmount}
-            onChange={(e) => setMaxAmount(e.target.value)}
-            placeholder="₹ Max"
-          />
-        </div>
-
-        <div className="col-md-3">
-          <label className="form-label">Start Date</label>
-          <input
-            type="date"
-            className="form-control"
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-        </div>
-
-
-        <div className="col-md-3 d-flex align-items-end">
-          <button
-            onClick={handleResetFilters}
-            className="btn btn-outline-secondary w-100"
-          >
-            Reset Filters
-          </button>
-        </div>
+    <div className="modern-bills-container">
+      {/* Animated Background Elements */}
+      <div className="modern-bg-elements">
+        <div className="modern-bg-circle-1"></div>
+        <div className="modern-bg-circle-2"></div>
       </div>
 
-      {/* Bill Cards */}
-      <div className="row">
-        {currentBills.length > 0 ? (
-          currentBills.map((bill) => (
-            <div key={bill.id} className="col-md-6 col-lg-4 mb-4 animate__animated animate__fadeInUp">
-              <div className="card shadow-sm h-100 border-0 rounded-4">
-                <div className="card-body">
-                  {console.log(bill)}
-                <h5 className="card-title">Appointment ID: {bill.appointment.id}</h5>
-                <p className="card-text"><strong>Patient:</strong> {bill.appointment.patient_name}</p>
-                <p className="card-text"><strong>Doctor:</strong> {bill.appointment.doctor_name}</p>
-                <p className="card-text"><strong>Department:</strong> {bill.appointment.department_name}</p>
-                <p className="card-text"><strong>Start Time:</strong> {new Date(bill.appointment.start_time).toLocaleString()}</p>
-                <p className="card-text"><strong>Amount:</strong> ₹{parseFloat(bill.amount).toFixed(2)}</p>
-                <p className="card-text"><strong>Paid:</strong> {bill.paid ? 'Yes' : 'No'}</p>
-                <p className="card-text"><strong>Date:</strong> {new Date(bill.bill_date).toLocaleString()}</p>
+      <div className="container-fluid">
+        <div className="modern-bills-wrapper">
+          {/* Header */}
+          <div className="modern-bills-header">
+            <h1 className="modern-bills-title">Consultation Bills</h1>
+            <p className="modern-bills-subtitle">Manage and view all consultation billing records</p>
+          </div>
 
-                  <button onClick={() => handleEdit(bill.id)} className="btn btn-primary btn-sm mt-2">
-                    Edit
+          {/* Error Alert */}
+          {error && (
+            <div className="modern-error-alert">
+              {error}
+            </div>
+          )}
+
+          {/* Filters Section */}
+          <div className="modern-filters-section">
+            <div className="row g-3">
+              <div className="col-md-3">
+                <div className="modern-filter-group">
+                  <label className="modern-filter-label">Payment Status</label>
+                  <select
+                    className="modern-filter-select"
+                    value={paymentStatus}
+                    onChange={(e) => setPaymentStatus(e.target.value)}
+                  >
+                    <option value="All">All Status</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Unpaid">Unpaid</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="col-md-2">
+                <div className="modern-filter-group">
+                  <label className="modern-filter-label">Min Amount</label>
+                  <input
+                    type="number"
+                    className="modern-filter-input"
+                    value={minAmount}
+                    onChange={(e) => setMinAmount(e.target.value)}
+                    placeholder="₹ 0"
+                  />
+                </div>
+              </div>
+
+              <div className="col-md-2">
+                <div className="modern-filter-group">
+                  <label className="modern-filter-label">Max Amount</label>
+                  <input
+                    type="number"
+                    className="modern-filter-input"
+                    value={maxAmount}
+                    onChange={(e) => setMaxAmount(e.target.value)}
+                    placeholder="₹ 999999"
+                  />
+                </div>
+              </div>
+
+              <div className="col-md-3">
+                <div className="modern-filter-group">
+                  <label className="modern-filter-label">Start Date</label>
+                  <input
+                    type="date"
+                    className="modern-filter-input"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="col-md-2 d-flex align-items-end">
+                <div className="modern-filter-group w-100">
+                  <button
+                    onClick={handleResetFilters}
+                    className="modern-reset-btn"
+                  >
+                    Reset Filters
                   </button>
                 </div>
               </div>
             </div>
-          ))
-        ) : (
-          <p className="text-center">No bills match the filters.</p>
-        )}
-      </div>
+          </div>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="d-flex justify-content-center align-items-center mt-4">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            className="btn btn-outline-secondary mx-2"
-            disabled={currentPage === 1}
-          >
-            Previous
-          </button>
-          <span className="fw-semibold">
-            Page {currentPage} of {totalPages}
-          </span>
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            className="btn btn-outline-secondary mx-2"
-            disabled={currentPage === totalPages}
-          >
-            Next
-          </button>
+          {/* Bill Cards */}
+          <div className="row">
+            {currentBills.length > 0 ? (
+              currentBills.map((bill) => (
+                <div key={bill.id} className="col-lg-4 col-md-6 mb-4">
+                  <div className="modern-bill-card">
+                    <h5 className="modern-bill-title">
+                      Appointment #{bill.appointment.id}
+                    </h5>
+                    
+                    <div className="modern-bill-detail">
+                      <span className="modern-bill-label">Patient:</span>
+                      <span className="modern-bill-value">{bill.appointment.patient_name}</span>
+                    </div>
+                    
+                    <div className="modern-bill-detail">
+                      <span className="modern-bill-label">Doctor:</span>
+                      <span className="modern-bill-value">{bill.appointment.doctor_name}</span>
+                    </div>
+                    
+                    <div className="modern-bill-detail">
+                      <span className="modern-bill-label">Department:</span>
+                      <span className="modern-bill-value">{bill.appointment.department_name}</span>
+                    </div>
+                    
+                    <div className="modern-bill-detail">
+                      <span className="modern-bill-label">Start Time:</span>
+                      <span className="modern-bill-value">
+                        {new Date(bill.appointment.start_time).toLocaleDateString()} at{' '}
+                        {new Date(bill.appointment.start_time).toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                    
+                    <div className="modern-bill-detail">
+                      <span className="modern-bill-label">Amount:</span>
+                      <span className="modern-bill-value modern-bill-amount">
+                        ₹{parseFloat(bill.amount).toFixed(2)}
+                      </span>
+                    </div>
+                    
+                    <div className="modern-bill-detail">
+                      <span className="modern-bill-label">Payment Status:</span>
+                      <span className={`modern-paid-status ${bill.paid ? 'modern-paid-yes' : 'modern-paid-no'}`}>
+                        {bill.paid ? 'Paid' : 'Unpaid'}
+                      </span>
+                    </div>
+                    
+                    <div className="modern-bill-detail">
+                      <span className="modern-bill-label">Bill Date:</span>
+                      <span className="modern-bill-value">
+                        {new Date(bill.bill_date).toLocaleDateString()}
+                      </span>
+                    </div>
+
+                    <button 
+                      onClick={() => handleEdit(bill.id)} 
+                      className="modern-edit-btn"
+                    >
+                      Edit Bill Details
+                    </button>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-12">
+                <div className="modern-no-results">
+                  No bills match the current filters.
+                  <br />
+                  <small>Try adjusting your filter criteria or reset filters to see all bills.</small>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="modern-pagination">
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                className="modern-pagination-btn"
+                disabled={currentPage === 1}
+              >
+                ← Previous
+              </button>
+              
+              <div className="modern-pagination-info">
+                Page {currentPage} of {totalPages}
+              </div>
+              
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                className="modern-pagination-btn"
+                disabled={currentPage === totalPages}
+              >
+                Next →
+              </button>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }

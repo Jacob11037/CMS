@@ -7,12 +7,6 @@ import styles from '../styles/receptionist/viewAppointments.module.css'; // Impo
 import { motion, AnimatePresence } from 'framer-motion'; // Import framer-motion
 import { formatDateTime, formatTimeOnly } from '@/utils/dateFormatter';
 
-// Ensure Bootstrap CSS is imported globally, e.g., in your layout.js or _app.js
-// import 'bootstrap/dist/css/bootstrap.min.css';
-// Ensure Bootstrap Icons are set up if you want to use them
-// import 'bootstrap-icons/font/bootstrap-icons.css';
-
-
 export default function ViewAppointmentsPage() {
   const [appointments, setAppointments] = useState([]);
   const [error, setError] = useState('');
@@ -28,7 +22,6 @@ export default function ViewAppointmentsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [appointmentToDelete, setAppointmentToDelete] = useState(null);
-
 
   const router = useRouter();
   const { isAuthenticated } = useAuth();
@@ -80,7 +73,6 @@ export default function ViewAppointmentsPage() {
     fetchAppointments();
   }, [isAuthenticated, router, currentPage, filters]);
 
-
   const handleDeleteAppointment = (appointmentId) => {
     setAppointmentToDelete(appointmentId);
     setShowDeleteModal(true);
@@ -103,8 +95,6 @@ export default function ViewAppointmentsPage() {
       setAppointmentToDelete(null);
     }
   };
-  
-  
 
   // Renamed for clarity - navigates to the create form for rescheduling
   const navigateToReschedule = (appointment) => {
@@ -122,7 +112,6 @@ export default function ViewAppointmentsPage() {
   const navigateToUpdate = (appointmentId) => {
     router.push(`/pages/receptionist/update-appointment/${appointmentId}`);
   };
-
 
   const handleFilterChange = (e) => {
     const { name, value } = e.target;
@@ -167,233 +156,368 @@ export default function ViewAppointmentsPage() {
     visible: { opacity: 1, height: 'auto', transition: { duration: 0.4, ease: 'easeInOut' } }
   };
 
-
   if (isAuthenticated === null) {
-    return <p className={`text-center mt-5 ${styles.loadingText}`}>Loading authentication...</p>;
+    return (
+      <>
+        <link 
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" 
+          rel="stylesheet" 
+        />
+        <link 
+          rel="stylesheet" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" 
+        />
+        <div className={styles.container}>
+          <p className={styles.loadingText}>Loading authentication...</p>
+        </div>
+      </>
+    );
   }
 
-
   return (
-    <motion.div
-      className={styles.container}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
-      <h1 className={styles.header}>View Appointments</h1>
-
-      <div className="d-flex justify-content-end mb-3">
-        <button
-          className={`btn btn-outline-secondary ${styles.filtersToggle}`}
-          onClick={() => setShowFilters(!showFilters)}
-          aria-expanded={showFilters}
-          aria-controls="filters-panel"
+    <>
+      {/* Bootstrap CSS and Icons */}
+      <link 
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" 
+        rel="stylesheet" 
+      />
+      <link 
+        rel="stylesheet" 
+        href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.0/font/bootstrap-icons.min.css" 
+      />
+      
+      <motion.div
+        className={styles.container}
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+      >
+        <motion.h1 
+          className={styles.header}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1 }}
         >
-          {showFilters ? 'Hide Filters' : 'Show Filters'} <i className={`bi bi-chevron-${showFilters ? 'up' : 'down'}`}></i>
-        </button>
-      </div>
+          <i className="bi bi-calendar-check me-3"></i>
+          View Appointments
+        </motion.h1>
 
-       <AnimatePresence>
-            {showFilters && (
-                <motion.div
-                    id="filters-panel"
-                    className={`${styles.filtersCard} mb-4`}
-                    initial="hidden"
-                    animate="visible"
-                    exit="hidden"
-                    variants={filtersVariants}
+        <motion.div 
+          className="d-flex justify-content-end mb-3"
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+        >
+          <button
+            className={styles.filtersToggle}
+            onClick={() => setShowFilters(!showFilters)}
+            aria-expanded={showFilters}
+            aria-controls="filters-panel"
+          >
+            <i className={`bi bi-funnel me-2`}></i>
+            {showFilters ? 'Hide Filters' : 'Show Filters'} 
+            <i className={`bi bi-chevron-${showFilters ? 'up' : 'down'} ms-2`}></i>
+          </button>
+        </motion.div>
+
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              id="filters-panel"
+              className={styles.filtersCard}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              variants={filtersVariants}
+            >
+              <h5>
+                <i className="bi bi-search me-2"></i>
+                Filter Appointments
+              </h5>
+              <div className="row g-3">
+                <div className="col-md-6 col-lg-3">
+                  <label className="form-label text-muted small fw-semibold">Patient Name</label>
+                  <div className="position-relative">
+                    <input
+                      type="text"
+                      name="patient_name"
+                      className={styles.formControl}
+                      placeholder="Search Patient Name"
+                      value={filters.patient_name}
+                      onChange={handleFilterChange}
+                    />
+                    <i className="bi bi-person position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
+                  </div>
+                </div>
+                <div className="col-md-6 col-lg-3">
+                  <label className="form-label text-muted small fw-semibold">Doctor Name</label>
+                  <div className="position-relative">
+                    <input
+                      type="text"
+                      name="doctor_name"
+                      className={styles.formControl}
+                      placeholder="Search Doctor Name"
+                      value={filters.doctor_name}
+                      onChange={handleFilterChange}
+                    />
+                    <i className="bi bi-person-badge position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
+                  </div>
+                </div>
+                <div className="col-md-6 col-lg-3">
+                  <label className="form-label text-muted small fw-semibold">Date</label>
+                  <div className="position-relative">
+                    <input
+                      type="date"
+                      name="start_time"
+                      className={styles.formControl}
+                      value={filters.start_time}
+                      onChange={handleFilterChange}
+                    />
+                    <i className="bi bi-calendar3 position-absolute top-50 end-0 translate-middle-y me-3 text-muted"></i>
+                  </div>
+                </div>
+                <div className="col-md-6 col-lg-3">
+                  <label className="form-label text-muted small fw-semibold">Status</label>
+                  <div className="position-relative">
+                    <select
+                      name="status"
+                      className={styles.formSelect}
+                      value={filters.status}
+                      onChange={handleFilterChange}
+                    >
+                      <option value="">All Statuses</option>
+                      <option value="Pending">Pending</option>
+                      <option value="Completed">Completed</option>
+                      <option value="Cancelled">Cancelled</option>
+                    </select>
+                    <i className="bi bi-flag position-absolute top-50 end-0 translate-middle-y me-3 text-muted" style={{pointerEvents: 'none'}}></i>
+                  </div>
+                </div>
+              </div>
+              <div className="mt-3 text-end">
+                <button 
+                  className="btn btn-outline-secondary btn-sm rounded-pill px-3"
+                  onClick={resetFilters}
                 >
-                    <h5>Filter Appointments</h5>
-                     <div className="row g-3">
-                        <div className="col-md-6 col-lg-3">
-                            <input
-                            type="text"
-                            name="patient_name"
-                            className={`form-control ${styles.formControl}`}
-                            placeholder="Search Patient Name"
-                            value={filters.patient_name}
-                            onChange={handleFilterChange}
-                            />
-                        </div>
-                        <div className="col-md-6 col-lg-3">
-                            <input
-                            type="text"
-                            name="doctor_name"
-                             className={`form-control ${styles.formControl}`}
-                            placeholder="Search Doctor Name"
-                            value={filters.doctor_name}
-                            onChange={handleFilterChange}
-                            />
-                        </div>
-                        <div className="col-md-6 col-lg-3">
-                            <input
-                            type="date"
-                            name="start_time"
-                            className={`form-control ${styles.formControl}`}
-                            value={filters.start_time}
-                            onChange={handleFilterChange}
-                            />
-                        </div>
-                        <div className="col-md-6 col-lg-3">
-                            <select
-                            name="status"
-                            className={`form-select ${styles.formSelect}`}
-                            value={filters.status}
-                            onChange={handleFilterChange}
-                            >
-                            <option value="">All Statuses</option>
-                            <option value="Pending">Pending</option>
-                            <option value="Completed">Completed</option>
-                            <option value="Cancelled">Cancelled</option>
-                            </select>
-                        </div>
-                    </div>
-                     <div className="mt-3 text-end">
-                        <button className="btn btn-outline-secondary btn-sm" onClick={resetFilters}>
-                            Reset Filters
-                        </button>
-                    </div>
-                </motion.div>
-            )}
+                  <i className="bi bi-arrow-clockwise me-1"></i>
+                  Reset Filters
+                </button>
+              </div>
+            </motion.div>
+          )}
         </AnimatePresence>
 
+        {isLoading ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center"
+          >
+            <p className={styles.loadingText}>Loading appointments...</p>
+          </motion.div>
+        ) : error ? (
+          <motion.div 
+            className={`alert ${styles.errorText}`} 
+            role="alert"
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
+          >
+            <i className="bi bi-exclamation-triangle me-2"></i>
+            {error}
+          </motion.div>
+        ) : appointments.length > 0 ? (
+          <motion.div 
+            className={styles.appointmentsCard} 
+            layout
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.3 }}
+          >
+            <AnimatePresence mode="popLayout">
+              {appointments.map((appointment, index) => (
+                <motion.div
+                  key={appointment.id}
+                  className={styles.appointmentItem}
+                  variants={itemVariants}
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  layout
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                >
+                  <div className={styles.appointmentDetails}>
+                    <p>
+                      <i className="bi bi-person-fill me-2 text-primary"></i>
+                      <strong>Patient:</strong> {appointment.patient_name}
+                    </p>
+                    <p>
+                      <i className="bi bi-person-badge-fill me-2 text-info"></i>
+                      <strong>Doctor:</strong> {appointment.doctor_name}
+                    </p>
+                    <p>
+                      <i className="bi bi-clock-fill me-2 text-success"></i>
+                      <strong>Time:</strong> {formatDateTime(appointment.start_time)} to {formatTimeOnly(appointment.end_time)}
+                    </p>
+                    <p>
+                      <i className="bi bi-flag-fill me-2 text-warning"></i>
+                      <strong>Status:</strong>{' '}
+                      <span className={`${styles.statusBadge} ${getStatusClass(appointment.status)}`}>
+                        {appointment.status}
+                      </span>
+                    </p>
+                  </div>
+                  <div className={styles.buttonGroup}>
+                    <motion.button
+                      className={`btn btn-sm btn-primary ${styles.actionButton}`}
+                      onClick={() => navigateToUpdate(appointment.id)}
+                      title="Update Appointment Details"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <i className="bi bi-pencil-square"></i> Update
+                    </motion.button>
 
-      {isLoading ? (
-        <p className={styles.loadingText}>Loading appointments...</p>
-      ) : error ? (
-        <div className={`alert alert-danger ${styles.errorText}`} role="alert">
-          {error}
-        </div>
-      ) : appointments.length > 0 ? (
-        <motion.div className={styles.appointmentsCard} layout>
-           <AnimatePresence>
-            {appointments.map((appointment) => (
-              <motion.div
-                key={appointment.id}
-                className={styles.appointmentItem}
-                variants={itemVariants}
-                initial="hidden"
-                animate="visible"
-                exit="hidden"
-                layout
-              >
-                <div className={styles.appointmentDetails}>
-                  <p><strong>Patient:</strong> {appointment.patient_name}</p>
-                  <p><strong>Doctor:</strong> {appointment.doctor_name}</p>
-                  <p>
-                    <strong>Time:</strong> {formatDateTime(appointment.start_time)} to {formatTimeOnly(appointment.end_time)}
-                  </p>
-                  <p>
-                    <strong>Status:</strong>{' '}
-                    <span className={`${styles.statusBadge} ${getStatusClass(appointment.status)}`}>
-                      {appointment.status}
-                    </span>
-                  </p>
-                </div>
-                <div className={styles.buttonGroup}>
-                  {/* *** UPDATE BUTTON ADDED *** */}
-                  <button
-                    className={`btn btn-sm btn-primary ${styles.actionButton}`} // Primary color for update
-                    onClick={() => navigateToUpdate(appointment.id)}
-                    title="Update Appointment Details"
-                  >
-                    <i className="bi bi-pencil-square"></i> Update {/* Pencil icon */}
-                  </button>
-                   {/* --- End Update Button --- */}
+                    <motion.button
+                      className={`btn btn-sm btn-info text-white ${styles.actionButton}`}
+                      onClick={() => navigateToReschedule(appointment)}
+                      title="Reschedule Appointment Time/Date"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <i className="bi bi-calendar-event"></i> Reschedule
+                    </motion.button>
 
-                  <button
-                    className={`btn btn-sm btn-info text-white ${styles.actionButton}`}
-                    onClick={() => navigateToReschedule(appointment)}
-                    title="Reschedule Appointment Time/Date"
-                  >
-                   <i className="bi bi-calendar-event"></i> Reschedule
-                  </button>
-
-                  <button
-                    className={`btn btn-sm btn-danger ${styles.actionButton}`}
-                    onClick={() => handleDeleteAppointment(appointment.id)}
-                    title="Delete Appointment"
-                  >
-                    <i className="bi bi-trash"></i> Delete
-                  </button>
-                </div>
-              </motion.div>
-            ))}
+                    <motion.button
+                      className={`btn btn-sm btn-danger ${styles.actionButton}`}
+                      onClick={() => handleDeleteAppointment(appointment.id)}
+                      title="Delete Appointment"
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <i className="bi bi-trash"></i> Delete
+                    </motion.button>
+                  </div>
+                </motion.div>
+              ))}
             </AnimatePresence>
 
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <nav aria-label="Page navigation" className={styles.paginationContainer}>
-              <ul className="pagination pagination-sm">
-                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
-                  <button
-                    className="page-link"
-                    onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                    disabled={currentPage === 1}
-                  >
-                    Previous
-                  </button>
-                </li>
-                 <li className="page-item disabled">
-                    <span className="page-link">Page {currentPage} of {totalPages}</span>
-                 </li>
-                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
-                  <button
-                    className="page-link"
-                    onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                    disabled={currentPage === totalPages}
-                  >
-                    Next
-                  </button>
-                </li>
-              </ul>
-            </nav>
-          )}
-        </motion.div>
-      ) : (
-         <div className={`${styles.appointmentsCard} text-center p-4`}>
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <motion.nav 
+                aria-label="Page navigation" 
+                className={styles.paginationContainer}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+              >
+                <ul className="pagination pagination-sm">
+                  <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                      disabled={currentPage === 1}
+                    >
+                      <i className="bi bi-chevron-left"></i> Previous
+                    </button>
+                  </li>
+                  <li className="page-item disabled">
+                    <span className="page-link">
+                      <i className="bi bi-file-text me-1"></i>
+                      Page {currentPage} of {totalPages}
+                    </span>
+                  </li>
+                  <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                    <button
+                      className="page-link"
+                      onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next <i className="bi bi-chevron-right"></i>
+                    </button>
+                  </li>
+                </ul>
+              </motion.nav>
+            )}
+          </motion.div>
+        ) : (
+          <motion.div 
+            className={`${styles.appointmentsCard} text-center p-4`}
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5 }}
+          >
+            <i className="bi bi-calendar-x display-1 text-muted mb-3"></i>
             <p className={styles.noAppointmentsText}>No appointments found matching your criteria.</p>
-        </div>
-      )}
-      {/* Delete Confirmation Modal */}
-<div className="modal fade show" style={{ display: showDeleteModal ? 'block' : 'none' }} tabIndex="-1" role="dialog">
-  <div className="modal-dialog modal-dialog-centered" role="document">
-    <div className="modal-content">
-      <div className="modal-header">
-        <h5 className="modal-title">Confirm Deletion</h5>
-        <button
-          type="button"
-          className="btn-close"
-          onClick={() => setShowDeleteModal(false)}
-          aria-label="Close"
-        ></button>
-      </div>
-      <div className="modal-body">
-        <p>Are you sure you want to delete this appointment?</p>
-      </div>
-      <div className="modal-footer">
-        <button
-          type="button"
-          className="btn btn-secondary"
-          onClick={() => setShowDeleteModal(false)}
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          className="btn btn-danger"
-          onClick={confirmDeleteAppointment}
-        >
-          Delete
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+            <p className="text-muted small">Try adjusting your filters or check back later.</p>
+          </motion.div>
+        )}
 
-{/* Modal backdrop */}
-{showDeleteModal && <div className="modal-backdrop fade show"></div>}
-
-    </motion.div>
+        {/* Enhanced Delete Confirmation Modal */}
+        <AnimatePresence>
+          {showDeleteModal && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="modal fade show" style={{ display: 'block' }} tabIndex="-1" role="dialog">
+                <div className="modal-dialog modal-dialog-centered" role="document">
+                  <motion.div 
+                    className="modal-content"
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeOut" }}
+                  >
+                    <div className="modal-header">
+                      <h5 className="modal-title">
+                        <i className="bi bi-exclamation-triangle me-2"></i>
+                        Confirm Deletion
+                      </h5>
+                      <button
+                        type="button"
+                        className="btn-close"
+                        onClick={() => setShowDeleteModal(false)}
+                        aria-label="Close"
+                      ></button>
+                    </div>
+                    <div className="modal-body">
+                      <div className="d-flex align-items-center">
+                        <i className="bi bi-trash3 text-danger fs-1 me-3"></i>
+                        <div>
+                          <p className="mb-1 fw-semibold">Are you sure you want to delete this appointment?</p>
+                          <p className="text-muted small mb-0">This action cannot be undone.</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="modal-footer">
+                      <button
+                        type="button"
+                        className="btn btn-secondary"
+                        onClick={() => setShowDeleteModal(false)}
+                      >
+                        <i className="bi bi-x-circle me-1"></i>
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        className="btn btn-danger"
+                        onClick={confirmDeleteAppointment}
+                      >
+                        <i className="bi bi-trash me-1"></i>
+                        Delete
+                      </button>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+              <div className="modal-backdrop fade show"></div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </>
   );
 }

@@ -34,7 +34,6 @@ export default function LoginPage() {
     if (isAuthenticated) {
       if (redirectTo && redirectTo !== '/') {
         router.push(redirectTo);
-        window.location.reload();
       } else {
         checkRole();
       }
@@ -62,7 +61,6 @@ export default function LoginPage() {
       };
       const destination = routes[userRole] || '/pages/forbidden';
       router.push(destination);
-      window.location.reload();
     }
   }, [userRole, router]);
 
@@ -103,7 +101,6 @@ const handleSubmit = async (e) => {
       await checkRole();
     } else {
       router.push(redirectTo);
-      window.location.reload();
     }
   } catch (error) {
     console.error(error);
