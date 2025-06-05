@@ -65,7 +65,6 @@ export default function RootLayout({ children }) {
             <main className="layout-main">
               {children}
             </main>
-            {/* <Footer /> */}
           </div>
 
           <ToastContainer
